@@ -22,7 +22,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
         required
         value={value}
         onChange={onChange}
-        className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
       >
         <option value="">Select a token</option>
         {mockPortfolio.map((item) => (

@@ -21,7 +21,7 @@ export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
         value={value}
         onChange={onChange}
         rows={4}
-        className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        className=" bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         placeholder="Explain your investment thesis..."
       />
     </div>

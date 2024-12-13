@@ -16,7 +16,7 @@ export const useNetworkColor = () => {
   const { resolvedTheme } = useTheme();
   const { targetNetwork } = useTargetNetwork();
 
-  const isDarkMode = resolvedTheme === "light";
+  const isDarkMode = false;
 
   return getNetworkColor(targetNetwork, isDarkMode);
 };

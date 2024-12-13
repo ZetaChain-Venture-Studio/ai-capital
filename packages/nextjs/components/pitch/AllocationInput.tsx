@@ -38,7 +38,7 @@ export default function AllocationInput({ value, onChange }: AllocationInputProp
           required
           value={value}
           onChange={handleChange}
-          className={`w-full rounded-md border py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent ${
+          className={`bg-white w-full rounded-md border py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent ${
             !validation.isValid
               ? 'border-red-300 focus:ring-red-500'
               : 'border-gray-300'

@@ -50,7 +50,7 @@ export default function PitchForm() {
             required
             value={formData.token}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
           >
             <option value="">Select a token</option>
             {mockPortfolio.map((item) => (
@@ -94,7 +94,7 @@ export default function PitchForm() {
         <div>
           <label
             htmlFor="allocation"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 bg-white"
           >
             Allocation Percentage (0-100)
           </label>
@@ -107,7 +107,8 @@ export default function PitchForm() {
             required
             value={formData.allocation}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            style={{ backgroundColor: 'white' }}
           />
         </div>
 
@@ -125,7 +126,7 @@ export default function PitchForm() {
             value={formData.pitch}
             onChange={handleChange}
             rows={4}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
             placeholder="Explain your investment thesis..."
           />
         </div>
