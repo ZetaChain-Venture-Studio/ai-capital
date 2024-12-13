@@ -7,12 +7,18 @@ import AllocationInput from '../../components/pitch/AllocationInput';
 import PitchTextarea from '../../components/pitch/PitchTextarea';
 import StatusMessage from '../../components/pitch/StatusMessage';
 import { validateAllocation } from '../../lib/utils';
+import Chat from '~~/components/pitch/Chat';
 
-interface FormData {
+export interface FormData {
   token: string;
   tradeType: string;
   allocation: string;
   pitch: string;
+}
+
+export interface AIResponse extends FormData {
+  aiResponseText: string;
+  success: boolean;
 }
 
 export default function Pitch() {
@@ -24,10 +30,11 @@ export default function Pitch() {
   });
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [messages, setMessages] = useState<AIResponse[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate allocation
     const allocationValidation = validateAllocation(formData.allocation);
     if (!allocationValidation.isValid) {
@@ -46,6 +53,7 @@ export default function Pitch() {
     console.log('Form submitted:', formData);
     setStatus('success');
     setErrorMessage('');
+    sendMessage();
   };
 
   const handleChange = (
@@ -59,9 +67,39 @@ export default function Pitch() {
     setErrorMessage('');
   };
 
+  const sendMessage = async () => {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userMessage: JSON.stringify(formData),
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Respuesta de OpenAI:", data);
+
+      const aiResponse = JSON.parse(data.content);
+
+      const newResponse: AIResponse = {
+        ...formData,
+        aiResponseText: aiResponse.aiResponseText,
+        success: aiResponse.success,
+      };
+
+      setMessages(prevMessages => [...prevMessages, newResponse]);
+
+    } else {
+      console.error("Error al llamar a la API:", response.status);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Submit a Pitch</h1>
 
@@ -73,14 +111,13 @@ export default function Pitch() {
               onChange={handleChange}
             />
             <PitchTextarea value={formData.pitch} onChange={handleChange} />
-            
+
             {status !== 'idle' && (
               <div
-                className={`p-4 rounded-md ${
-                  status === 'success'
-                    ? 'bg-green-50 text-green-800'
-                    : 'bg-red-50 text-red-800'
-                }`}
+                className={`p-4 rounded-md ${status === 'success'
+                  ? 'bg-green-50 text-green-800'
+                  : 'bg-red-50 text-red-800'
+                  }`}
               >
                 <p>{status === 'success' ? 'Pitch submitted successfully!' : errorMessage}</p>
               </div>
@@ -94,6 +131,8 @@ export default function Pitch() {
             </button>
           </form>
         </div>
+
+        <Chat messages={messages} />
       </div>
     </div>
   );
