@@ -15,7 +15,7 @@ export default function PitchForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.pitch.length < 100) {
+    if (formData.pitch.length < 1) {
       setStatus('error');
       return;
     }
@@ -117,7 +117,7 @@ export default function PitchForm() {
             htmlFor="pitch"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            Investment Pitch (minimum 100 characters)
+            Investment Pitch
           </label>
           <textarea
             id="pitch"
@@ -148,7 +148,7 @@ export default function PitchForm() {
               <p>
                 {status === 'success'
                   ? 'Pitch submitted successfully!'
-                  : 'Please ensure your pitch is at least 100 characters.'}
+                  : 'Please ensure your pitch is at least 1 character.'}
               </p>
             </div>
           </div>

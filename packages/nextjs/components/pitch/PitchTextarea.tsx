@@ -12,7 +12,7 @@ export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
         htmlFor="pitch"
         className="block text-sm font-medium text-gray-700 mb-2"
       >
-        Investment Pitch (minimum 100 characters)
+        Investment Pitch
       </label>
       <textarea
         id="pitch"
