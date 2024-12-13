@@ -24,7 +24,7 @@ export default function StatusMessage({ status }: StatusMessageProps) {
         <p>
           {status === 'success'
             ? 'Pitch submitted successfully!'
-            : 'Please ensure your pitch is at least 100 characters.'}
+            : 'Please ensure your pitch is at least 1 character.'}
         </p>
       </div>
     </div>
