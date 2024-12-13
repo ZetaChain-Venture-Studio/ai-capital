@@ -18,18 +18,16 @@ export default function HomePage() {
             <Brain className="h-16 w-16 text-gray-900" />
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
-            AI Capital: Your AI-Driven Hedge Fund
+            AI Game: Convince the AI to Invest in Your Token
           </h1>
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-600 mb-4">
-              Harness the power of artificial intelligence to revolutionize your
-              investment strategy. Our advanced algorithms analyze market patterns,
-              predict trends, and execute trades with unprecedented precision.
+              Play the game by pitching your favorite token
+              to our advanced AI and see if you can convince it to invest.
             </p>
             <p className="text-xl text-gray-600 mb-12">
-              Join the future of algorithmic trading where AI-driven decisions meet
-              human expertise, delivering consistent returns in any market
-              condition.
+              Challenge yourself in this interactive game where AI meets human
+              ingenuity.
             </p>
             <button
               onClick={handleGetStarted}
