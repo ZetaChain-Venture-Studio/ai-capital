@@ -1,8 +1,8 @@
 'use client';
 
-import PerformanceMetrics from '@/components/metrics/PerformanceMetrics';
-import PitchForm from '@/components/pitch/PitchForm';
-import PortfolioTable from '@/components/portfolio/PortfolioTable';
+import PerformanceMetrics from '../../components/metrics/PerformanceMetrics';
+import PitchForm from '../../components/pitch/PitchForm';
+import PortfolioTable from '../../components/portfolio/PortfolioTable';
 import { useState } from 'react';
 
 export default function Dashboard() {
