@@ -6,15 +6,21 @@ import TradeTypeSelect from '../../components/pitch/TradeTypeSelect';
 import AllocationInput from '../../components/pitch/AllocationInput';
 import PitchTextarea from '../../components/pitch/PitchTextarea';
 import { validateAllocation } from '../../lib/utils';
+import Chat from '~~/components/pitch/Chat';
 
 import { useScaffoldWriteContract } from '~~/hooks/scaffold-eth';
 import { parseEther } from 'viem';
 
-interface FormData {
+export interface FormData {
   token: string;
   tradeType: string;
   allocation: string;
   pitch: string;
+}
+
+export interface AIResponse extends FormData {
+  aiResponseText: string;
+  success: boolean;
 }
 
 export default function Pitch() {
@@ -26,6 +32,7 @@ export default function Pitch() {
   });
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [messages, setMessages] = useState<AIResponse[]>([]);
 
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
 
@@ -49,6 +56,7 @@ export default function Pitch() {
 
     console.log('Form submitted:', formData);
     setErrorMessage('');
+    sendMessage();
   };
 
   const handleChange = (
@@ -62,9 +70,39 @@ export default function Pitch() {
     setErrorMessage('');
   };
 
+  const sendMessage = async () => {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userMessage: JSON.stringify(formData),
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Respuesta de OpenAI:", data);
+
+      const aiResponse = JSON.parse(data.content);
+
+      const newResponse: AIResponse = {
+        ...formData,
+        aiResponseText: aiResponse.aiResponseText,
+        success: aiResponse.success,
+      };
+
+      setMessages(prevMessages => [...prevMessages, newResponse]);
+
+    } else {
+      console.error("Error al llamar a la API:", response.status);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Submit a Pitch</h1>
 
@@ -114,6 +152,8 @@ export default function Pitch() {
             </button>
           </form>
         </div>
+
+        <Chat messages={messages} />
       </div>
     </div>
   );
