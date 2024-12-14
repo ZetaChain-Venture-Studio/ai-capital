@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TokenSelect from '../../components/pitch/TokenSelect';
 import TradeTypeSelect from '../../components/pitch/TradeTypeSelect';
 import AllocationInput from '../../components/pitch/AllocationInput';
 import PitchTextarea from '../../components/pitch/PitchTextarea';
 import { validateAllocation } from '../../lib/utils';
 import Chat from '~~/components/pitch/Chat';
+import { useAccount } from 'wagmi';
 
 import { useScaffoldWriteContract } from '~~/hooks/scaffold-eth';
 import { parseEther } from 'viem';
@@ -33,6 +34,7 @@ export default function Pitch() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [messages, setMessages] = useState<AIResponse[]>([]);
+  const { address } = useAccount();
 
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
 
@@ -76,13 +78,14 @@ export default function Pitch() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        address: address,
         userMessage: JSON.stringify(formData),
       }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      console.log("Respuesta de OpenAI:", data);
+      console.log("AI response:", data);
 
       const aiResponse = JSON.parse(data.content);
 
@@ -93,11 +96,31 @@ export default function Pitch() {
       };
 
       setMessages(prevMessages => [...prevMessages, newResponse]);
-
     } else {
-      console.error("Error al llamar a la API:", response.status);
+      console.error("AI API call error:", response.status);
     }
   };
+
+  const getGlobalChat = async () => {
+    const response = await fetch("/api/global-chat", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("messages:", data);
+      setMessages(data);
+    } else {
+      console.error("Messages API call error:", response.status);
+    }
+  };
+
+  useEffect(() => {
+    getGlobalChat();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -133,9 +156,9 @@ export default function Pitch() {
                     functionName: "setGreeting",
                     args: ["The value to set"],
                     value: parseEther("0.001"),
-                  });                  
+                  });
                   await sendMessage();
-                  
+
                   setStatus('success');
                 } catch (e) {
                   console.error("Error setting greeting:", e);
