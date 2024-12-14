@@ -56,7 +56,6 @@ export default function Pitch() {
 
     console.log('Form submitted:', formData);
     setErrorMessage('');
-    sendMessage();
   };
 
   const handleChange = (
@@ -134,12 +133,9 @@ export default function Pitch() {
                     functionName: "setGreeting",
                     args: ["The value to set"],
                     value: parseEther("0.001"),
-                  });
-
-                  // api call
-
-
-
+                  });                  
+                  await sendMessage();
+                  
                   setStatus('success');
                 } catch (e) {
                   console.error("Error setting greeting:", e);
