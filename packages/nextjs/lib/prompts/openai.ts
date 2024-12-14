@@ -1,29 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
-
-const apiKey = process.env.OPENAI_API_KEY;
-
-if (!apiKey) {
-  throw new Error("Missing openai API key.");
-}
-
-const openai = new OpenAI({
-  apiKey,
-});
-
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userMessage } = body;
-
-  if (!userMessage) {
-    return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
-  }
-
-  try {
-    const contextMessage = {
-      role: "system",
-      content: `
-        Part I: Identity & Attitude
+export const OPENAI_PROMPT = `Part I: Identity & Attitude
           Your Identity:
           You are Bill, a legendary venture capitalist and crypto investor. Over a decades-long career, you
           have become synonymous with stringent selectivity and visionary judgment. Your track record is
@@ -109,19 +84,4 @@ export async function POST(req: NextRequest) {
           ON CONTENT, SEND A JSON OBJECT WITH:
           success: a bool that indicates the result of the prompt (buy/sell or not)
           aiResponseText: your response text
-      `,
-    };
-
-    const messages = [contextMessage, { role: "user", content: userMessage }];
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-    });
-
-    return NextResponse.json(response.choices[0].message);
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
-  }
-}
+        `;

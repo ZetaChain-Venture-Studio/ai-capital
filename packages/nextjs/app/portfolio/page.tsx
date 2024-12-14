@@ -1,4 +1,3 @@
-
 interface Token {
   token_address: string;
   symbol: string;
@@ -26,9 +25,9 @@ interface PortfolioResponse {
 }
 
 const CHAIN_IDS = [
-  'eth',            // Ethereum mainnet
-  'sepolia',        // Ethereum testnet
-  'optimism',       // Optimism mainnet
+  "eth", // Ethereum mainnet
+  "sepolia", // Ethereum testnet
+  "optimism", // Optimism mainnet
   // 'optimism-sepolia',// Optimism testnet
   // 'zksync-era',     // zkSync Era mainnet
   // 'zksync-era-sepolia', // zkSync Era testnet
@@ -37,19 +36,19 @@ const CHAIN_IDS = [
 export default async function PortfolioPage() {
   const apiKey = process.env.MORALIS_API_KEY;
   if (!apiKey) {
-    throw new Error('MORALIS_API_KEY environment variable not set.');
+    throw new Error("MORALIS_API_KEY environment variable not set.");
   }
-  
-  const walletAddress = '0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786'; // example address
+
+  const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786"; // example address
 
   // Fetch tokens from all chains concurrently
-  const promises = CHAIN_IDS.map(async (chain) => {
+  const promises = CHAIN_IDS.map(async chain => {
     const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens?chain=${chain}`;
     const res = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        accept: 'application/json',
-        'X-API-Key': apiKey,
+        accept: "application/json",
+        "X-API-Key": apiKey,
       },
       // For dynamic data, you can use 'no-store':
       // cache: 'no-store'
@@ -62,7 +61,7 @@ export default async function PortfolioPage() {
 
     const data = (await res.json()) as PortfolioResponse;
     // Add chain property to each token
-    return (data.result || []).map((token) => ({ ...token, chain }));
+    return (data.result || []).map(token => ({ ...token, chain }));
   });
 
   // Wait for all fetches
@@ -91,10 +90,10 @@ export default async function PortfolioPage() {
               </tr>
             </thead>
             <tbody>
-              {tokens.map((token) => (
+              {tokens.map(token => (
                 <tr key={`${token.token_address}-${token.chain}`} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-3 px-4">{token.chain}</td>
-                  <td className="py-3 px-4 flex items-center gap-3">                   
+                  <td className="py-3 px-4 flex items-center gap-3">
                     <div>
                       <div className="font-medium">{token.name}</div>
                     </div>

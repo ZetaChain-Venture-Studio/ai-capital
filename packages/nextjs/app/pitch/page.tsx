@@ -1,15 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import TokenSelect from '../../components/pitch/TokenSelect';
-import TradeTypeSelect from '../../components/pitch/TradeTypeSelect';
-import AllocationInput from '../../components/pitch/AllocationInput';
-import PitchTextarea from '../../components/pitch/PitchTextarea';
-import { validateAllocation } from '../../lib/utils';
-import Chat from '~~/components/pitch/Chat';
-
-import { useScaffoldWriteContract } from '~~/hooks/scaffold-eth';
-import { parseEther } from 'viem';
+import { useState } from "react";
+import AllocationInput from "../../components/pitch/AllocationInput";
+import PitchTextarea from "../../components/pitch/PitchTextarea";
+import TokenSelect from "../../components/pitch/TokenSelect";
+import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
+import { validateAllocation } from "../../lib/utils";
+import { parseEther } from "viem";
+import Chat from "~~/components/pitch/Chat";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export interface FormData {
   token: string;
@@ -25,13 +24,13 @@ export interface AIResponse extends FormData {
 
 export default function Pitch() {
   const [formData, setFormData] = useState<FormData>({
-    token: '',
-    tradeType: '',
-    allocation: '',
-    pitch: '',
+    token: "",
+    tradeType: "",
+    allocation: "",
+    pitch: "",
   });
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [messages, setMessages] = useState<AIResponse[]>([]);
 
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
@@ -42,31 +41,27 @@ export default function Pitch() {
     // Validate allocation
     const allocationValidation = validateAllocation(formData.allocation);
     if (!allocationValidation.isValid) {
-      setStatus('error');
-      setErrorMessage(allocationValidation.message || 'Invalid allocation');
+      setStatus("error");
+      setErrorMessage(allocationValidation.message || "Invalid allocation");
       return;
     }
 
     // Validate pitch length
     if (formData.pitch.length < 1) {
-      setStatus('error');
-      setErrorMessage('Please ensure your pitch is at least 1 character.');
+      setStatus("error");
+      setErrorMessage("Please ensure your pitch is at least 1 character.");
       return;
     }
 
-    console.log('Form submitted:', formData);
-    setErrorMessage('');
+    console.log("Form submitted:", formData);
+    setErrorMessage("");
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
-    >,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setStatus('idle');
-    setErrorMessage('');
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setStatus("idle");
+    setErrorMessage("");
   };
 
   const sendMessage = async () => {
@@ -93,7 +88,6 @@ export default function Pitch() {
       };
 
       setMessages(prevMessages => [...prevMessages, newResponse]);
-
     } else {
       console.error("Error al llamar a la API:", response.status);
     }
@@ -108,20 +102,16 @@ export default function Pitch() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <TokenSelect value={formData.token} onChange={handleChange} />
             <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
-            <AllocationInput
-              value={formData.allocation}
-              onChange={handleChange}
-            />
+            <AllocationInput value={formData.allocation} onChange={handleChange} />
             <PitchTextarea value={formData.pitch} onChange={handleChange} />
 
-            {status !== 'idle' && (
+            {status !== "idle" && (
               <div
-                className={`p-4 rounded-md ${status === 'success'
-                  ? 'bg-green-50 text-green-800'
-                  : 'bg-red-50 text-red-800'
-                  }`}
+                className={`p-4 rounded-md ${
+                  status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                }`}
               >
-                <p>{status === 'success' ? 'Pitch submitted successfully!' : errorMessage}</p>
+                <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
               </div>
             )}
 
@@ -133,14 +123,14 @@ export default function Pitch() {
                     functionName: "setGreeting",
                     args: ["The value to set"],
                     value: parseEther("0.001"),
-                  });                  
+                  });
                   await sendMessage();
-                  
-                  setStatus('success');
+
+                  setStatus("success");
                 } catch (e) {
                   console.error("Error setting greeting:", e);
-                  setStatus('error');
-                  setErrorMessage('Error submitting pitch');
+                  setStatus("error");
+                  setErrorMessage("Error submitting pitch");
                 }
               }}
             >

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface PitchTextareaProps {
   value: string;
@@ -8,10 +8,7 @@ interface PitchTextareaProps {
 export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
   return (
     <div>
-      <label
-        htmlFor="pitch"
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
+      <label htmlFor="pitch" className="block text-sm font-medium text-gray-700 mb-2">
         Investment Pitch
       </label>
       <textarea
