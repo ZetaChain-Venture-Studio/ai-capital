@@ -1,4 +1,4 @@
-# 🏗 AI Capital
+# 🧠 AI Capital 💰
 
 Crypto game where you try to convince an AI agent with wallet to invest in the token you like
 
