@@ -1,4 +1,5 @@
-import { clsx, type ClassValue } from 'clsx';
+import { type ClassValue, clsx } from "clsx";
+
 // import { twMerge } from 'tailwind-merge';
 
 // export function cn(...inputs: ClassValue[]) {
@@ -12,27 +13,27 @@ export interface ValidationResult {
 
 export function validateAllocation(value: string): ValidationResult {
   const allocation = parseFloat(value);
-  
+
   if (isNaN(allocation)) {
     return {
       isValid: false,
-      message: 'Please enter a valid number',
+      message: "Please enter a valid number",
     };
   }
-  
+
   if (allocation < 0) {
     return {
       isValid: false,
-      message: 'Allocation cannot be negative',
+      message: "Allocation cannot be negative",
     };
   }
-  
+
   if (allocation > 2) {
     return {
       isValid: false,
-      message: 'Maximum allocation is 2%',
+      message: "Maximum allocation is 2%",
     };
   }
-  
+
   return { isValid: true };
 }

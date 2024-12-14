@@ -1,13 +1,13 @@
 "use client";
 
-import { ArrowRight, Brain } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { ArrowRight, Brain } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
 
   const handleGetStarted = () => {
-    router.push('/pitch');
+    router.push("/pitch");
   };
 
   return (
@@ -22,12 +22,10 @@ export default function HomePage() {
           </h1>
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-600 mb-4">
-              Play the game by pitching your favorite token
-              to our advanced AI and see if you can convince it to invest.
+              Play the game by pitching your favorite token to our advanced AI and see if you can convince it to invest.
             </p>
             <p className="text-xl text-gray-600 mb-12">
-              Challenge yourself in this interactive game where AI meets human
-              ingenuity.
+              Challenge yourself in this interactive game where AI meets human ingenuity.
             </p>
             <button
               onClick={handleGetStarted}

@@ -83,8 +83,8 @@ export function generateStaticParams() {
 }
 
 const AddressPage = async ({ params }: PageProps) => {
-  // TODO: Use 
-  const address = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786";
+  // TODO: Use
+  const address = params.address;
 
   if (isZeroAddress(address)) return null;
 

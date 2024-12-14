@@ -1,35 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AlertCircle, CheckCircle } from 'lucide-react';
-import { mockPortfolio } from '../portfolio/PortfolioTable';
+import { useState } from "react";
+import { mockPortfolio } from "../portfolio/PortfolioTable";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function PitchForm() {
   const [formData, setFormData] = useState({
-    token: '',
-    tradeType: '',
-    allocation: '',
-    pitch: '',
+    token: "",
+    tradeType: "",
+    allocation: "",
+    pitch: "",
   });
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.pitch.length < 1) {
-      setStatus('error');
+      setStatus("error");
       return;
     }
-    console.log('Form submitted:', formData);
-    setStatus('success');
+    console.log("Form submitted:", formData);
+    setStatus("success");
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
-    >,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -38,10 +34,7 @@ export default function PitchForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label
-            htmlFor="token"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
             Select Token
           </label>
           <select
@@ -53,7 +46,7 @@ export default function PitchForm() {
             className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
           >
             <option value="">Select a token</option>
-            {mockPortfolio.map((item) => (
+            {mockPortfolio.map(item => (
               <option key={item.symbol} value={item.symbol}>
                 {item.token} ({item.symbol})
               </option>
@@ -62,16 +55,14 @@ export default function PitchForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Trade Type
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Trade Type</label>
           <div className="space-x-4">
             <label className="inline-flex items-center">
               <input
                 type="radio"
                 name="tradeType"
                 value="buy"
-                checked={formData.tradeType === 'buy'}
+                checked={formData.tradeType === "buy"}
                 onChange={handleChange}
                 className="form-radio text-gray-900"
               />
@@ -82,7 +73,7 @@ export default function PitchForm() {
                 type="radio"
                 name="tradeType"
                 value="sell"
-                checked={formData.tradeType === 'sell'}
+                checked={formData.tradeType === "sell"}
                 onChange={handleChange}
                 className="form-radio text-gray-900"
               />
@@ -92,10 +83,7 @@ export default function PitchForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="allocation"
-            className="block text-sm font-medium text-gray-700 mb-2 bg-white"
-          >
+          <label htmlFor="allocation" className="block text-sm font-medium text-gray-700 mb-2 bg-white">
             Allocation Percentage (0-100)
           </label>
           <input
@@ -108,15 +96,12 @@ export default function PitchForm() {
             value={formData.allocation}
             onChange={handleChange}
             className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            style={{ backgroundColor: 'white' }}
+            style={{ backgroundColor: "white" }}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="pitch"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="pitch" className="block text-sm font-medium text-gray-700 mb-2">
             Investment Pitch
           </label>
           <textarea
@@ -131,24 +116,22 @@ export default function PitchForm() {
           />
         </div>
 
-        {status !== 'idle' && (
+        {status !== "idle" && (
           <div
             className={`p-4 rounded-md ${
-              status === 'success'
-                ? 'bg-green-50 text-green-800'
-                : 'bg-red-50 text-red-800'
+              status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
             }`}
           >
             <div className="flex items-center">
-              {status === 'success' ? (
+              {status === "success" ? (
                 <CheckCircle className="h-5 w-5 mr-2" />
               ) : (
                 <AlertCircle className="h-5 w-5 mr-1" />
               )}
               <p>
-                {status === 'success'
-                  ? 'Pitch submitted successfully!'
-                  : 'Please ensure your pitch is at least 1 character.'}
+                {status === "success"
+                  ? "Pitch submitted successfully!"
+                  : "Please ensure your pitch is at least 1 character."}
               </p>
             </div>
           </div>

@@ -1,30 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
-import { sql } from "@vercel/postgres";
-
-const apiKey = process.env.OPENAI_API_KEY;
-
-if (!apiKey) {
-  throw new Error("Missing openai API key.");
-}
-
-const openai = new OpenAI({
-  apiKey,
-});
-
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { address, userMessage } = body;
-
-  if (!address || !userMessage) {
-    return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
-  }
-
-  try {
-    const contextMessage = {
-      role: "system",
-      content: `
-        Part I: Identity & Attitude
+export const OPENAI_PROMPT = `Part I: Identity & Attitude
           Your Identity:
           You are Bill, a legendary venture capitalist and crypto investor. Over a decades-long career, you
           have become synonymous with stringent selectivity and visionary judgment. Your track record is
@@ -110,46 +84,4 @@ export async function POST(req: NextRequest) {
           ON CONTENT, SEND A JSON OBJECT WITH:
           success: a bool that indicates the result of the prompt (buy/sell or not)
           aiResponseText: your response text
-      `,
-    };
-
-    const messages = [contextMessage, { role: "user", content: userMessage }];
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-    });
-
-    const parsedMessage = JSON.parse(userMessage);
-    const aiResponse = JSON.parse(
-      response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
-    );
-
-    const result = await sql`
-      INSERT INTO messages (
-        user_address,
-        token,
-        trade_type,
-        allocation,
-        pitch,
-        ai_response_text,
-        success
-      ) VALUES (
-        ${address},
-        ${parsedMessage.token},
-        ${parsedMessage.tradeType},
-        ${parsedMessage.allocation},
-        ${parsedMessage.pitch},
-        ${aiResponse.aiResponseText},
-        ${aiResponse.success}
-      );
-    `;
-
-    console.log("Insert successful:", result);
-
-    return NextResponse.json(response.choices[0].message);
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
-  }
-}
+        `;

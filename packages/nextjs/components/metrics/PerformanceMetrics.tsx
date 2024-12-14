@@ -1,14 +1,14 @@
-import { DollarSign, TrendingUp } from 'lucide-react';
+import { DollarSign, TrendingUp } from "lucide-react";
 
 export const performanceMetrics = [
   {
-    label: 'Total Value Locked',
-    value: '$10,000,000',
+    label: "Total Value Locked",
+    value: "$10,000,000",
     icon: DollarSign,
   },
   {
-    label: 'Monthly Return',
-    value: '+8.5%',
+    label: "Monthly Return",
+    value: "+8.5%",
     icon: TrendingUp,
   },
 ];
@@ -16,7 +16,7 @@ export const performanceMetrics = [
 export default function PerformanceMetrics() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      {performanceMetrics.map((metric) => (
+      {performanceMetrics.map(metric => (
         <div key={metric.label} className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
