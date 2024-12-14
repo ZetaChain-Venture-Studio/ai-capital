@@ -1,135 +1,115 @@
-import {
-  ArrowUpRight,
-  ArrowDownRight,
-  DollarSign,
-  TrendingUp,
-} from 'lucide-react';
 
-const mockPortfolio = [
-  {
-    token: 'Bitcoin',
-    symbol: 'BTC',
-    amount: '2.5',
-    value: 125000,
-    change: 5.2,
-  },
-  {
-    token: 'Ethereum',
-    symbol: 'ETH',
-    amount: '45.8',
-    value: 85000,
-    change: -2.1,
-  },
-  {
-    token: 'Dogecoin',
-    symbol: 'DOGE',
-    amount: '150000',
-    value: 15000,
-    change: 12.4,
-  },
+interface Token {
+  token_address: string;
+  symbol: string;
+  name: string;
+  logo: string;
+  thumbnail: string;
+  decimals: number;
+  balance: string;
+  possible_spam: boolean;
+  verified_contract: boolean;
+  balance_formatted: string;
+  usd_price: number;
+  usd_price_24hr_percent_change: number;
+  usd_price_24hr_usd_change: number;
+  usd_value: number;
+  usd_value_24hr_usd_change: number;
+  native_token: boolean;
+  portfolio_percentage: number;
+  // We add a custom property to track the chain this token is from
+  chain?: string;
+}
+
+interface PortfolioResponse {
+  result: Token[];
+}
+
+const CHAIN_IDS = [
+  'eth',            // Ethereum mainnet
+  'sepolia',        // Ethereum testnet
+  'optimism',       // Optimism mainnet
+  // 'optimism-sepolia',// Optimism testnet
+  // 'zksync-era',     // zkSync Era mainnet
+  // 'zksync-era-sepolia', // zkSync Era testnet
 ];
 
-const performanceMetrics = [
-  {
-    label: 'Total Value Locked',
-    value: '$10,000,000',
-    icon: DollarSign,
-  },
-  {
-    label: 'Monthly Return',
-    value: '+8.5%',
-    icon: TrendingUp,
-  },
-];
+export default async function PortfolioPage() {
+  const apiKey = process.env.MORALIS_API_KEY;
+  if (!apiKey) {
+    throw new Error('MORALIS_API_KEY environment variable not set.');
+  }
+  
+  const walletAddress = '0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786'; // example address
 
-export default function Portfolio() {
+  // Fetch tokens from all chains concurrently
+  const promises = CHAIN_IDS.map(async (chain) => {
+    const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens?chain=${chain}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+      // For dynamic data, you can use 'no-store':
+      // cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to fetch tokens for chain ${chain}:`, res.statusText);
+      return [];
+    }
+
+    const data = (await res.json()) as PortfolioResponse;
+    // Add chain property to each token
+    return (data.result || []).map((token) => ({ ...token, chain }));
+  });
+
+  // Wait for all fetches
+  const results = await Promise.all(promises);
+  // Flatten the array of arrays
+  const tokens = results.flat();
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Portfolio</h1>
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8 text-center">AI Agent Portfolio</h1>
 
-        {/* Performance Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {performanceMetrics.map((metric) => (
-            <div
-              key={metric.label}
-              className="bg-white rounded-lg shadow-sm p-6"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">{metric.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {metric.value}
-                  </p>
-                </div>
-                <metric.icon className="h-8 w-8 text-gray-400" />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Portfolio Holdings Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Token
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Value
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  24h Change
-                </th>
+      {tokens.length === 0 ? (
+        <p className="text-center text-gray-500">No tokens found.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-gray-300">
+                <th className="py-3 px-4">Chain</th>
+                <th className="py-3 px-4">Name</th>
+                <th className="py-3 px-4">Symbol</th>
+                <th className="py-3 px-4">Balance</th>
+                <th className="py-3 px-4">USD Price</th>
+                <th className="py-3 px-4">USD Value</th>
+                <th className="py-3 px-4">Portfolio %</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {mockPortfolio.map((item) => (
-                <tr key={item.symbol}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {item.token}
-                        </div>
-                        <div className="text-sm text-gray-500">{item.symbol}</div>
-                      </div>
+            <tbody>
+              {tokens.map((token) => (
+                <tr key={`${token.token_address}-${token.chain}`} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-3 px-4">{token.chain}</td>
+                  <td className="py-3 px-4 flex items-center gap-3">                   
+                    <div>
+                      <div className="font-medium">{token.name}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{item.amount}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      ${item.value.toLocaleString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`flex items-center text-sm ${
-                        item.change >= 0
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}
-                    >
-                      {item.change >= 0 ? (
-                        <ArrowUpRight className="h-4 w-4 mr-1" />
-                      ) : (
-                        <ArrowDownRight className="h-4 w-4 mr-1" />
-                      )}
-                      {Math.abs(item.change)}%
-                    </div>
-                  </td>
+                  <td className="py-3 px-4">{token.symbol}</td>
+                  <td className="py-3 px-4">{token.balance_formatted}</td>
+                  <td className="py-3 px-4">${token.usd_price}</td>
+                  <td className="py-3 px-4">${token.usd_value}</td>
+                  <td className="py-3 px-4">{token.portfolio_percentage.toFixed(2)}%</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
     </div>
   );
 }
