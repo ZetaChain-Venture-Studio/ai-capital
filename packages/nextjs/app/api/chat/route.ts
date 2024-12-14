@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
+import { sql } from "@vercel/postgres";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -13,10 +14,10 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { userMessage } = body;
+  const { address, userMessage } = body;
 
-  if (!userMessage) {
-    return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+  if (!address || !userMessage) {
+    return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
   }
 
   try {
@@ -118,6 +119,33 @@ export async function POST(req: NextRequest) {
       model: "gpt-3.5-turbo",
       messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
     });
+
+    const parsedMessage = JSON.parse(userMessage);
+    const aiResponse = JSON.parse(
+      response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
+    );
+
+    const result = await sql`
+      INSERT INTO messages (
+        user_address,
+        token,
+        trade_type,
+        allocation,
+        pitch,
+        ai_response_text,
+        success
+      ) VALUES (
+        ${address},
+        ${parsedMessage.token},
+        ${parsedMessage.tradeType},
+        ${parsedMessage.allocation},
+        ${parsedMessage.pitch},
+        ${aiResponse.aiResponseText},
+        ${aiResponse.success}
+      );
+    `;
+
+    console.log("Insert successful:", result);
 
     return NextResponse.json(response.choices[0].message);
   } catch (error) {
