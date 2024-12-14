@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
 import { sql } from "@vercel/postgres";
+import { OpenAI } from "openai";
 
 const apiKey = process.env.OPENAI_API_KEY;
 

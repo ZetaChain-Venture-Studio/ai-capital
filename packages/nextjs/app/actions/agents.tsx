@@ -1,6 +1,6 @@
 "use server";
 
-import { randomBytes } from "crypto";
+import { sql } from "@vercel/postgres";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { createWalletClient, getContract, http, toHex } from "viem";
@@ -24,7 +24,13 @@ const walletClient = createWalletClient({
   account: account,
 });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function analyzePitch(pitch: string, _tokenAddress: string, _sender: string) {
+export async function analyzePitch(
+  pitch: string,
+  token: string,
+  tradeType: string,
+  allocation: string,
+  address: string,
+) {
   // Check if user has any attempt left (aka the user has paid)
   // TODO: CALL CONTRACT
   // address: "0xb396b402AD30e794e35E05A08960Af07B7D18334",
@@ -446,6 +452,28 @@ export async function analyzePitch(pitch: string, _tokenAddress: string, _sender
   });
   console.log("messages", response.choices[0].message.content);
 
+  const result = await sql`
+      INSERT INTO messages (
+        user_address,
+        token,
+        trade_type,
+        allocation,
+        pitch,
+        ai_response_text,
+        success
+      ) VALUES (
+        ${address},
+        ${token},
+        ${tradeType},
+        ${allocation},
+        ${pitch},
+        ${JSON.parse(response.choices[0].message.content as string).aiResponseText},
+        ${success}
+      );
+    `;
+
+  console.log("Insert successful:", result);
+
   // Actual execution...
 
   return {
@@ -481,4 +509,37 @@ export async function analyzePitch(pitch: string, _tokenAddress: string, _sender
   //   data: modifiedData as `0x${string}`,
   //   account: s,
   // });
+}
+
+export interface AIResponse {
+  token: string;
+  tradeType: string;
+  allocation: string;
+  pitch: string;
+  aiResponseText: string;
+  success: boolean;
+}
+
+export async function getAllMessages() {
+  try {
+    const rows = await sql`
+      SELECT * FROM messages;
+    `;
+
+    console.log(rows.rowCount);
+
+    const aiResponses: AIResponse[] = rows.rows.map((row: any) => ({
+      token: row.token,
+      tradeType: row.trade_type,
+      allocation: row.allocation,
+      pitch: row.pitch,
+      aiResponseText: row.ai_response_text,
+      success: row.success,
+    }));
+
+    return aiResponses.reverse();
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return null;
+  }
 }

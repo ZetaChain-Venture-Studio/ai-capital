@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import TokenSelect from '../../components/pitch/TokenSelect';
-import TradeTypeSelect from '../../components/pitch/TradeTypeSelect';
-import AllocationInput from '../../components/pitch/AllocationInput';
-import PitchTextarea from '../../components/pitch/PitchTextarea';
-import { validateAllocation } from '../../lib/utils';
-import Chat from '~~/components/pitch/Chat';
-import { useAccount } from 'wagmi';
-import { parseEther } from 'viem';
+import { useEffect, useState } from "react";
+import AllocationInput from "../../components/pitch/AllocationInput";
+import PitchTextarea from "../../components/pitch/PitchTextarea";
+import TokenSelect from "../../components/pitch/TokenSelect";
+import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
+import { validateAllocation } from "../../lib/utils";
+import { analyzePitch, getAllMessages } from "../actions/agents";
+import { parseEther } from "viem";
+import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
-import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import Chat from "~~/components/pitch/Chat";
+import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 
 export interface FormData {
   token: string;
@@ -42,8 +43,16 @@ export default function Pitch() {
     walletClient,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("Form submitted:", formData, formData.pitch.length);
+
+    // Validate pitch
+    if (formData.pitch.length < 50) {
+      setErrorMessage("Please ensure your pitch is at least 50 characters.");
+      return;
+    }
 
     // Validate allocation
     const allocationValidation = validateAllocation(formData.allocation);
@@ -53,14 +62,21 @@ export default function Pitch() {
       return;
     }
 
-    // Validate pitch length
-    if (formData.pitch.length < 1) {
-      setStatus("error");
-      setErrorMessage("Please ensure your pitch is at least 1 character.");
-      return;
-    }
+    try {
+      const result = await walletClient?.sendTransaction({
+        to: yourContract?.address,
+        value: parseEther("0.0001"),
+      });
 
-    console.log("Form submitted:", formData);
+      console.log("Transaction result:", result);
+      await sendMessage();
+
+      setStatus("success");
+    } catch (e) {
+      console.error("Error while paying for pitch:", e);
+      setStatus("error");
+      setErrorMessage("Error submitting pitch");
+    }
     setErrorMessage("");
   };
 
@@ -72,49 +88,35 @@ export default function Pitch() {
   };
 
   const sendMessage = async () => {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        address: address,
-        userMessage: JSON.stringify(formData),
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
+    const response = await analyzePitch(
+      formData.pitch,
+      formData.token,
+      formData.tradeType,
+      formData.allocation,
+      address as `0x${string}`,
+    );
+    if (response) {
+      const data = await response;
       console.log("AI response:", data);
 
-      const aiResponse = JSON.parse(data.content);
+      const aiResponse = response.aiResponseText;
 
       const newResponse: AIResponse = {
         ...formData,
-        aiResponseText: aiResponse.aiResponseText,
-        success: aiResponse.success,
+        aiResponseText: aiResponse,
+        success: response.success,
       };
 
-      setMessages(prevMessages => [...prevMessages, newResponse]);
+      setMessages(prevMessages => [newResponse, ...prevMessages]);
     } else {
-      console.error("AI API call error:", response.status);
+      console.error("AI API call error");
     }
   };
 
   const getGlobalChat = async () => {
-    const response = await fetch("/api/global-chat", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("messages:", data);
-      setMessages(data);
-    } else {
-      console.error("Messages API call error:", response.status);
+    const messages = await getAllMessages();
+    if (messages) {
+      setMessages(messages);
     }
   };
 
@@ -144,26 +146,7 @@ export default function Pitch() {
               </div>
             )}
 
-            <button
-              className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
-              onClick={async () => {
-                try {
-                  const result = await walletClient?.sendTransaction({
-                    to: yourContract?.address,
-                    value: parseEther("0.0001"),
-                  });
-
-                  console.log("Transaction result:", result);
-                  await sendMessage();
-
-                  setStatus("success");
-                } catch (e) {
-                  console.error("Error setting greeting:", e);
-                  setStatus("error");
-                  setErrorMessage("Error submitting pitch");
-                }
-              }}
-            >
+            <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
               Submit Pitch for 0.001 ETH
             </button>
           </form>
