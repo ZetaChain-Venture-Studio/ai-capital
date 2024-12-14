@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Faucet } from "./scaffold-eth";
 import { hardhat } from "viem/chains";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -24,6 +25,7 @@ export const Footer = () => {
                   <MagnifyingGlassIcon className="w-4 h-4" />
                   <span>Block Explorer</span>
                 </Link>
+                <Faucet />
               </>
             )}
           </div>

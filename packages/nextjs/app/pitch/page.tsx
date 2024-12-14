@@ -7,8 +7,9 @@ import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
 import { parseEther } from "viem";
+import { useWalletClient } from "wagmi";
 import Chat from "~~/components/pitch/Chat";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export interface FormData {
   token: string;
@@ -33,7 +34,11 @@ export default function Pitch() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [messages, setMessages] = useState<AIResponse[]>([]);
 
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
+  const { data: walletClient } = useWalletClient();
+  const { data: yourContract } = useScaffoldContract({
+    contractName: "AIC",
+    walletClient,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,10 +99,10 @@ export default function Pitch() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Submit a Pitch</h1>
+    <div className="py-12 min-h-screen bg-gray-50">
+      <div className="flex flex-col gap-10 px-4 mx-auto max-w-3xl sm:px-6 lg:px-8">
+        <div className="p-8 bg-white rounded-lg shadow-sm">
+          <h1 className="mb-8 text-3xl font-bold text-gray-900">Submit a Pitch</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <TokenSelect value={formData.token} onChange={handleChange} />
@@ -116,14 +121,15 @@ export default function Pitch() {
             )}
 
             <button
-              className="w-full bg-gray-900 text-white py-3 px-6 rounded-md hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
               onClick={async () => {
                 try {
-                  await writeYourContractAsync({
-                    functionName: "setGreeting",
-                    args: ["The value to set"],
-                    value: parseEther("0.001"),
+                  const result = await walletClient?.sendTransaction({
+                    to: yourContract?.address,
+                    value: parseEther("0.0001"),
                   });
+
+                  console.log("Transaction result:", result);
                   await sendMessage();
 
                   setStatus("success");
