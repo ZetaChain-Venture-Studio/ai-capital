@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   10: {
     AIC2: {
-      address: "0x9fB375a62ACfC6b30199092283A8eea996138c1a",
+      address: "0xb13b7A60C88e1Ba2a204423aB420C60ACBA62c53",
       abi: [
         {
           inputs: [],
@@ -178,6 +178,11 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
               name: "tokenA",
               type: "address",
             },
@@ -193,6 +198,29 @@ const deployedContracts = {
             },
           ],
           name: "_swapTokens",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "spender",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "approveToken",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
