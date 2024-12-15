@@ -39,7 +39,7 @@ export default async function PortfolioPage() {
     throw new Error("MORALIS_API_KEY environment variable not set.");
   }
 
-  const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786"; // example address
+  const walletAddress = "0xb13b7A60C88e1Ba2a204423aB420C60ACBA62c53"; // example address
 
   // Fetch tokens from all chains concurrently
   const promises = CHAIN_IDS.map(async chain => {
