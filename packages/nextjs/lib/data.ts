@@ -24,3 +24,10 @@ export const mockPortfolio = [
     change: 12.4,
   },
 ];
+
+export const USDC_ADDRESS = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
+
+export const ZKSYNC_CHAIN_ID = 324;
+export const OP_CHAIN_ID = 10;
+
+export const CHAIN_ID = 10;

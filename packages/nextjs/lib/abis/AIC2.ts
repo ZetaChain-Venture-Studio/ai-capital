@@ -168,6 +168,11 @@ export const AIC2_ABI = [
     inputs: [
       {
         internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
         name: "tokenA",
         type: "address",
       },
@@ -183,6 +188,29 @@ export const AIC2_ABI = [
       },
     ],
     name: "_swapTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "approveToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

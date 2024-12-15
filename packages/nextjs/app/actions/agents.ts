@@ -1,10 +1,11 @@
 "use server";
 
-import { decrementPaymentCounter, hasPaid } from "./transactions";
+import { executeSwap, hasPaid } from "./transactions";
 import { sql } from "@vercel/postgres";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { z } from "zod";
+import { USDC_ADDRESS } from "~~/lib/data";
 import { OPENAI_PROMPT } from "~~/lib/prompts/openai";
 
 const apiKey = process.env.OPENAI_API_KEY;
@@ -68,10 +69,12 @@ export async function analyzePitch(
     // Actually we first decrement the payment counter to avoid multiple calls (reentrancy?)
     // TODO
 
-    await decrementPaymentCounter(address as `0x${string}`);
-
     console.log("STARTING CONTRACT EXECUTION...");
-
+    if (tradeType === "buy") {
+      await executeSwap(USDC_ADDRESS as `0x${string}`, token as `0x${string}`, parseInt(allocation));
+    } else {
+      await executeSwap(token as `0x${string}`, USDC_ADDRESS as `0x${string}`, parseInt(allocation));
+    }
     success = true;
   }
 
