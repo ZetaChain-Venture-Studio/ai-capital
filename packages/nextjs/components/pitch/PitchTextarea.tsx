@@ -21,6 +21,8 @@ export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
         className=" bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         placeholder="Explain your investment thesis..."
       />
+      {/* at least 50 chars */}
+      <p className="mt-2 text-sm text-gray-500">At least 50 characters</p>
     </div>
   );
 }

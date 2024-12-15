@@ -39,7 +39,7 @@ export default function Pitch() {
 
   const { data: walletClient } = useWalletClient();
   const { data: yourContract } = useScaffoldContract({
-    contractName: "AIC",
+    contractName: "AIC2",
     walletClient,
   });
 
