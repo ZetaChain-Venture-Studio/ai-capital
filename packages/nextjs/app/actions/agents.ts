@@ -1,29 +1,18 @@
 "use server";
 
+import { decrementPaymentCounter, hasPaid } from "./transactions";
 import { sql } from "@vercel/postgres";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
-import { createWalletClient, getContract, http, toHex } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { hardhat } from "viem/chains";
 import { z } from "zod";
-import { AIC2_ABI } from "~~/lib/abis/AIC2";
 import { OPENAI_PROMPT } from "~~/lib/prompts/openai";
 
 const apiKey = process.env.OPENAI_API_KEY;
-const PRIVATE_KEY: `0x${string}` = process.env.PRIVATE_KEY as `0x${string}`;
 
 const PitchAssessment = z.object({
   assessment: z.enum(["positive", "negative"]),
 });
 
-const account = privateKeyToAccount(PRIVATE_KEY);
-
-const walletClient = createWalletClient({
-  transport: http(),
-  chain: hardhat,
-  account: account,
-});
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function analyzePitch(
   pitch: string,
@@ -34,12 +23,13 @@ export async function analyzePitch(
 ) {
   // Check if user has any attempt left (aka the user has paid)
   // TODO: CALL CONTRACT
-  // address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-  const contract = await getContract({
-    client: walletClient,
-    address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-    abi: AIC2_ABI,
-  });
+  const paidPrompt = await hasPaid(address as `0x${string}`);
+  if (!paidPrompt) {
+    return {
+      success: false,
+      message: "You have not paid yet.",
+    };
+  }
 
   // Check if pitch is valid
   console.log("Pitch:", pitch);
@@ -67,17 +57,20 @@ export async function analyzePitch(
 
   console.log("THE INVESTOR SAID: ", investorResponse.choices[0].message.content);
 
-  if (investorResponse.choices[0].message.content === "negative") {
+  // if (investorResponse.choices[0].message.content === "negative") {
+  if (false) {
     console.log("NOT ACCEPTED");
 
-    // if (false) {
     success = false;
-  } else if (investorResponse.choices[0].message.content === "positive") {
-    // } else {
+    // } else if (investorResponse.choices[0].message.content === "positive") {
+  } else {
     // execute investment
+    // Actually we first decrement the payment counter to avoid multiple calls (reentrancy?)
     // TODO
 
-    console.log("price", contract.read.price, "priceOP", contract.read.priceOP);
+    await decrementPaymentCounter(address as `0x${string}`);
+
+    console.log("STARTING CONTRACT EXECUTION...");
 
     success = true;
   }
@@ -116,43 +109,10 @@ export async function analyzePitch(
       );
     `;
 
-  console.log("Insert successful:", result);
-
-  // Actual execution...
-
   return {
     aiResponseText: JSON.parse(response.choices[0].message.content as string).aiResponseText,
     success: success,
   };
-
-  // generate random address
-  // const randomAddress = privateKeyToAddress(toHex(randomBytes(32)));
-
-  // const ta = "0x734408719d916D72E78aCf45ff7E227D53E66eEa";
-
-  // const s = "0x734408719d916D72E78aCf45ff7E227D53E66eEa";
-
-  // // Call swap contract
-  // const contract = getContract({
-  //   abi: SWAP_ROUTER_ABI,
-  //   address: randomAddress,
-  //   client: walletClient,
-  // });
-
-  // const encodedData = encodeFunctionData({
-  //   abi: SWAP_ROUTER_ABI,
-  //   functionName: "swapExactTokensForTokens",
-  //   args: [BigInt(1), BigInt(1), [ta, randomAddress], randomAddress],
-  // });
-
-  // const modifiedData = s + encodedData.slice(2);
-
-  // const request = await walletClient.prepareTransactionRequest({
-  //   to: randomAddress,
-  //   abi: SWAP_ROUTER_ABI,
-  //   data: modifiedData as `0x${string}`,
-  //   account: s,
-  // });
 }
 
 export interface AIResponse {
