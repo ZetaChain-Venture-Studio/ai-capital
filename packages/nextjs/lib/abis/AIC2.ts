@@ -188,7 +188,13 @@ export const AIC2_ABI = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
     name: "decWhitelist",
     outputs: [],
     stateMutability: "nonpayable",

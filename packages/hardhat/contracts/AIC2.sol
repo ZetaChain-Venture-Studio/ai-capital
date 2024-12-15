@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-
 
 //https://youtu.be/TLsy8Hjt_JY
 // Polygon Deployment = 0x8163E0022C8f4b94afBDacB16398d47aAaEF0653
@@ -17,12 +16,11 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
     address public constant USDC = 0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359;//ok
 */
 contract AIC2 is AccessControl {
-
     mapping(address => uint8) public whitelist;
     bytes32 public constant SERVER_ROLE = keccak256("SERVER_ROLE");
     bytes32 public constant TREASURE_ROLE = keccak256("TREASURE_ROLE");
     uint256 public constant priceZK = 0.05 ether; // change prices
-    uint256 public constant priceOP = 0.0001 ether;// change prices
+    uint256 public constant priceOP = 0.0001 ether; // change prices
     uint256 public price;
     address public server;
 
@@ -33,7 +31,7 @@ contract AIC2 is AccessControl {
 
     constructor() {
         uniswapRouter = IUniswapV2Router02(UNISWAP_V2_ROUTER);
-        if(block.chainid==324) {
+        if (block.chainid == 324) {
             price = priceZK;
         } else {
             price = priceOP;
@@ -43,15 +41,15 @@ contract AIC2 is AccessControl {
         _grantRole(TREASURE_ROLE, msg.sender);
     }
 
-    function decWhitelist() external onlyRole(SERVER_ROLE) {
-        whitelist[msg.sender]--;
+    function decWhitelist(address user) external onlyRole(SERVER_ROLE) {
+        require(whitelist[user] > 0, "User not in whitelist");
+        whitelist[user]--;
     }
 
     function withdraw() external onlyRole(TREASURE_ROLE) {
         uint256 amount = address(this).balance;
         require(amount > 0, "Insufficient MATIC balance");
         payable(msg.sender).transfer(amount);
-
     }
 
     function setServer(address _server) external onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -64,12 +62,8 @@ contract AIC2 is AccessControl {
     ///@param tokenA The address of the token being swapped from.
     ///@param tokenB The address of the token being swapped to.
     ///@param percent The amount of tokenA to swap.
-    function _swapTokens(
-        address tokenA,
-        address tokenB,
-        uint256 percent
-    ) public onlyRole(SERVER_ROLE) {
-        uint256 amountIn = IERC20(tokenA).balanceOf(address(this)) * percent / 100;
+    function _swapTokens(address tokenA, address tokenB, uint256 percent) public onlyRole(SERVER_ROLE) {
+        uint256 amountIn = (IERC20(tokenA).balanceOf(address(this)) * percent) / 100;
         require(amountIn > 0, "Insufficient token balance");
         require(IERC20(tokenA).approve(UNISWAP_V2_ROUTER, amountIn), "Token approval failed");
 
@@ -77,13 +71,7 @@ contract AIC2 is AccessControl {
         path[0] = tokenA;
         path[1] = tokenB;
 
-        uniswapRouter.swapExactTokensForTokens(
-            amountIn,
-            0,
-            path,
-            address(this),
-            block.timestamp
-        );
+        uniswapRouter.swapExactTokensForTokens(amountIn, 0, path, address(this), block.timestamp);
     }
 
     ///@notice Withdraws USDT or USDC from the contract
@@ -106,10 +94,9 @@ contract AIC2 is AccessControl {
         uniswapRouter = _uniswapRouter;
     }
 
-    receive() external payable { 
-        require(msg.value==price,"not the price");
-        payable(server).transfer(7*address(this).balance/10);
+    receive() external payable {
+        require(msg.value == price, "not the price");
+        payable(server).transfer((7 * address(this).balance) / 10);
         whitelist[msg.sender]++;
     }
-
 }
