@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { mockPortfolio } from "../portfolio/PortfolioTable";
-import { AlertCircle, CheckCircle } from "lucide-react";
-import { AIResponse, FormData } from "~~/app/pitch/page";
+import { AIResponse } from "~~/app/pitch/page";
 
 interface GlobalChatProps {
   messages: AIResponse[];

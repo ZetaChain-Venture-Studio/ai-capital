@@ -3,8 +3,6 @@ import Link from "next/link";
 import { Faucet } from "./scaffold-eth";
 import { hardhat } from "viem/chains";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { HeartIcon } from "@heroicons/react/24/outline";
-import { BuidlGuidlLogo } from "~~/components/assets/BuidlGuidlLogo";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 /**
@@ -42,10 +40,8 @@ export const Footer = () => {
             </div>
             <span>·</span>
             <div className="flex gap-2 justify-center items-center">
-              <p className="m-0 text-center">
-                Built with ❤️ and ☕️ for Aleph Verano🌞
-              </p>             
-            </div>            
+              <p className="m-0 text-center">Built with ❤️ and ☕️ for Aleph Verano🌞</p>
+            </div>
           </div>
         </ul>
       </div>

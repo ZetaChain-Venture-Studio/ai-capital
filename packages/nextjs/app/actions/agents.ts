@@ -58,17 +58,14 @@ export async function analyzePitch(
 
   console.log("THE INVESTOR SAID: ", investorResponse.choices[0].message.content);
 
-  // if (investorResponse.choices[0].message.content === "negative") {
-  if (false) {
+  if (investorResponse.choices[0].message.content === "negative") {
+    // if (false) {
     console.log("NOT ACCEPTED");
 
     success = false;
-    // } else if (investorResponse.choices[0].message.content === "positive") {
-  } else {
+  } else if (investorResponse.choices[0].message.content === "positive") {
+    // } else {
     // execute investment
-    // Actually we first decrement the payment counter to avoid multiple calls (reentrancy?)
-    // TODO
-
     console.log("STARTING CONTRACT EXECUTION...");
     if (tradeType === "buy") {
       await executeSwap(USDC_ADDRESS as `0x${string}`, token as `0x${string}`, parseInt(allocation));
@@ -92,7 +89,7 @@ export async function analyzePitch(
   });
   console.log("messages", response.choices[0].message.content);
 
-  const result = await sql`
+  await sql`
       INSERT INTO messages (
         user_address,
         token,

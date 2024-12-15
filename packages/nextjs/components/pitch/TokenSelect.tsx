@@ -51,9 +51,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
       </div>
 
       {/* Informational Note */}
-      <p className="mt-2 text-sm text-gray-500">
-        Token must be tradable on Uniswap
-      </p>
+      <p className="mt-2 text-sm text-gray-500">Token must be tradable on Uniswap</p>
     </div>
   );
 }

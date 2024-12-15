@@ -2,7 +2,7 @@
 
 import { estimateContractGas } from "viem/actions";
 import { aic2Contract, walletClient } from "~~/lib/blockchain/clients";
-import { CHAIN_ID, USDC_ADDRESS } from "~~/lib/data";
+import { CHAIN_ID } from "~~/lib/data";
 
 let SWAP_ROUTER = "";
 

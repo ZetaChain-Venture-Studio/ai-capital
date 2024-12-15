@@ -13,7 +13,6 @@ type NetworkOptionsProps = {
 export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
   const { switchChain } = useSwitchChain();
   const { chain } = useAccount();
-  const { resolvedTheme } = useTheme();
   const isDarkMode = false;
 
   return (
@@ -29,7 +28,7 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
                 switchChain?.({ chainId: allowedNetwork.id });
               }}
             >
-              <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
+              <ArrowsRightLeftIcon className="ml-2 w-4 h-6 sm:ml-0" />
               <span>
                 Switch to{" "}
                 <span
