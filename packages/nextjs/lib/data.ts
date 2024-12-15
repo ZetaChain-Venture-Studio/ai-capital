@@ -2,6 +2,7 @@ export const mockPortfolio = [
   {
     token: "Bitcoin",
     symbol: "BTC",
+    address: "0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC",
     amount: "2.5",
     value: 125000,
     change: 5.2,
@@ -9,6 +10,7 @@ export const mockPortfolio = [
   {
     token: "Ethereum",
     symbol: "ETH",
+    address: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
     amount: "45.8",
     value: 85000,
     change: -2.1,
@@ -16,6 +18,7 @@ export const mockPortfolio = [
   {
     token: "Dogecoin",
     symbol: "DOGE",
+    address: "0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC",
     amount: "150000",
     value: 15000,
     change: 12.4,
