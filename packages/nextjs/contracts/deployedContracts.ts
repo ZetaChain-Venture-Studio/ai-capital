@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   10: {
     AIC2: {
-      address: "0xd0DE7E8c18878a42d773aE92C2bEb1fde5058974",
+      address: "0x9fB375a62ACfC6b30199092283A8eea996138c1a",
       abi: [
         {
           inputs: [],
@@ -198,7 +198,13 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
           name: "decWhitelist",
           outputs: [],
           stateMutability: "nonpayable",
@@ -677,7 +683,13 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
           name: "decWhitelist",
           outputs: [],
           stateMutability: "nonpayable",
@@ -1337,7 +1349,7 @@ const deployedContracts = {
       },
     },
     AIC2: {
-      address: "0x9fB375a62ACfC6b30199092283A8eea996138c1a",
+      address: "0xAFa5774f218E0dC77eefd6Adb51a2CBB85180fCA",
       abi: [
         {
           inputs: [],
@@ -1528,7 +1540,13 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
           name: "decWhitelist",
           outputs: [],
           stateMutability: "nonpayable",
@@ -2188,7 +2206,7 @@ const deployedContracts = {
       },
     },
     AIC2: {
-      address: "0x9fB375a62ACfC6b30199092283A8eea996138c1a",
+      address: "0xAFa5774f218E0dC77eefd6Adb51a2CBB85180fCA",
       abi: [
         {
           inputs: [],
@@ -2379,7 +2397,13 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
           name: "decWhitelist",
           outputs: [],
           stateMutability: "nonpayable",
