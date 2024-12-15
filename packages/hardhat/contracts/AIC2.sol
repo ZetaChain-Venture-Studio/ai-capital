@@ -9,6 +9,7 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 //https://youtu.be/TLsy8Hjt_JY
 // Polygon Deployment = 0x8163E0022C8f4b94afBDacB16398d47aAaEF0653
+// https://polygonscan.com/address/0x8163E0022C8f4b94afBDacB16398d47aAaEF0653#code   => verified
 /*
     // Token addresses on Polygon mainnet
     address public constant USDT = 0xc2132D05D31c914a87C6611C10748AEb04B58e8F; //ok
