@@ -1377,7 +1377,7 @@ const deployedContracts = {
       },
     },
     AIC2: {
-      address: "0xAFa5774f218E0dC77eefd6Adb51a2CBB85180fCA",
+      address: "0xF55200Cf47a7035D130758EA28bEcC09e927c2fF",
       abi: [
         {
           inputs: [],
@@ -1548,6 +1548,11 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
               name: "tokenA",
               type: "address",
             },
@@ -1563,6 +1568,29 @@ const deployedContracts = {
             },
           ],
           name: "_swapTokens",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "spender",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "approveToken",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
