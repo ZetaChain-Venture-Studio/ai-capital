@@ -9,29 +9,36 @@ interface AllocationInputProps {
 }
 
 export default function AllocationInput({ value, onChange }: AllocationInputProps) {
-  const [validation, setValidation] = useState<ValidationResult>({ isValid: true });
+  const [validation, setValidation] = useState<ValidationResult>({ isValid: true, message: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const result = validateAllocation(e.target.value);
-    setValidation(result);
-    if (result.isValid) {
-      onChange(e);
+    const inputValue = e.target.value;
+
+    // Reset validation if the value is "1" or "2"
+    if (inputValue === "1" || inputValue === "2") {
+      setValidation({ isValid: true, message: "" });
+    } else {
+      const result = validateAllocation(inputValue);
+      setValidation(result);
     }
+
+    // Always propagate the change
+    onChange(e);
   };
 
   return (
     <div>
       <label htmlFor="allocation" className="block text-sm font-medium text-gray-700 mb-2">
-        Allocation Percentage (0-2%)
+        Allocation Percentage (1 or 2%)
       </label>
       <div className="relative">
         <input
           type="number"
           id="allocation"
           name="allocation"
-          min="0"
+          min="1"
           max="2"
-          step="0.1"
+          step="1"
           required
           value={value}
           onChange={handleChange}
@@ -44,7 +51,6 @@ export default function AllocationInput({ value, onChange }: AllocationInputProp
         </div>
       </div>
       {!validation.isValid && validation.message && <p className="mt-1 text-sm text-red-600">{validation.message}</p>}
-      <p className="mt-1 text-sm text-gray-500">Limited to 2% to manage risk exposure</p>
     </div>
   );
 }
