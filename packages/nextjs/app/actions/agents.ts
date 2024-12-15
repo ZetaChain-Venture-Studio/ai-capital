@@ -58,13 +58,13 @@ export async function analyzePitch(
 
   console.log("THE INVESTOR SAID: ", investorResponse.choices[0].message.content);
 
-  if (investorResponse.choices[0].message.content === "negative") {
-    // if (false) {
+  // if (investorResponse.choices[0].message.content === "negative") {
+  if (false) {
     console.log("NOT ACCEPTED");
 
     success = false;
-  } else if (investorResponse.choices[0].message.content === "positive") {
-    // } else {
+    // } else if (investorResponse.choices[0].message.content === "positive") {
+  } else {
     // execute investment
     console.log("STARTING CONTRACT EXECUTION...");
     if (tradeType === "buy") {

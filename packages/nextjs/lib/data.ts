@@ -16,9 +16,9 @@ export const mockPortfolio = [
     change: -2.1,
   },
   {
-    token: "Dogecoin",
-    symbol: "DOGE",
-    address: "0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC",
+    token: "Tether USD",
+    symbol: "USDT",
+    address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
     amount: "150000",
     value: 15000,
     change: 12.4,
