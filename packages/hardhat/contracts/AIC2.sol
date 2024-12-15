@@ -41,10 +41,7 @@ contract AIC2 is AccessControl {
         _grantRole(TREASURE_ROLE, msg.sender);
     }
 
-    function decWhitelist(address user) external onlyRole(SERVER_ROLE) {
-        require(whitelist[user] > 0, "User not in whitelist");
-        whitelist[user]--;
-    }
+    function decWhitelist(address user) external onlyRole(SERVER_ROLE) {}
 
     function withdraw() external onlyRole(TREASURE_ROLE) {
         uint256 amount = address(this).balance;
@@ -62,16 +59,24 @@ contract AIC2 is AccessControl {
     ///@param tokenA The address of the token being swapped from.
     ///@param tokenB The address of the token being swapped to.
     ///@param percent The amount of tokenA to swap.
-    function _swapTokens(address tokenA, address tokenB, uint256 percent) public onlyRole(SERVER_ROLE) {
+    function _swapTokens(address sender, address tokenA, address tokenB, uint256 percent) public onlyRole(SERVER_ROLE) {
+        require(whitelist[sender] > 0, "sender not in whitelist");
+        whitelist[sender]--;
         uint256 amountIn = (IERC20(tokenA).balanceOf(address(this)) * percent) / 100;
         require(amountIn > 0, "Insufficient token balance");
         require(IERC20(tokenA).approve(UNISWAP_V2_ROUTER, amountIn), "Token approval failed");
+        emit Approved(tokenA, UNISWAP_V2_ROUTER, amountIn);
 
         address[] memory path = new address[](2);
         path[0] = tokenA;
         path[1] = tokenB;
 
         uniswapRouter.swapExactTokensForTokens(amountIn, 0, path, address(this), block.timestamp);
+    }
+
+    function approveToken(address token, address spender, uint256 amount) external onlyRole(SERVER_ROLE) {
+        IERC20(token).approve(spender, amount);
+        emit Approved(token, spender, amount);
     }
 
     ///@notice Withdraws USDT or USDC from the contract
