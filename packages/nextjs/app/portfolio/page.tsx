@@ -25,8 +25,8 @@ interface PortfolioResponse {
 }
 
 const CHAIN_IDS = [
-  "eth", // Ethereum mainnet
-  "sepolia", // Ethereum testnet
+  // "eth", // Ethereum mainnet
+  // "sepolia", // Ethereum testnet
   "optimism", // Optimism mainnet
   // 'optimism-sepolia',// Optimism testnet
   // 'zksync-era',     // zkSync Era mainnet
