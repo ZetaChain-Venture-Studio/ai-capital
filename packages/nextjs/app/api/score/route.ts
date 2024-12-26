@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ score });
   } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
+    console.error("Error calling db to calculate airdrop score:", error);
+    return NextResponse.json({ error: "Error calling db to calculate airdrop score" }, { status: 500 });
   }
 }
