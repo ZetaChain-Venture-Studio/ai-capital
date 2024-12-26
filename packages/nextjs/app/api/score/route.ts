@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
-
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { userAddress } = body;
