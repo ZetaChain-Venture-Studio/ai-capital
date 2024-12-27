@@ -52,6 +52,15 @@ export default function Pitch() {
     if (formData.pitch.length < 50) {
       setErrorMessage("Please ensure your pitch is at least 50 characters.");
       return;
+    } else if (formData.pitch.length > 400) {
+      setErrorMessage("Please ensure your pitch is less than 400 characters.");
+      return;
+    }
+
+    // Check for special characters
+    if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
+      setErrorMessage("No special characters allowed in the pitch.");
+      return;
     }
 
     // Validate allocation
