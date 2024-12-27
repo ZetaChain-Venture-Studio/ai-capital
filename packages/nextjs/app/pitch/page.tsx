@@ -13,6 +13,11 @@ import { useWalletClient } from "wagmi";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 
+import {
+  TransactionSuccessModal,
+  TransactionFailureModal,
+} from "../../components/ResultModal";
+
 export interface FormData {
   token: string;
   tradeType: string;
@@ -43,6 +48,10 @@ export default function Pitch() {
     walletClient,
   });
 
+  // State to show/hide success/failure modals
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showFailureModal, setShowFailureModal] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -68,7 +77,7 @@ export default function Pitch() {
     if (!allocationValidation.isValid) {
       setStatus("error");
       setErrorMessage(allocationValidation.message || "Invalid allocation");
-      return;
+      return; // Not automatically showing failure modal here
     }
 
     try {
@@ -81,17 +90,21 @@ export default function Pitch() {
       await sendMessage();
 
       setStatus("success");
+      setErrorMessage("");
+      // Not automatically showing success modal
     } catch (e) {
       console.error("Error while paying for pitch:", e);
       setStatus("error");
       setErrorMessage("Error submitting pitch");
+      // Not automatically showing failure modal
     }
-    setErrorMessage("");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setStatus("idle");
     setErrorMessage("");
   };
@@ -102,7 +115,7 @@ export default function Pitch() {
       formData.token,
       formData.tradeType,
       formData.allocation,
-      address as `0x${string}`,
+      address as `0x${string}`
     );
     if (response) {
       const data = await response;
@@ -116,16 +129,16 @@ export default function Pitch() {
         success: response.success,
       };
 
-      setMessages(prevMessages => [newResponse, ...prevMessages]);
+      setMessages((prevMessages) => [newResponse, ...prevMessages]);
     } else {
       console.error("AI API call error");
     }
   };
 
   const getGlobalChat = async () => {
-    const messages = await getAllMessages();
-    if (messages) {
-      setMessages(messages);
+    const msgs = await getAllMessages();
+    if (msgs) {
+      setMessages(msgs);
     }
   };
 
@@ -147,9 +160,8 @@ export default function Pitch() {
 
             {status !== "idle" && (
               <div
-                className={`p-4 rounded-md ${
-                  status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                }`}
+                className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
               >
                 <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
               </div>
@@ -158,11 +170,50 @@ export default function Pitch() {
             <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
               Submit Pitch for 0.001 ETH
             </button>
+
+            {/* debug buttons for showing success and failure modals */}
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={() => setShowSuccessModal(true)}
+                className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
+              >
+                Show Success Modal
+              </button>
+              <button
+                onClick={() => setShowFailureModal(true)}
+                className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
+              >
+                Show Failure Modal
+              </button>
+            </div>
           </form>
         </div>
 
         <Chat messages={messages} />
       </div>
+
+      {/* Our success/failure modals, controlled by local state */}
+      <TransactionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        token="ETH"
+        amount="0.001"
+        chain="Ethereum"
+        transactionHash="0x123abc..."
+        blockNumber={16876234}
+        gasUsed="21000"
+      />
+
+      <TransactionFailureModal
+        isOpen={showFailureModal}
+        onClose={() => setShowFailureModal(false)}
+        reason="Insufficient funds"
+        chain="Ethereum"
+        transactionHash="0x123def..."
+        blockNumber={16876235}
+        gasUsed="20000"
+        error="Reverted: out of gas exception"
+      />
     </div>
   );
 }
