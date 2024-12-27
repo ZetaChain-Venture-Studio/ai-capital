@@ -1,7 +1,6 @@
 "use client"; // If using the Next.js App Router
 
 import { useEffect, useState } from "react";
-import Moralis from "moralis";
 
 interface TransactionItem {
   hash: string;
@@ -27,36 +26,27 @@ interface TransactionItem {
     token_symbol: string;
     token_logo: string;
   }>;
-  // You can add the other properties like nft_transfers, erc20_transfer, etc.
 }
 
+/** Main Page Component */
 export default function WalletEventsPage() {
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-// optimism chain
-  const chain = "0xA"; 
-  const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786";
-  // const walletAddress = "0xcB1C1FdE09f811B294172696404e88E658659905";
+
   useEffect(() => {
     const fetchWalletHistory = async () => {
+      setIsLoading(true);
       try {
-        await Moralis.start({
-          apiKey: process.env.MORALIS_API_KEY,
-        });
-
-        // Fetch the wallet history
-        const response = await Moralis.EvmApi.wallets.getWalletHistory({
-          chain,
-          order: "DESC",
-          address: walletAddress,
-        });
-
-        // Response is in response.raw
-        const data = response.result;
-        // 'data.result' is an array of transactions
-        if (data) {
-          setTransactions(data);
+        // Fetch the wallet history from the server route
+        // Instead of using Moralis directly, we let the server do it
+        const res = await fetch("/api/wallet-history");
+        if (!res.ok) {
+          console.error("Failed to fetch wallet history:", res.statusText);
+          setIsLoading(false);
+          return;
         }
+        const data: TransactionItem[] = await res.json();
+        setTransactions(data);
       } catch (error) {
         console.error("Error fetching wallet history:", error);
       } finally {
@@ -88,12 +78,7 @@ export default function WalletEventsPage() {
 
 /** Renders a single transaction in a card layout */
 function TransactionCard({ tx }: { tx: TransactionItem }) {
-  // For better readability, parse the block timestamp
   const date = new Date(tx.block_timestamp);
-
-  // Convert Wei to Ether if you want to display Ether value
-  // Since "value" is in Wei, you might parse it with e.g. ethers.js if needed
-  // or show a shortened version. For now, let's just show raw `value`.
   return (
     <div className="bg-white shadow-md rounded p-4">
       <div className="flex items-center justify-between border-b pb-2 mb-2">
@@ -109,7 +94,6 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
 
       {/* FROM */}
       <div className="flex items-center gap-2 mb-1">
-        {/* If Moralis returns an entity logo, you can display it */}
         {tx.from_address_entity_logo && (
           <img
             src={tx.from_address_entity_logo}
@@ -121,7 +105,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
           <span className="text-gray-600">From: </span>
           <span className="text-blue-600">{tx.from_address_entity || "User"}</span>
           <div className="text-xs text-gray-400">
-            {truncateAddress(tx.from_address)} 
+            {truncateAddress(tx.from_address)}
             {tx.from_address_label ? ` (${tx.from_address_label})` : ""}
           </div>
         </div>
@@ -146,7 +130,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
         </div>
       </div>
 
-      {/* VALUE */}
+      {/* VALUE (in Wei) */}
       <p className="text-sm text-gray-800 mb-3">
         <strong>Value (Wei):</strong> {tx.value}
       </p>
@@ -171,7 +155,8 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
                 </span>
               </div>
               <div className="text-xs text-gray-400">
-                From {truncateAddress(nt.from_address)} to {truncateAddress(nt.to_address)}
+                From {truncateAddress(nt.from_address)} to{" "}
+                {truncateAddress(nt.to_address)}
               </div>
             </div>
           ))}
