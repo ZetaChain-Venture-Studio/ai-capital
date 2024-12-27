@@ -45,6 +45,11 @@ export async function analyzePitch(
       success: false,
       message: "Please ensure your pitch is at least 50 characters.",
     };
+  } else if (pitch.length > 400) {
+    return {
+      success: false,
+      message: "Please ensure your pitch is less than 400 characters.",
+    };
   }
 
   const investorResponse = await openai.beta.chat.completions.parse({
