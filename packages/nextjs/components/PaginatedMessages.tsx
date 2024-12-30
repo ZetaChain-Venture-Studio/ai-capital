@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AIResponse } from "@/utils/types/types";
 
+/* eslint-disable */
 function usePaginatedMessages() {
   const [messages, setMessages] = useState<AIResponse[]>([]);
   const [nextCursor, setNextCursor] = useState<number | undefined>(undefined);
