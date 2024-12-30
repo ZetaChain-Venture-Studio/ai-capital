@@ -15,7 +15,9 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "~~/*": ["./*"]
+      "~~/*": ["./*"],
+      "@/*": ["./*"] // Maps '@' to the 'src' folder
+
     },
     "plugins": [
       {
