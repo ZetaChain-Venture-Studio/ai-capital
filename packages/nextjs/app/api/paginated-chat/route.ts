@@ -29,6 +29,13 @@ export const revalidate = 0;
     or
     GET /api/paginated-chat?cursor=72
 
+    For private chat:
+    GET /api/paginated-chat?userAddress=0xF2b5423128C34d0818F664A1CD7a52C111197C36
+    or 
+    GET /api/paginated-chat?userAddress=0xF2b5423128C34d0818F664A1CD7a52C111197C36&limit=3
+    or
+    GET /api/paginated-chat?userAddress=0xF2b5423128C34d0818F664A1CD7a52C111197C36&limit=3&cursor=69
+
  */
 export async function GET(req: Request) {
   try {
@@ -36,10 +43,22 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "10", 10); // Default limit is 10
     const cursor = url.searchParams.get("cursor"); // Cursor is optional
+    const userAddress = url.searchParams.get("userAddress"); // Add this line
 
     let rows;
 
-    if (cursor) {
+    //Second page + private chat
+    if (cursor && userAddress) {
+      rows = await sql`
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        FROM messages
+        WHERE id < ${cursor} AND user_address = ${userAddress}
+        ORDER BY id DESC
+        LIMIT ${limit};
+      `;
+    } 
+    //Second page + global chat
+    else if (cursor) {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
@@ -47,7 +66,19 @@ export async function GET(req: Request) {
         ORDER BY id DESC
         LIMIT ${limit};
       `;
-    } else {
+    } 
+    //First page + private chat
+    else if (userAddress) {
+      rows = await sql`
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        FROM messages
+        WHERE user_address = ${userAddress}
+        ORDER BY id DESC
+        LIMIT ${limit};
+      `;
+    }
+    //First page + global chat 
+    else {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
@@ -59,6 +90,7 @@ export async function GET(req: Request) {
     // Transform rows into the AIResponse format
     const aiResponses: AIResponse[] = rows.rows.map((row: any) => ({
       id: row.id,
+      userAddress: row.user_address,
       token: row.token,
       tradeType: row.trade_type,
       allocation: row.allocation,
