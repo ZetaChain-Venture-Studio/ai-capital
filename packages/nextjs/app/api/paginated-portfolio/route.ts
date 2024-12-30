@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
 import { PortfolioResponse } from "@/utils/types/types";
-
+import { sql } from "@vercel/postgres";
 
 export async function GET(req: Request) {
   try {
@@ -20,8 +19,7 @@ export async function GET(req: Request) {
         ORDER BY id DESC
         LIMIT ${limit};
       `;
-    } 
-    else {
+    } else {
       rows = await sql`
         SELECT *
         FROM portfolio
@@ -30,16 +28,13 @@ export async function GET(req: Request) {
       `;
     }
 
+    // Convert each row's portfolio_status (JSON string) back to Token array
+    const portfolioResponses: PortfolioResponse[] = rows.rows.map(row => ({
+      id: row.id,
+      result: JSON.parse(row.portfolio_status),
+    }));
 
-
-        // Convert each row's portfolio_status (JSON string) back to Token array
-      const portfolioResponses: PortfolioResponse[] = rows.rows.map(row => ({
-        id: row.id,
-        result: JSON.parse(row.portfolio_status)
-      }));
-
-      const nextCursor = portfolioResponses.length > 0 ? portfolioResponses[portfolioResponses.length - 1].id : null;
-
+    const nextCursor = portfolioResponses.length > 0 ? portfolioResponses[portfolioResponses.length - 1].id : null;
 
     return NextResponse.json({
       data: portfolioResponses,

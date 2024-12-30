@@ -1,6 +1,5 @@
 import { CHAIN_IDS, PortfolioResponse } from "@/utils/types/types";
 
-
 export default async function PortfolioPage() {
   const apiKey = process.env.MORALIS_API_KEY;
   if (!apiKey) {
