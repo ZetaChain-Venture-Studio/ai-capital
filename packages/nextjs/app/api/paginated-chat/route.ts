@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
 import { AIResponse } from "@/utils/types/types";
-
+import { sql } from "@vercel/postgres";
 
 // export const dynamic = "force-dynamic";
 // export const revalidate = 0;
-
 
 /*
  * 
@@ -56,7 +54,7 @@ export async function GET(req: Request) {
         ORDER BY id DESC
         LIMIT ${limit};
       `;
-    } 
+    }
     //Second page + global chat
     else if (cursor) {
       rows = await sql`
@@ -66,7 +64,7 @@ export async function GET(req: Request) {
         ORDER BY id DESC
         LIMIT ${limit};
       `;
-    } 
+    }
     //First page + private chat
     else if (userAddress) {
       rows = await sql`
@@ -77,7 +75,7 @@ export async function GET(req: Request) {
         LIMIT ${limit};
       `;
     }
-    //First page + global chat 
+    //First page + global chat
     else {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
