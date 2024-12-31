@@ -29,7 +29,7 @@ export default function AllocationInput({ value, onChange }: AllocationInputProp
   return (
     <div>
       <label htmlFor="allocation" className="block text-sm font-medium text-gray-700 mb-2">
-        Allocation Percentage (1 or 2%)
+        Allocation Percentage (0 - 2%)
       </label>
       <div className="relative">
         <input

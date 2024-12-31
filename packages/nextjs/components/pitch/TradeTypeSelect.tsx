@@ -17,7 +17,7 @@ export default function TradeTypeSelect({ value, onChange }: TradeTypeSelectProp
             value="buy"
             checked={value === "buy"}
             onChange={onChange}
-            className="form-radio text-gray-900"
+            className="form-radio text-gray-900 accent-blue-500"
           />
           <span className="ml-2">Buy</span>
         </label>
@@ -28,7 +28,7 @@ export default function TradeTypeSelect({ value, onChange }: TradeTypeSelectProp
             value="sell"
             checked={value === "sell"}
             onChange={onChange}
-            className="form-radio text-gray-900"
+            className="form-radio text-gray-900 accent-blue-500"
           />
           <span className="ml-2">Sell</span>
         </label>
