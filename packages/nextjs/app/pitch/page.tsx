@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
@@ -12,11 +13,6 @@ import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-
-import {
-  TransactionSuccessModal,
-  TransactionFailureModal,
-} from "../../components/ResultModal";
 
 export interface FormData {
   token: string;
@@ -100,11 +96,9 @@ export default function Pitch() {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     setStatus("idle");
     setErrorMessage("");
   };
@@ -115,7 +109,7 @@ export default function Pitch() {
       formData.token,
       formData.tradeType,
       formData.allocation,
-      address as `0x${string}`
+      address as `0x${string}`,
     );
     if (response) {
       const data = await response;
@@ -129,7 +123,7 @@ export default function Pitch() {
         success: response.success,
       };
 
-      setMessages((prevMessages) => [newResponse, ...prevMessages]);
+      setMessages(prevMessages => [newResponse, ...prevMessages]);
     } else {
       console.error("AI API call error");
     }
@@ -160,8 +154,9 @@ export default function Pitch() {
 
             {status !== "idle" && (
               <div
-                className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  }`}
+                className={`p-4 rounded-md ${
+                  status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                }`}
               >
                 <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
               </div>

@@ -1,15 +1,12 @@
-"use client"; // for Next.js app router or any client-side usage
+"use client";
 
-import React, { useState, useEffect } from "react";
+// for Next.js app router or any client-side usage
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import CopyToClipboard from "react-copy-to-clipboard"; // Import CopyToClipboard
+import CopyToClipboard from "react-copy-to-clipboard";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-
-// If you have a local Twitter icon, import it. Example:
 import twitterIcon from "~~/public/assets/icons8-x.svg";
-// If you have a local Discord icon, import it. Example:
-// import discordIcon from "~~/public/assets/discord_icon.svg";
 
 /** Basic modal props for open/close state. */
 type ModalProps = {
@@ -18,7 +15,6 @@ type ModalProps = {
   children?: React.ReactNode;
 };
 
-/** A very simple modal without extra libraries */
 function ResultModal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null;
 
@@ -26,14 +22,8 @@ function ResultModal({ isOpen, onClose, children }: ModalProps) {
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-md shadow-md p-6 max-w-md w-full"
-        onClick={stopPropagation}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+      <div className="bg-white rounded-md shadow-md p-6 max-w-md w-full" onClick={stopPropagation}>
         {children}
       </div>
     </div>
@@ -55,11 +45,9 @@ type TransactionSuccessModalProps = {
   amount: string;
   chain: string;
   transactionHash?: string; // e.g., "0x1234..."
-  blockNumber?: number;     // e.g., 12345678
-  gasUsed?: string;         // e.g., "21000"
-
-  /** If you want to show a Discord icon/link. */
-  discordLink?: string;  
+  blockNumber?: number; // e.g., 12345678
+  gasUsed?: string; // e.g., "21000"
+  discordLink?: string;
 };
 
 export function TransactionSuccessModal({
@@ -97,13 +85,10 @@ export function TransactionSuccessModal({
           </svg>
         </div>
 
-        <h2 className="text-xl font-bold text-green-600">
-          Transaction Successful
-        </h2>
+        <h2 className="text-xl font-bold text-green-600">Transaction Successful</h2>
 
         <p className="mt-2 text-gray-700">
-          You just swapped <strong>{amount}</strong>{" "}
-          <strong>{token}</strong>.
+          You just swapped <strong>{amount}</strong> <strong>{token}</strong>.
         </p>
         <p className="mt-1 text-gray-700">
           On chain: <strong>{chain}</strong>
@@ -144,17 +129,13 @@ export function TransactionSuccessModal({
           </p>
         )}
 
-        <p className="mt-2 text-gray-700">
-          Your transaction has been confirmed and processed successfully.
-        </p>
+        <p className="mt-2 text-gray-700">Your transaction has been confirmed and processed successfully.</p>
 
         {/* If a Discord link is provided, show it */}
         {discordLink && (
           <div className="flex justify-center items-center gap-2 mt-6">
             <Link href={discordLink} target="_blank">
-              <span className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Join Discord
-              </span>
+              <span className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Join Discord</span>
             </Link>
           </div>
         )}
@@ -162,9 +143,7 @@ export function TransactionSuccessModal({
         {/* Hardcoded "Share on Twitter" button */}
         <div className="flex justify-center items-center mt-4">
           <Link
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              shareText
-            )}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
             target="_blank"
             rel="noopener noreferrer"
             className=" text-black py-2 px-4 rounded flex items-center"
@@ -175,10 +154,7 @@ export function TransactionSuccessModal({
           </Link>
         </div>
 
-        <button
-          onClick={onClose}
-          className="mt-6 px-4 py-2 bg-green-500 text-white rounded"
-        >
+        <button onClick={onClose} className="mt-6 px-4 py-2 bg-green-500 text-white rounded">
           Close
         </button>
       </div>
@@ -193,14 +169,14 @@ export function TransactionSuccessModal({
 type TransactionFailureModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  reason: string;     // e.g. "Insufficient balance"
+  reason: string; // e.g. "Insufficient balance"
   chain: string;
   transactionHash?: string;
-  error?: string;     // e.g. "revert: out of gas exception"
+  error?: string; // e.g. "revert: out of gas exception"
   blockNumber?: number;
   gasUsed?: string;
 
-  discordLink?: string;  
+  discordLink?: string;
 };
 
 export function TransactionFailureModal({
@@ -215,9 +191,6 @@ export function TransactionFailureModal({
   discordLink,
 }: TransactionFailureModalProps) {
   const [copySuccess, setCopySuccess] = useState(false);
-
-  // Hardcoded text for a potential fail scenario on Twitter
-  const failShareText = `Transaction failed on ${chain}, reason: ${reason}. #DustFun #ZetaChain`;
 
   return (
     <ResultModal isOpen={isOpen} onClose={onClose}>
@@ -273,42 +246,31 @@ export function TransactionFailureModal({
             </CopyToClipboard>
           </div>
         )}
-
         {blockNumber !== undefined && (
           <p className="mt-1 text-gray-700 text-sm">
             Block: <strong>{blockNumber}</strong>
           </p>
         )}
-
         {gasUsed && (
           <p className="mt-1 text-gray-700 text-sm">
             Gas Used: <strong>{gasUsed}</strong>
           </p>
         )}
 
-        {error && (
-          <p className="mt-2 text-red-600 text-sm">Technical error: {error}</p>
-        )}
+        {error && <p className="mt-2 text-red-600 text-sm">Technical error: {error}</p>}
 
-        <p className="mt-2 text-gray-700">
-          Unfortunately, your transaction could not be processed.
-        </p>
+        <p className="mt-2 text-gray-700">Unfortunately, your transaction could not be processed.</p>
         <p className="text-gray-700">Please try again later.</p>
 
         {discordLink && (
           <div className="flex justify-center items-center gap-2 mt-6">
             <Link href={discordLink} target="_blank">
-              <span className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Join Discord
-              </span>
+              <span className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Join Discord</span>
             </Link>
           </div>
-        )}        
+        )}
 
-        <button
-          onClick={onClose}
-          className="mt-6 px-4 py-2 bg-red-500 text-white rounded"
-        >
+        <button onClick={onClose} className="mt-6 px-4 py-2 bg-red-500 text-white rounded">
           Close
         </button>
       </div>
@@ -340,19 +302,8 @@ function Spinner() {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v8z"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
     </svg>
   );
 }
@@ -396,11 +347,7 @@ export function PromptSuccessModal({
         <h2 className="text-xl font-bold mb-2">
           {status === "waiting" ? "Rebalancing Portfolio" : "Rebalancing Complete"}
         </h2>
-        <div
-          className={`p-4 rounded-md ${
-            status === "success" ? "bg-green-100" : "bg-gray-100"
-          }`}
-        >
+        <div className={`p-4 rounded-md ${status === "success" ? "bg-green-100" : "bg-gray-100"}`}>
           {status === "waiting" ? (
             <>
               <TokenLoader token={tokenFrom} />
@@ -414,11 +361,7 @@ export function PromptSuccessModal({
           ) : (
             <>
               <div className="mx-auto w-12 h-12 mb-2 text-green-500">
-                <svg
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  className="w-full h-full"
-                >
+                <svg fill="currentColor" viewBox="0 0 20 20" className="w-full h-full">
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 
@@ -444,9 +387,7 @@ export function PromptSuccessModal({
           onClick={onClose}
           disabled={status === "waiting"}
           className={`mt-4 px-4 py-2 rounded ${
-            status === "waiting"
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white"
+            status === "waiting" ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-500 text-white"
           }`}
         >
           {status === "waiting" ? "Please wait..." : "Close"}

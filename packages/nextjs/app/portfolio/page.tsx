@@ -1,13 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import { ArcElement, Chart as ChartJS, ChartOptions, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  ChartOptions,
-} from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -28,7 +23,7 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     const fetchTokens = async () => {
-      try {       
+      try {
         const res = await fetch("/api/portfolio");
         if (!res.ok) {
           console.error("Failed to fetch tokens from /api/portfolio:", res.statusText);
@@ -48,26 +43,19 @@ export default function PortfolioPage() {
   }, []);
 
   // Filter out tokens with USD value less than 1
-  const filteredTokens = tokens.filter((token) => token.usd_value >= 1);
+  const filteredTokens = tokens.filter(token => token.usd_value >= 1);
 
   // Compute total USD value
   const totalValue = filteredTokens.reduce((acc, token) => acc + token.usd_value, 0);
 
   // Pie chart data
   const pieData = {
-    labels: filteredTokens.map((token) => token.symbol),
+    labels: filteredTokens.map(token => token.symbol),
     datasets: [
       {
         label: "Asset Allocation",
-        data: filteredTokens.map((token) => token.usd_value),
-        backgroundColor: [
-          "#ff6384",
-          "#36a2eb",
-          "#ffce56",
-          "#4bc0c0",
-          "#9966ff",
-          "#ff9f40",
-        ],
+        data: filteredTokens.map(token => token.usd_value),
+        backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40"],
         hoverOffset: 8,
       },
     ],
@@ -96,11 +84,7 @@ export default function PortfolioPage() {
           </span>
         </p>
         <h3 className="text-lg font-semibold mt-4">Asset Allocation</h3>
-        <div className="w-80 h-80 mt-4">
-          {filteredTokens.length > 0 && (
-            <Pie data={pieData} options={pieOptions} />
-          )}
-        </div>
+        <div className="w-80 h-80 mt-4">{filteredTokens.length > 0 && <Pie data={pieData} options={pieOptions} />}</div>
       </div>
 
       {isLoading ? (
@@ -122,11 +106,8 @@ export default function PortfolioPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredTokens.map((token) => (
-                <tr
-                  key={`${token.token_address}-${token.chain}`}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
+              {filteredTokens.map(token => (
+                <tr key={`${token.token_address}-${token.chain}`} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-3 px-4">{token.chain}</td>
                   <td className="py-3 px-4">
                     <div className="font-medium">{token.name}</div>
@@ -139,9 +120,7 @@ export default function PortfolioPage() {
                   <td className="py-3 px-4">
                     ${token.usd_value?.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="py-3 px-4">
-                    {token.portfolio_percentage?.toFixed(2)}%
-                  </td>
+                  <td className="py-3 px-4">{token.portfolio_percentage?.toFixed(2)}%</td>
                 </tr>
               ))}
             </tbody>

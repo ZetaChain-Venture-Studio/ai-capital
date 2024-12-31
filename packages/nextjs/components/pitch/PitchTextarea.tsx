@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 
 interface PitchTextareaProps {
   value: string;
@@ -16,9 +16,10 @@ export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
   };
 
   const isValidCharacter = (charCode: number) => {
-    const alphanumeric = (charCode >= 48 && charCode <= 57) || // 0-9
-                         (charCode >= 65 && charCode <= 90) || // A-Z
-                         (charCode >= 97 && charCode <= 122);  // a-z
+    const alphanumeric =
+      (charCode >= 48 && charCode <= 57) || // 0-9
+      (charCode >= 65 && charCode <= 90) || // A-Z
+      (charCode >= 97 && charCode <= 122); // a-z
     const specialChars = [32, 34, 44, 46, 45, 47, 40, 41, 33]; // space, ", ,, ., -, /, (, ), !
     return alphanumeric || specialChars.includes(charCode);
   };
@@ -39,7 +40,7 @@ export default function PitchTextarea({ value, onChange }: PitchTextareaProps) {
         maxLength={400}
         className=" bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         placeholder="Explain your investment thesis..."
-      />    
+      />
       <p className="mt-2 text-sm text-gray-500">At least 50 characters, maximum of 400 characters</p>
     </div>
   );

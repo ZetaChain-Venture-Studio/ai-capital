@@ -1,14 +1,12 @@
-// app/api/wallet-history/route.ts
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Moralis from "moralis";
 
-// The chain and walletAddress could be passed as query params instead, 
+// The chain and walletAddress could be passed as query params instead,
 // but for simplicity we'll hard-code them here
 const chain = "0xA"; // Optimism chain
 const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Load the private API key from env (not exposed to the client)
     const apiKey = process.env.MORALIS_API_KEY;

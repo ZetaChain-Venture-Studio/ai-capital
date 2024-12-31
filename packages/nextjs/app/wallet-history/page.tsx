@@ -1,6 +1,7 @@
-"use client"; // If using the Next.js App Router
+"use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface TransactionItem {
   hash: string;
@@ -67,7 +68,7 @@ export default function WalletEventsPage() {
         <p className="text-center text-gray-500">No transactions found.</p>
       ) : (
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-          {transactions.map((tx) => (
+          {transactions.map(tx => (
             <TransactionCard key={tx.hash} tx={tx} />
           ))}
         </div>
@@ -83,9 +84,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
     <div className="bg-white shadow-md rounded p-4">
       <div className="flex items-center justify-between border-b pb-2 mb-2">
         <span className="text-sm text-gray-400">Block #{tx.block_number}</span>
-        <span className="text-sm text-gray-400">
-          {date.toLocaleString("en-US")}
-        </span>
+        <span className="text-sm text-gray-400">{date.toLocaleString("en-US")}</span>
       </div>
 
       <p className="text-sm text-gray-600 mb-1">
@@ -94,13 +93,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
 
       {/* FROM */}
       <div className="flex items-center gap-2 mb-1">
-        {tx.from_address_entity_logo && (
-          <img
-            src={tx.from_address_entity_logo}
-            alt="from-logo"
-            className="w-5 h-5"
-          />
-        )}
+        {tx.from_address_entity_logo && <Image src={tx.from_address_entity_logo} alt="from-logo" className="w-5 h-5" />}
         <div>
           <span className="text-gray-600">From: </span>
           <span className="text-blue-600">{tx.from_address_entity || "User"}</span>
@@ -113,13 +106,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
 
       {/* TO */}
       <div className="flex items-center gap-2 mb-3">
-        {tx.to_address_entity_logo && (
-          <img
-            src={tx.to_address_entity_logo}
-            alt="to-logo"
-            className="w-5 h-5"
-          />
-        )}
+        {tx.to_address_entity_logo && <Image src={tx.to_address_entity_logo} alt="to-logo" className="w-5 h-5" />}
         <div>
           <span className="text-gray-600">To: </span>
           <span className="text-blue-600">{tx.to_address_entity || "User"}</span>
@@ -142,21 +129,13 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
           {tx.native_transfers.map((nt, i) => (
             <div key={i} className="flex flex-col border-b last:border-none py-1">
               <div className="flex items-center gap-2">
-                {nt.token_logo && (
-                  <img
-                    src={nt.token_logo}
-                    alt={`${nt.token_symbol}-logo`}
-                    className="w-4 h-4"
-                  />
-                )}
+                {nt.token_logo && <Image src={nt.token_logo} alt={`${nt.token_symbol}-logo`} className="w-4 h-4" />}
                 <span>
-                  {nt.direction === "outgoing" ? "Sent" : "Received"} {nt.value_formatted}{" "}
-                  {nt.token_symbol}
+                  {nt.direction === "outgoing" ? "Sent" : "Received"} {nt.value_formatted} {nt.token_symbol}
                 </span>
               </div>
               <div className="text-xs text-gray-400">
-                From {truncateAddress(nt.from_address)} to{" "}
-                {truncateAddress(nt.to_address)}
+                From {truncateAddress(nt.from_address)} to {truncateAddress(nt.to_address)}
               </div>
             </div>
           ))}
@@ -169,9 +148,7 @@ function TransactionCard({ tx }: { tx: TransactionItem }) {
 /** Helper to truncate hash/address for display */
 function truncateHash(hash: string, length = 10) {
   if (!hash) return "";
-  return hash.length > 2 * length
-    ? hash.slice(0, length) + "..." + hash.slice(-length)
-    : hash;
+  return hash.length > 2 * length ? hash.slice(0, length) + "..." + hash.slice(-length) : hash;
 }
 
 /** Address truncation utility */

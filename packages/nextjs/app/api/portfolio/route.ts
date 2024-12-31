@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 interface Token {
   token_address: string;
@@ -29,7 +29,7 @@ const CHAIN_IDS = [
   "optimism", // Optimism mainnet
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Load the private API key from env (NOT exposed to the client)
     const apiKey = process.env.MORALIS_API_KEY;
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const walletAddress = "0xb13b7A60C88e1Ba2a204423aB420C60ACBA62c53";
 
     // Fetch tokens from Moralis for each chain
-    const promises = CHAIN_IDS.map(async (chain) => {
+    const promises = CHAIN_IDS.map(async chain => {
       const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens?chain=${chain}`;
 
       const res = await fetch(url, {
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
       const data = (await res.json()) as PortfolioResponse;
       // Attach chain info to each token
-      return (data.result || []).map((token) => ({
+      return (data.result || []).map(token => ({
         ...token,
         chain,
       }));
