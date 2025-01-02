@@ -51,6 +51,7 @@
     "lucide-react": "^0.468.0",
     "moralis": "^2.27.2",
     "react-chartjs-2": "^5.2.0",
+    "thirdweb": "^5.80.0",
     "zod": "^3.24.1"
   }
 }

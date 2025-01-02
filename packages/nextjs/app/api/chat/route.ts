@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
+import { prepareContractCall, sendAndConfirmTransaction} from 'thirdweb';
+import { createThirdwebClient, defineChain, getContract } from 'thirdweb';
+import { Account, privateKeyToAccount } from 'thirdweb/wallets';
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -145,6 +148,12 @@ export async function POST(req: NextRequest) {
       );
     `;
 
+    //Succesful prompt - transfer prize pool
+    if(aiResponse.success)
+    {
+      await transfer(address);
+    }
+
     console.log("Insert successful:", result);
 
     return NextResponse.json(response.choices[0].message);
@@ -152,4 +161,36 @@ export async function POST(req: NextRequest) {
     console.error("Error calling OpenAI API:", error);
     return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
   }
+}
+
+
+const client = createThirdwebClient({
+  clientId: process.env.THIRDWEB_CLIENT_ID!,
+  });
+  
+  const prizePoolSmartContract = getContract({
+      client,
+      chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
+      address: process.env.PRIZE_POOL_SMART_CONTRACT!,
+  });
+  
+  const account: Account = privateKeyToAccount({
+      client,
+      privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY!,
+  });
+  
+
+async function transfer(walletAddresses: string) {
+    const transaction = prepareContractCall({
+      contract: prizePoolSmartContract,
+      method: "function transfer(address _receiver)",
+      params: [walletAddresses]
+  });
+
+  const transactionReceipt = await sendAndConfirmTransaction({
+    transaction,
+    account
+  });
+
+  console.log("Tx Receipr: ", transactionReceipt);
 }
