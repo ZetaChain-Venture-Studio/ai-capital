@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { PortfolioResponse } from "@/utils/types/types";
 import { sql } from "@vercel/postgres";
 
+/*
+Query this endpoint like so - get the 10 latest snapshots:
+/api/paginated-portfolio
+
+Query like this to limit to only the latest snapshot:
+/api/paginated-portfolio?limit=1
+
+Query like this for the second page starting at entry 2:
+/api/paginated-portfolio?limit=1&cursor=2
+
+*/
 export async function GET(req: Request) {
   try {
     // Parse query parameters
