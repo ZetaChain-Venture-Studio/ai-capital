@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
@@ -43,6 +44,10 @@ export default function Pitch() {
     walletClient,
   });
 
+  // State to show/hide success/failure modals
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showFailureModal, setShowFailureModal] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,6 +57,15 @@ export default function Pitch() {
     if (formData.pitch.length < 50) {
       setErrorMessage("Please ensure your pitch is at least 50 characters.");
       return;
+    } else if (formData.pitch.length > 400) {
+      setErrorMessage("Please ensure your pitch is less than 400 characters.");
+      return;
+    }
+
+    // Check for special characters
+    if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
+      setErrorMessage("No special characters allowed in the pitch.");
+      return;
     }
 
     // Validate allocation
@@ -59,7 +73,7 @@ export default function Pitch() {
     if (!allocationValidation.isValid) {
       setStatus("error");
       setErrorMessage(allocationValidation.message || "Invalid allocation");
-      return;
+      return; // Not automatically showing failure modal here
     }
 
     try {
@@ -72,12 +86,14 @@ export default function Pitch() {
       await sendMessage();
 
       setStatus("success");
+      setErrorMessage("");
+      // Not automatically showing success modal
     } catch (e) {
       console.error("Error while paying for pitch:", e);
       setStatus("error");
       setErrorMessage("Error submitting pitch");
+      // Not automatically showing failure modal
     }
-    setErrorMessage("");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -114,9 +130,9 @@ export default function Pitch() {
   };
 
   const getGlobalChat = async () => {
-    const messages = await getAllMessages();
-    if (messages) {
-      setMessages(messages);
+    const msgs = await getAllMessages();
+    if (msgs) {
+      setMessages(msgs);
     }
   };
 
@@ -149,11 +165,50 @@ export default function Pitch() {
             <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
               Submit Pitch for 0.001 ETH
             </button>
+
+            {/* debug buttons for showing success and failure modals */}
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={() => setShowSuccessModal(true)}
+                className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
+              >
+                Show Success Modal
+              </button>
+              <button
+                onClick={() => setShowFailureModal(true)}
+                className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
+              >
+                Show Failure Modal
+              </button>
+            </div>
           </form>
         </div>
 
         <Chat messages={messages} />
       </div>
+
+      {/* Our success/failure modals, controlled by local state */}
+      <TransactionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        token="ETH"
+        amount="0.001"
+        chain="Ethereum"
+        transactionHash="0x123abc..."
+        blockNumber={16876234}
+        gasUsed="21000"
+      />
+
+      <TransactionFailureModal
+        isOpen={showFailureModal}
+        onClose={() => setShowFailureModal(false)}
+        reason="Insufficient funds"
+        chain="Ethereum"
+        transactionHash="0x123def..."
+        blockNumber={16876235}
+        gasUsed="20000"
+        error="Reverted: out of gas exception"
+      />
     </div>
   );
 }
