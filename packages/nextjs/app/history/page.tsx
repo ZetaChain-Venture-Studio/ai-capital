@@ -44,42 +44,21 @@ type TimeframeOption = "1d" | "7d" | "30d" | "all";
 
 export default function HistoryPage() {
   const [snapshots, setSnapshots] = useState<PortfolioSnapshot[]>([]);
-  const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-
-  // For pagination (you can tweak these)
-  const [limit] = useState<number>(5);
-  const [cursor, setCursor] = useState<number | null>(null);
 
   // NEW: Track which timeframe the user selected
-  const [timeframe, setTimeframe] = useState<TimeframeOption>("all");
+  const [timeframe, setTimeframe] = useState<TimeframeOption>("1d");
 
-  const fetchSnapshots = async (limitValue: number, cursorValue: number | null) => {
+  const fetchSnapshots = async () => {
     try {
       setIsLoading(true);
-      let url = `/api/paginated-portfolio?limit=${limitValue}`;
-      if (cursorValue !== null) {
-        url += `&cursor=${cursorValue}`;
-      }
-
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch("/api/paginated-portfolio", { cache: "no-store" });
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
 
       const jsonData: ApiResponse = await response.json();
-
-      if (!cursorValue) {
-        // First time load
-        setSnapshots(jsonData.data);
-      } else {
-        // Load older snapshots
-        setSnapshots((prev) => [...prev, ...jsonData.data]);
-      }
-
-      setNextCursor(jsonData.nextCursor);
-      setHasMore(!!jsonData.nextCursor);
+      setSnapshots(jsonData.data);
     } catch (error) {
       console.error("Error fetching snapshots:", error);
     } finally {
@@ -88,16 +67,9 @@ export default function HistoryPage() {
   };
 
   useEffect(() => {
-    fetchSnapshots(limit, cursor);
+    fetchSnapshots();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleLoadMore = () => {
-    if (nextCursor) {
-      setCursor(nextCursor);
-      fetchSnapshots(limit, nextCursor);
-    }
-  };
 
   // snapshots are in DESC order by ID/time (latest first).
   // Reverse them for the chart so earliest is on the left.
@@ -130,9 +102,20 @@ export default function HistoryPage() {
   });
 
   // X-Axis Labels: Use the filtered snapshots' created_at
-  const snapshotLabels = filteredSnapshots.map((s) =>
-    new Date(s.created_at).toLocaleString()
-  );
+  const snapshotLabels = filteredSnapshots.map((s) => {
+    const d = new Date(s.created_at);
+    const localDate = d.toLocaleDateString([], {
+      year: "2-digit",
+      month: "numeric",
+      day: "numeric",
+    });
+    const localTime = d.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    return `${localDate}\n${localTime}`;
+  });
 
   // Data: sum up usd_value from result for each snapshot
   const snapshotData = filteredSnapshots.map((s) =>
@@ -179,41 +162,50 @@ export default function HistoryPage() {
   };
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h1>Portfolio History</h1>
-
-      {/* Timeframe buttons */}
-      <div style={{ marginBottom: "1rem" }}>
+    <div className="p-4">
+      <h1 className="text-xl font-bold">Portfolio History</h1>
+      <div className="w-9/12 mx-auto my-8">
+        <Line data={data} options={options} />
+      </div>
+      <div className="flex gap-2 justify-center">
         <button
+          className={`px-3 py-2 ${
+            timeframe === "1d" ? "bg-blue-600" : "bg-gray-600"
+          } text-white rounded`}
           onClick={() => handleTimeframeChange("1d")}
-          style={{ marginRight: "0.5rem" }}
         >
           1 Day
         </button>
         <button
+          className={`px-3 py-2 ${
+            timeframe === "7d" ? "bg-blue-600" : "bg-gray-600"
+          } text-white rounded`}
           onClick={() => handleTimeframeChange("7d")}
-          style={{ marginRight: "0.5rem" }}
         >
           7 Days
         </button>
         <button
+          className={`px-3 py-2 ${
+            timeframe === "30d" ? "bg-blue-600" : "bg-gray-600"
+          } text-white rounded`}
           onClick={() => handleTimeframeChange("30d")}
-          style={{ marginRight: "0.5rem" }}
         >
           30 Days
         </button>
-        <button onClick={() => handleTimeframeChange("all")}>All</button>
+        <button
+          className={`px-3 py-2 ${
+            timeframe === "all" ? "bg-blue-600" : "bg-gray-600"
+          } text-white rounded`}
+          onClick={() => handleTimeframeChange("all")}
+        >
+          All
+        </button>
       </div>
-
-      <div style={{ maxWidth: "700px", margin: "2rem auto" }}>
-        <Line data={data} options={options} />
-      </div>
-
-      {isLoading && <p>Loading...</p>}
-      {hasMore && !isLoading && (
-        <button onClick={handleLoadMore}>Load More (Older Snapshots)</button>
+      {isLoading && (
+        <div className="mt-4 flex justify-center">
+          <div className="w-6 h-6 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+        </div>
       )}
-      {!hasMore && snapshots.length > 0 && <p>All snapshots loaded</p>}
     </div>
   );
 }
