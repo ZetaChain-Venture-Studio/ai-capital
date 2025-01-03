@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
-import { OpenAI } from "openai";
-import { prepareContractCall, sendAndConfirmTransaction} from 'thirdweb';
-import { createThirdwebClient, defineChain, getContract } from 'thirdweb';
-import { Account, privateKeyToAccount } from 'thirdweb/wallets';
 import { VerifyTransactionOptions } from "@/utils/types/types";
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
-import { ethers } from "ethers";
-
+import { sql } from "@vercel/postgres";
+import { OpenAI } from "openai";
+import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
+import { createThirdwebClient, defineChain, getContract } from "thirdweb";
+import { Account, privateKeyToAccount } from "thirdweb/wallets";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -165,8 +163,7 @@ export async function POST(req: NextRequest) {
     `;
 
     //Succesful prompt - transfer prize pool
-    if(aiResponse.success)
-    {
+    if (aiResponse.success) {
       await transfer(address);
     }
 
@@ -179,49 +176,42 @@ export async function POST(req: NextRequest) {
   }
 }
 
-
 const client = createThirdwebClient({
-  clientId: process.env.THIRDWEB_CLIENT_ID!,
-  });
-  
-  const prizePoolSmartContract = getContract({
-      client,
-      chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
-      address: process.env.PRIZE_POOL_SMART_CONTRACT!,
-  });
-  
-  const account: Account = privateKeyToAccount({
-      client,
-      privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY!,
-  });
-  
+  clientId: process.env.THIRDWEB_CLIENT_ID || "",
+});
+
+const prizePoolSmartContract = getContract({
+  client,
+  chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
+  address: process.env.PRIZE_POOL_SMART_CONTRACT || "",
+});
+
+const account: Account = privateKeyToAccount({
+  client,
+  privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY || "",
+});
 
 async function transfer(walletAddresses: string) {
-    const transaction = prepareContractCall({
-      contract: prizePoolSmartContract,
-      method: "function transfer(address _receiver)",
-      params: [walletAddresses]
+  const transaction = prepareContractCall({
+    contract: prizePoolSmartContract,
+    method: "function transfer(address _receiver)",
+    params: [walletAddresses],
   });
 
   const transactionReceipt = await sendAndConfirmTransaction({
     transaction,
-    account
+    account,
   });
 
   console.log("Tx Receipr: ", transactionReceipt);
 }
 
-const sdk = ThirdwebSDK.fromPrivateKey(
-  process.env.BACKEND_WALLET_PRIVATE_KEY!,
-  process.env.RPC_URL!,
-);
+const sdk = ThirdwebSDK.fromPrivateKey(process.env.BACKEND_WALLET_PRIVATE_KEY || "", process.env.RPC_URL || "");
 
 async function verifyTransaction(options: VerifyTransactionOptions): Promise<boolean> {
-
   const { txHash, requiredFee, expectedSender, expectedNonce } = options;
 
   try {
-   
     const tx = await sdk.getProvider().getTransaction(txHash);
 
     if (!tx) {
@@ -234,8 +224,7 @@ async function verifyTransaction(options: VerifyTransactionOptions): Promise<boo
     }
 
     // Valid transaction fee
-    const paidFee = ethers.utils.formatEther(tx.value);
-    if (parseFloat(paidFee) < parseFloat(requiredFee)) {
+    if (tx.value.toBigInt() < parseFloat(requiredFee)) {
       console.error("Insufficient transaction fee");
     }
 
@@ -250,8 +239,7 @@ async function verifyTransaction(options: VerifyTransactionOptions): Promise<boo
       console.error("Transaction not confirmed");
     }
 
-    return true; 
-
+    return true;
   } catch (error) {
     console.error("Transaction verification failed:", error);
     return false;
