@@ -22,7 +22,7 @@ interface Token {
 
 interface PortfolioSnapshot {
   id: number;
-  created_at: string; // or Date if you parse it
+  created_at: string;
   result: Token[];
 }
 
@@ -31,14 +31,11 @@ interface ApiResponse {
   nextCursor: number | null;
 }
 
-// Possible timeframe options for filtering
 type TimeframeOption = "1d" | "7d" | "30d" | "all";
 
-export default function HistoryPage() {
+export default function PortfolioHistoryChart() {
   const [snapshots, setSnapshots] = useState<PortfolioSnapshot[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // NEW: Track which timeframe the user selected
   const [timeframe, setTimeframe] = useState<TimeframeOption>("1d");
 
   const fetchSnapshots = async () => {
@@ -48,7 +45,6 @@ export default function HistoryPage() {
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-
       const jsonData: ApiResponse = await response.json();
       setSnapshots(jsonData.data);
     } catch (error) {
@@ -60,25 +56,15 @@ export default function HistoryPage() {
 
   useEffect(() => {
     fetchSnapshots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // snapshots are in DESC order by ID/time (latest first).
-  // Reverse them for the chart so earliest is on the left.
   const reversedSnapshots = [...snapshots].reverse();
 
-  /**
-   * FILTER BY TIMEFRAME
-   * We'll filter out snapshots older than the chosen timeframe
-   * from the *current* time.
-   */
   const now = new Date();
   const filteredSnapshots = reversedSnapshots.filter(snapshot => {
-    // If timeframe is "all", just keep everything
     if (timeframe === "all") return true;
 
     const snapshotDate = new Date(snapshot.created_at);
-    // Difference in days
     const daysDiff = (now.getTime() - snapshotDate.getTime()) / (1000 * 60 * 60 * 24);
 
     switch (timeframe) {
@@ -89,11 +75,10 @@ export default function HistoryPage() {
       case "30d":
         return daysDiff <= 30;
       default:
-        return true; // fallback (shouldn't happen)
+        return true;
     }
   });
 
-  // X-Axis Labels: Use the filtered snapshots' created_at
   const snapshotLabels = filteredSnapshots.map(s => {
     const d = new Date(s.created_at);
     const localDate = d.toLocaleDateString([], {
@@ -109,10 +94,8 @@ export default function HistoryPage() {
     return `${localDate}\n${localTime}`;
   });
 
-  // Data: sum up usd_value from result for each snapshot
   const snapshotData = filteredSnapshots.map(s => s.result.reduce((acc, t) => acc + (t.usd_value ?? 0), 0));
 
-  // Chart.js dataset
   const data = {
     labels: snapshotLabels,
     datasets: [
@@ -126,7 +109,6 @@ export default function HistoryPage() {
     ],
   };
 
-  // Chart.js options
   const options = {
     responsive: true,
     plugins: {
@@ -146,14 +128,12 @@ export default function HistoryPage() {
     },
   };
 
-  // Handler to change timeframe
   const handleTimeframeChange = (newTimeframe: TimeframeOption) => {
     setTimeframe(newTimeframe);
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold">Portfolio History</h1>
       <div className="w-9/12 mx-auto my-8">
         <Line data={data} options={options} />
       </div>
