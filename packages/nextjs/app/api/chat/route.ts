@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { VerifyTransactionOptions } from "@/utils/types/types";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
+import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
+import { createThirdwebClient, defineChain, getContract } from "thirdweb";
+import { Account, privateKeyToAccount } from "thirdweb/wallets";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -14,10 +19,22 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { address, userMessage } = body;
+  const { address, userMessage, txHash, requiredFee, expectedSender, expectedNonce } = body;
 
   if (!address || !userMessage) {
     return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
+  }
+
+  const isValid = await verifyTransaction({
+    txHash,
+    requiredFee,
+    expectedSender,
+    expectedNonce,
+  });
+
+  if (!isValid) {
+    console.log("Transaction not legit");
+    return NextResponse.json({ error: "Invalid tx" }, { status: 500 });
   }
 
   try {
@@ -145,11 +162,86 @@ export async function POST(req: NextRequest) {
       );
     `;
 
+    //Succesful prompt - transfer prize pool
+    if (aiResponse.success) {
+      await transfer(address);
+    }
+
     console.log("Insert successful:", result);
 
     return NextResponse.json(response.choices[0].message);
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
     return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
+  }
+}
+
+const client = createThirdwebClient({
+  clientId: process.env.THIRDWEB_CLIENT_ID || "",
+});
+
+const prizePoolSmartContract = getContract({
+  client,
+  chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
+  address: process.env.PRIZE_POOL_SMART_CONTRACT || "",
+});
+
+const account: Account = privateKeyToAccount({
+  client,
+  privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY || "",
+});
+
+async function transfer(walletAddresses: string) {
+  const transaction = prepareContractCall({
+    contract: prizePoolSmartContract,
+    method: "function transfer(address _receiver)",
+    params: [walletAddresses],
+  });
+
+  const transactionReceipt = await sendAndConfirmTransaction({
+    transaction,
+    account,
+  });
+
+  console.log("Tx Receipr: ", transactionReceipt);
+}
+
+const sdk = ThirdwebSDK.fromPrivateKey(process.env.BACKEND_WALLET_PRIVATE_KEY || "", process.env.RPC_URL || "");
+
+async function verifyTransaction(options: VerifyTransactionOptions): Promise<boolean> {
+  const { txHash, requiredFee, expectedSender, expectedNonce } = options;
+
+  try {
+    const tx = await sdk.getProvider().getTransaction(txHash);
+
+    if (!tx) {
+      console.error("Transaction not found");
+    }
+
+    // Valid sender address
+    if (tx.from.toLowerCase() !== expectedSender.toLowerCase()) {
+      console.error("Invalid sender address");
+    }
+
+    // Valid transaction fee
+    if (tx.value.toBigInt() < parseFloat(requiredFee)) {
+      console.error("Insufficient transaction fee");
+    }
+
+    // Valid nonce
+    if (expectedNonce && !tx.data.includes(expectedNonce)) {
+      console.error("Invalid or missing nonce");
+    }
+
+    // Ensure tx got confirmed
+    const receipt = await sdk.getProvider().getTransactionReceipt(txHash);
+    if (!receipt || receipt.status !== 1) {
+      console.error("Transaction not confirmed");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Transaction verification failed:", error);
+    return false;
   }
 }
