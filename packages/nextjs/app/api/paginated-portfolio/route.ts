@@ -42,6 +42,7 @@ export async function GET(req: Request) {
     // Convert each row's portfolio_status (JSON string) back to Token array
     const portfolioResponses: PortfolioResponse[] = rows.rows.map(row => ({
       id: row.id,
+      created_at: row.created_at,  
       result: JSON.parse(row.portfolio_status),
     }));
 

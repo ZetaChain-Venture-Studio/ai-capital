@@ -1,8 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { ArcElement, Chart as ChartJS, ChartOptions, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
-
-("use client");
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
