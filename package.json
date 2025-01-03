@@ -46,7 +46,9 @@
   },
   "dependencies": {
     "@moralisweb3/common-evm-utils": "^2.27.2",
+    "@thirdweb-dev/sdk": "^4.0.99",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "@upstash/redis": "^1.34.3",
     "chart.js": "^4.4.7",
     "lucide-react": "^0.468.0",
     "moralis": "^2.27.2",
