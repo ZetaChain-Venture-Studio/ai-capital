@@ -14,6 +14,7 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
   const handleAccept = () => {
     if (acceptedTerms) {
       localStorage.setItem('onboardingAccepted', 'true');
+      onClose();
     }
   };
 
