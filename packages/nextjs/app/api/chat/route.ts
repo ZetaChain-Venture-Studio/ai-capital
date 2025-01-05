@@ -21,10 +21,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const {
-    userAddress,
-    userMessage,
-  } = body;
+  const { userAddress, userMessage } = body;
 
   if (!userAddress || !userMessage) {
     return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
