@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
 import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
-import { createThirdwebClient, defineChain, getContract } from "thirdweb";
 import { Account, privateKeyToAccount } from "thirdweb/wallets";
+import { tasks } from "@trigger.dev/sdk/v3";
+import { client, prizePoolSmartContract } from "@/utils/types/sdks";
 
 export const config = {
   maxDuration: 300,
@@ -151,47 +152,52 @@ export async function POST(req: NextRequest) {
         ${aiResponse.success}
       );
     `;
+    console.log("Insert successful:", result);
+
+    //TODO: Define what these two variables should be
+    //We can convince it to sell something or buy something
+    //OR sell something to then buy something?
+    //Are these values coming in the payload or do we 
+    //have to extract them from the prompt?
 
     const sellTargetTokenAddress = "";
     const buyTargetTokenAddress = "";
     const percentToSell = parsedMessage.allocation;
 
     //Succesful prompt - transfer prize pool
+    var handle;
     if (aiResponse.success) {
-      await swapTokens(userAddress, sellTargetTokenAddress, buyTargetTokenAddress, percentToSell);
-      await transferPrizePool(userAddress);
-      await deWhitelist(userAddress);
+      //To deploy a new version run:
+      //npx trigger.dev@latest deploy -e staging
+      //npx trigger.dev@latest deploy -e prod
+
+      //TODO: This only does the asset buying and selling
+      //We also need to ensure it transfers the prize pool
+        handle = await tasks.trigger("transfer-prize-pool", {
+        userAddress: userAddress,
+        sellTargetTokenAddress: sellTargetTokenAddress,
+        buyTargetTokenAddress: buyTargetTokenAddress,
+        percentToSell: percentToSell,
+      });
     }
     //Unsuccesful prompt - dewhitelist user
     else {
       await deWhitelist(userAddress);
     }
 
-    console.log("Insert successful:", result);
-
-    return NextResponse.json(response.choices[0].message);
+    return NextResponse.json({"response-message": response.choices[0].message, "handle":handle});
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
     return NextResponse.json({ error: "Failed to call OpenAI API" }, { status: 500 });
   }
 }
 
-const client = createThirdwebClient({
-  clientId: process.env.THIRDWEB_CLIENT_ID || "",
-});
-
-const prizePoolSmartContract = getContract({
-  client,
-  chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
-  address: process.env.PRIZE_POOL_SMART_CONTRACT || "",
-});
-
 const account: Account = privateKeyToAccount({
   client,
   privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY || "",
 });
 
-async function deWhitelist(walletAddresses: string) {
+export async function deWhitelist(walletAddresses: string) {
   const transaction = prepareContractCall({
     contract: prizePoolSmartContract,
     method: "function deWhitelist(address _user)",
@@ -204,40 +210,4 @@ async function deWhitelist(walletAddresses: string) {
   });
 
   console.log("Tx Receipt - deWhitelist: ", transactionReceipt);
-}
-
-async function swapTokens(
-  userAddress: string,
-  sellTargetTokenAddress: string,
-  buyTargetTokenAddress: string,
-  percentToSell: number,
-) {
-  const percentToSellBigInt = BigInt(percentToSell);
-  const transaction = prepareContractCall({
-    contract: prizePoolSmartContract,
-    method: "function _swapTokens(address _user, address tokenA, address tokenB, uint256 percent)",
-    params: [userAddress, sellTargetTokenAddress, buyTargetTokenAddress, percentToSellBigInt],
-  });
-
-  const transactionReceipt = await sendAndConfirmTransaction({
-    transaction,
-    account,
-  });
-
-  console.log("Tx Receipt - swapTokens: ", transactionReceipt);
-}
-
-async function transferPrizePool(walletAddresses: string) {
-  const transaction = prepareContractCall({
-    contract: prizePoolSmartContract,
-    method: "function transfer(address _receiver)",
-    params: [walletAddresses],
-  });
-
-  const transactionReceipt = await sendAndConfirmTransaction({
-    transaction,
-    account,
-  });
-
-  console.log("Tx Receipt - transfer: ", transactionReceipt);
 }
