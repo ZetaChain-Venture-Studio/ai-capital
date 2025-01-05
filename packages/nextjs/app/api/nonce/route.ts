@@ -8,7 +8,7 @@ Call this endpoint like so:
 /api/nonce?userAddress="0x123"
 */
 export async function GET(req: NextRequest) {
-  return NextResponse.json({ msg:"This route is disabled for now" });
+  return NextResponse.json({ msg: "This route is disabled for now" });
 
   const url = new URL(req.url);
   const userAddress = url.searchParams.get("userAddress"); // Add this line

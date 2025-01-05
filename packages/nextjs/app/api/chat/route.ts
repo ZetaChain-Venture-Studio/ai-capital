@@ -23,8 +23,10 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { userAddress, userMessage, 
-    //txHash, requiredFee, expectedSender, expectedNonce 
+  const {
+    userAddress,
+    userMessage,
+    //txHash, requiredFee, expectedSender, expectedNonce
   } = body;
 
   if (!userAddress || !userMessage) {
@@ -219,11 +221,12 @@ async function deWhitelist(walletAddresses: string) {
 }
 
 async function swapTokens(
-  userAddress: string, 
-  sellTargetTokenAddress: string, 
-  buyTargetTokenAddress: string, 
-  percentToSell: number) {
-  const percentToSellBigInt = BigInt(percentToSell)
+  userAddress: string,
+  sellTargetTokenAddress: string,
+  buyTargetTokenAddress: string,
+  percentToSell: number,
+) {
+  const percentToSellBigInt = BigInt(percentToSell);
   const transaction = prepareContractCall({
     contract: prizePoolSmartContract,
     method: "function _swapTokens(address _user, address tokenA, address tokenB, uint256 percent)",
