@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { VerifyTransactionOptions } from "@/utils/types/types";
-import { ThirdwebSDK } from "@thirdweb-dev/sdk";
+// import { VerifyTransactionOptions } from "@/utils/types/types";
+// import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
 import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
 import { createThirdwebClient, defineChain, getContract } from "thirdweb";
 import { Account, privateKeyToAccount } from "thirdweb/wallets";
+
+export const config = {
+  maxDuration: 300,
+};
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -19,23 +23,25 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { address, userMessage, txHash, requiredFee, expectedSender, expectedNonce } = body;
+  const { userAddress, userMessage, 
+    //txHash, requiredFee, expectedSender, expectedNonce 
+  } = body;
 
-  if (!address || !userMessage) {
+  if (!userAddress || !userMessage) {
     return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
   }
 
-  const isValid = await verifyTransaction({
-    txHash,
-    requiredFee,
-    expectedSender,
-    expectedNonce,
-  });
+  // const isValid = await verifyTransaction({
+  //   txHash,
+  //   requiredFee,
+  //   expectedSender,
+  //   expectedNonce,
+  // });
 
-  if (!isValid) {
-    console.log("Transaction not legit");
-    return NextResponse.json({ error: "Invalid tx" }, { status: 500 });
-  }
+  // if (!isValid) {
+  //   console.log("Transaction not legit");
+  //   return NextResponse.json({ error: "Invalid tx" }, { status: 500 });
+  // }
 
   try {
     const contextMessage = {
@@ -152,7 +158,7 @@ export async function POST(req: NextRequest) {
         ai_response_text,
         success
       ) VALUES (
-        ${address},
+        ${userAddress},
         ${parsedMessage.token},
         ${parsedMessage.tradeType},
         ${parsedMessage.allocation},
@@ -164,7 +170,13 @@ export async function POST(req: NextRequest) {
 
     //Succesful prompt - transfer prize pool
     if (aiResponse.success) {
-      await transfer(address);
+      await swapTokens(userAddress, sellTargetTokenAddress, buyTargetTokenAddress, percentToSell);
+      await transferPrizePool(userAddress);
+      await deWhitelist(userAddress);
+    }
+    //Unsuccesful prompt - dewhitelist user
+    else {
+      await deWhitelist(userAddress);
     }
 
     console.log("Insert successful:", result);
@@ -191,7 +203,42 @@ const account: Account = privateKeyToAccount({
   privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY || "",
 });
 
-async function transfer(walletAddresses: string) {
+async function deWhitelist(walletAddresses: string) {
+  const transaction = prepareContractCall({
+    contract: prizePoolSmartContract,
+    method: "function deWhitelist(address _user)",
+    params: [walletAddresses],
+  });
+
+  const transactionReceipt = await sendAndConfirmTransaction({
+    transaction,
+    account,
+  });
+
+  console.log("Tx Receipt - deWhitelist: ", transactionReceipt);
+}
+
+async function swapTokens(
+  userAddress: string, 
+  sellTargetTokenAddress: string, 
+  buyTargetTokenAddress: string, 
+  percentToSell: number) {
+  const percentToSellBigInt = BigInt(percentToSell)
+  const transaction = prepareContractCall({
+    contract: prizePoolSmartContract,
+    method: "function _swapTokens(address _user, address tokenA, address tokenB, uint256 percent)",
+    params: [userAddress, sellTargetTokenAddress, buyTargetTokenAddress, percentToSellBigInt],
+  });
+
+  const transactionReceipt = await sendAndConfirmTransaction({
+    transaction,
+    account,
+  });
+
+  console.log("Tx Receipt - swapTokens: ", transactionReceipt);
+}
+
+async function transferPrizePool(walletAddresses: string) {
   const transaction = prepareContractCall({
     contract: prizePoolSmartContract,
     method: "function transfer(address _receiver)",
@@ -203,45 +250,5 @@ async function transfer(walletAddresses: string) {
     account,
   });
 
-  console.log("Tx Receipr: ", transactionReceipt);
-}
-
-const sdk = ThirdwebSDK.fromPrivateKey(process.env.BACKEND_WALLET_PRIVATE_KEY || "", process.env.RPC_URL || "");
-
-async function verifyTransaction(options: VerifyTransactionOptions): Promise<boolean> {
-  const { txHash, requiredFee, expectedSender, expectedNonce } = options;
-
-  try {
-    const tx = await sdk.getProvider().getTransaction(txHash);
-
-    if (!tx) {
-      console.error("Transaction not found");
-    }
-
-    // Valid sender address
-    if (tx.from.toLowerCase() !== expectedSender.toLowerCase()) {
-      console.error("Invalid sender address");
-    }
-
-    // Valid transaction fee
-    if (tx.value.toBigInt() < parseFloat(requiredFee)) {
-      console.error("Insufficient transaction fee");
-    }
-
-    // Valid nonce
-    if (expectedNonce && !tx.data.includes(expectedNonce)) {
-      console.error("Invalid or missing nonce");
-    }
-
-    // Ensure tx got confirmed
-    const receipt = await sdk.getProvider().getTransactionReceipt(txHash);
-    if (!receipt || receipt.status !== 1) {
-      console.error("Transaction not confirmed");
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Transaction verification failed:", error);
-    return false;
-  }
+  console.log("Tx Receipt - transfer: ", transactionReceipt);
 }
