@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-// import { VerifyTransactionOptions } from "@/utils/types/types";
-// import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
 import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
@@ -26,24 +24,11 @@ export async function POST(req: NextRequest) {
   const {
     userAddress,
     userMessage,
-    //txHash, requiredFee, expectedSender, expectedNonce
   } = body;
 
   if (!userAddress || !userMessage) {
     return NextResponse.json({ error: "Address & Prompt required" }, { status: 400 });
   }
-
-  // const isValid = await verifyTransaction({
-  //   txHash,
-  //   requiredFee,
-  //   expectedSender,
-  //   expectedNonce,
-  // });
-
-  // if (!isValid) {
-  //   console.log("Transaction not legit");
-  //   return NextResponse.json({ error: "Invalid tx" }, { status: 500 });
-  // }
 
   try {
     const contextMessage = {
