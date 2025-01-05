@@ -152,11 +152,9 @@ export async function POST(req: NextRequest) {
       );
     `;
 
-
     const sellTargetTokenAddress = "";
     const buyTargetTokenAddress = "";
     const percentToSell = parsedMessage.allocation;
-
 
     //Succesful prompt - transfer prize pool
     if (aiResponse.success) {
