@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
 
 type OnboardingPopupProps = {
   isOpen: boolean;
@@ -13,7 +13,7 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
 
   const handleAccept = () => {
     if (acceptedTerms) {
-      localStorage.setItem('onboardingAccepted', 'true');
+      localStorage.setItem("onboardingAccepted", "true");
       onClose();
     }
   };
@@ -27,9 +27,9 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
           <h2 className="text-lg font-bold">Welcome to the AI Capital!</h2>
         </div>
         <div className="p-4">
-          <p className="mb-4">Here's how it works:</p>
+          <p className="mb-4">Here&apos;s how it works:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Pitch token ideas to the AI portfolio manager</li>          
+            <li>Pitch token ideas to the AI portfolio manager</li>
             <li>Earn points and climb the leaderboard</li>
             <li>Learn about crypto markets in a risk-free environment</li>
           </ul>
@@ -39,11 +39,11 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
             type="checkbox"
             id="terms"
             checked={acceptedTerms}
-            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            onChange={e => setAcceptedTerms(e.target.checked)}
             className="w-6 h-6 cursor-pointer"
           />
           <label htmlFor="terms" className="text-sm">
-            I accept the{' '}
+            I accept the{" "}
             <Link href="/terms" className="text-blue-500 hover:underline" target="_blank">
               Terms and Conditions
             </Link>
@@ -54,7 +54,7 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
             onClick={handleAccept}
             disabled={!acceptedTerms}
             className={`px-4 py-2 rounded ${
-              acceptedTerms ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              acceptedTerms ? "bg-green-600 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             Start Playing
