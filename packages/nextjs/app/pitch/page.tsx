@@ -7,7 +7,7 @@ import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
-import { analyzePitch, getAllMessages } from "../actions/agents";
+import { analyzePitch } from "../actions/agents";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
@@ -35,7 +35,6 @@ export default function Pitch() {
   });
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [messages, setMessages] = useState<AIResponse[]>([]);
   const { address } = useAccount();
 
   const { data: walletClient } = useWalletClient();
@@ -112,6 +111,8 @@ export default function Pitch() {
       address as `0x${string}`,
     );
     if (response) {
+      if (!address) throw new Error("No wallet connected.");
+
       const data = await response;
       console.log("AI response:", data);
 
@@ -123,22 +124,11 @@ export default function Pitch() {
         success: response.success,
       };
 
-      setMessages(prevMessages => [newResponse, ...prevMessages]);
+      // setMessages(prevMessages => [newResponse, ...prevMessages]);
     } else {
       console.error("AI API call error");
     }
   };
-
-  const getGlobalChat = async () => {
-    const msgs = await getAllMessages();
-    if (msgs) {
-      setMessages(msgs);
-    }
-  };
-
-  useEffect(() => {
-    getGlobalChat();
-  }, []);
 
   return (
     <div className="py-12 min-h-screen bg-gray-50">
@@ -184,7 +174,7 @@ export default function Pitch() {
           </form>
         </div>
 
-        <Chat messages={messages} />
+        <Chat />
       </div>
 
       {/* Our success/failure modals, controlled by local state */}

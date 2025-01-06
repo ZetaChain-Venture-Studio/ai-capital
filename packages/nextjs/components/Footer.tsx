@@ -33,15 +33,16 @@ export const Footer = () => {
       <div className="w-full">
         <ul className="w-full menu menu-horizontal">
           <div className="flex gap-2 justify-center items-center w-full text-sm">
-            <div className="text-center">
-              <a href="https://github.com/Paul-Sizon/ai-capital" target="_blank" rel="noreferrer" className="link">
+            {/* <div className="text-center">
+              <a
+                href="https://github.com/ZetaChain-Venture-Studio/ai-capital.git"
+                target="_blank"
+                rel="noreferrer"
+                className="link"
+              >
                 Github
               </a>
-            </div>
-            <span>·</span>
-            <div className="flex gap-2 justify-center items-center">
-              <p className="m-0 text-center">Built with ❤️ and ☕️ for Aleph Verano🌞</p>
-            </div>
+            </div> */}
           </div>
         </ul>
       </div>
