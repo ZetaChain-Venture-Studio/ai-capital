@@ -1,43 +1,171 @@
-import React from 'react';
+import { NextPage } from "next";
 
-const TermsAndConditions: React.FC = () => {
-    // TODO: change text, possible move to another website or prevent the popup from showing on the Terms and Conditions page, by adding a conditional check for the current pathname using the useRouter hook from Next.js. Update the PopupManager to exclude showing the popup on specific pages.
-    return (
-        <div className="max-w-4xl mx-auto p-6 font-sans leading-relaxed">
-            <h1 className="text-4xl font-bold mb-6">EXAMPLE: Terms and Conditions</h1>
-            <p className="mb-4">Welcome to our Terms and Conditions page. Please read these terms and conditions carefully before using our service.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">1. Introduction</h2>
-            <p className="mb-4">These terms and conditions govern your use of this website; by using this website, you accept these terms and conditions in full.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">2. Intellectual Property Rights</h2>
-            <p className="mb-4">Unless otherwise stated, we or our licensors own the intellectual property rights in the website and material on the website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">3. License to Use Website</h2>
-            <p className="mb-4">You may view, download for caching purposes only, and print pages from the website for your own personal use, subject to the restrictions set out below and elsewhere in these terms and conditions.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">4. Acceptable Use</h2>
-            <p className="mb-4">You must not use this website in any way that causes, or may cause, damage to the website or impairment of the availability or accessibility of the website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">5. Restricted Access</h2>
-            <p className="mb-4">Access to certain areas of this website is restricted. We reserve the right to restrict access to other areas of this website, or indeed this entire website, at our discretion.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">6. User Content</h2>
-            <p className="mb-4">In these terms and conditions, “your user content” means material (including without limitation text, images, audio material, video material and audio-visual material) that you submit to this website, for whatever purpose.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">7. No Warranties</h2>
-            <p className="mb-4">This website is provided “as is” without any representations or warranties, express or implied. We make no representations or warranties in relation to this website or the information and materials provided on this website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">8. Limitations of Liability</h2>
-            <p className="mb-4">We will not be liable to you (whether under the law of contact, the law of torts or otherwise) in relation to the contents of, or use of, or otherwise in connection with, this website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">9. Indemnity</h2>
-            <p className="mb-4">You hereby indemnify us and undertake to keep us indemnified against any losses, damages, costs, liabilities and expenses (including without limitation legal expenses and any amounts paid by us to a third party in settlement of a claim or dispute on the advice of our legal advisers) incurred or suffered by us arising out of any breach by you of any provision of these terms and conditions.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">10. Breaches of These Terms and Conditions</h2>
-            <p className="mb-4">Without prejudice to our other rights under these terms and conditions, if you breach these terms and conditions in any way, we may take such action as we deem appropriate to deal with the breach, including suspending your access to the website, prohibiting you from accessing the website, blocking computers using your IP address from accessing the website, contacting your internet service provider to request that they block your access to the website and/or bringing court proceedings against you.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">11. Variation</h2>
-            <p className="mb-4">We may revise these terms and conditions from time-to-time. Revised terms and conditions will apply to the use of this website from the date of the publication of the revised terms and conditions on this website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">12. Assignment</h2>
-            <p className="mb-4">We may transfer, sub-contract or otherwise deal with our rights and/or obligations under these terms and conditions without notifying you or obtaining your consent.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">13. Severability</h2>
-            <p className="mb-4">If a provision of these terms and conditions is determined by any court or other competent authority to be unlawful and/or unenforceable, the other provisions will continue in effect. If any unlawful and/or unenforceable provision would be lawful or enforceable if part of it were deleted, that part will be deemed to be deleted, and the rest of the provision will continue in effect.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">14. Entire Agreement</h2>
-            <p className="mb-4">These terms and conditions constitute the entire agreement between you and us in relation to your use of this website, and supersede all previous agreements in respect of your use of this website.</p>
-            <h2 className="text-2xl font-semibold mt-6 mb-2">15. Law and Jurisdiction</h2>
-            <p className="mb-4">These terms and conditions will be governed by and construed in accordance with the laws of [Your Country], and any disputes relating to these terms and conditions will be subject to the exclusive jurisdiction of the courts of [Your Country].</p>
-        </div>
-    );
+const TermsOfService: NextPage = () => {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
+      <p className="text-sm text-gray-500 mb-6">Last updated: January 03, 2025</p>
+
+      <div className="space-y-6">
+        <section>
+          <h2 className="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
+          <p>
+            By accessing or using the AI Capital platform (the "Platform"), you ("User")
+            agree to be bound by these Terms of Service ("Terms"). If you do not agree to
+            these Terms, you MUST not use the Platform.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">2. User Eligibility and Jurisdiction</h2>
+          <p>
+            Users must be of legal age in their jurisdiction to participate in such activities.
+            By using the Platform, you represent that you are of legal age in your country and
+            that it is legal for you to participate in this type of game. The development entity
+            assumes no responsibility for verifying the legality of your participation. Any
+            violation of local laws is solely your responsibility.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">3. Registration and Wallet Interaction</h2>
+          <p>
+            The Platform does not require personal information for registration. Users register
+            and interact using their Web3 wallet. All interactions occur directly between the
+            User's wallet and the Platform's smart contracts.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">4. Platform Risks and Disclaimers</h2>
+          <ul className="list-disc pl-6">
+            <li>
+              Smart contract vulnerabilities: Smart contracts may contain bugs, vulnerabilities,
+              or be subject to hacking, resulting in potential loss of funds, loss of user
+              rewards, or failed transactions.
+            </li>
+            <li>
+              AI agent errors: The AI agent should be treated as an experiment; it may
+              incorrectly evaluate prompts or execute trades without any logic.
+            </li>
+            <li>
+              Swap failures: Transactions initiated by the AI agent may fail due to technical
+              issues, insufficient liquidity, or other unforeseen circumstances.
+            </li>
+            <li>
+              Platform downtime: The Platform may be temporarily or permanently unavailable
+              without prior notice.
+            </li>
+            <li>
+              No guarantee of continued service: The development entity has no obligation to
+              maintain, update, or continue the Platform's operation.
+            </li>
+            <li>
+              Financial losses: Users may incur financial losses due to fees, failed
+              transactions, or unsuccessful prompts.
+            </li>
+            <li>
+              Third-party risks: The Platform relies on third-party services, including
+              blockchain networks, Web3 wallets, and external APIs.
+            </li>
+            <li>
+              User errors: Users are solely responsible for ensuring the accuracy of their
+              wallet addresses, prompt submissions, and transaction details.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">5. Fees and Payments</h2>
+          <p>
+            Users must pay a submission fee in USDC via smart contracts to participate.
+            Submission fees are non-refundable and may increase based on platform activity. The
+            development entity reserves the right to modify the fee structure or any other
+            aspect of the Platform at any time, with or without notice.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">6. Rewards and Bounties</h2>
+          <p>
+            Rewards are distributed automatically via smart contracts upon successful prompt
+            acceptance by the AI agent. Users acknowledge that rewards are experimental and may
+            be subject to risks, including but not limited to changes in token value and
+            liquidity issues.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">7. Prohibited Behavior</h2>
+          <p>Users agree not to:</p>
+          <ul className="list-disc pl-6">
+            <li>
+              Manipulate the Platform through unauthorized means or outside of legitimate prompt
+              submissions.
+            </li>
+            <li>Submit prompts containing inappropriate, offensive, or illegal content.</li>
+          </ul>
+          <p>
+            The development entity is not responsible for user-generated content, including
+            offensive language or inappropriate prompts.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">8. Limitation of Liability</h2>
+          <p>
+            To the maximum extent permitted by law, the development entity shall not be liable
+            for any direct, indirect, incidental, consequential, or special damages arising out
+            of or related to your use of the Platform. This includes, but is not limited to:
+          </p>
+          <ul className="list-disc pl-6">
+            <li>Loss of funds due to smart contract vulnerabilities or hacking.</li>
+            <li>Failed transactions, swap errors, or technical issues.</li>
+            <li>Financial losses resulting from the AI agent's decisions.</li>
+            <li>Platform downtime or discontinuation of service.</li>
+            <li>Errors caused by third-party services or user actions.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">9. No Financial Advice</h2>
+          <p>
+            The Platform is an experimental project intended for entertainment purposes only.
+            Nothing on the Platform constitutes financial, investment, or legal advice. Users
+            participate at their own risk and are discouraged from copying the portfolio of the
+            project.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">10. Modification of Terms</h2>
+          <p>
+            The development entity reserves the right to modify these Terms at any time.
+            Continued use of the Platform constitutes acceptance of the updated Terms. Users
+            are encouraged to review these Terms periodically.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">11. Governing Law and Dispute Resolution</h2>
+          <p>
+            These Terms shall be governed by and construed in accordance with the laws of the
+            British Virgin Islands. Any disputes arising from or related to these Terms shall be
+            resolved exclusively under the jurisdiction of the courts of the British Virgin
+            Islands.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">12. Contact Information</h2>
+          <p>
+            For any questions or concerns regarding these Terms, please contact us at [Your
+            Contact Email].
+          </p>
+        </section>
+      </div>
+    </div>
+  );
 };
 
-export default TermsAndConditions;
+export default TermsOfService;

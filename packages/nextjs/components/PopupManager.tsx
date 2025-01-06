@@ -8,7 +8,9 @@ const PopupManager = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const hasAccepted = localStorage.getItem('onboardingAccepted') === 'true';
-    if (!hasAccepted) {
+    const isTermsPage = typeof window !== 'undefined' && window.location.pathname === '/terms';
+
+    if (!hasAccepted && !isTermsPage) {
       setIsPopupOpen(true);
     }
   }, []);
