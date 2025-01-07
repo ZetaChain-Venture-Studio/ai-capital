@@ -13,9 +13,7 @@ interface PortfolioResponse {
   result: Token[];
 }
 
-const CHAIN_IDS = [
-  "base",
-];
+const CHAIN_IDS = ["base"];
 
 export async function GET() {
   try {
@@ -29,7 +27,7 @@ export async function GET() {
     const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786";
 
     // Fetch tokens from Moralis for each chain
-    const promises = CHAIN_IDS.map(async (chain) => {
+    const promises = CHAIN_IDS.map(async chain => {
       const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens?chain=${chain}`;
 
       const res = await fetch(url, {
@@ -47,7 +45,7 @@ export async function GET() {
 
       const data = (await res.json()) as PortfolioResponse;
       // Attach chain info to each token
-      return (data.result || []).map((token) => ({
+      return (data.result || []).map(token => ({
         ...token,
         chain,
       }));
@@ -58,9 +56,7 @@ export async function GET() {
 
     // Filter for USDC token (by symbol or token address)
     const usdcToken = allTokens.find(
-      (token) =>
-        token.symbol.toUpperCase() === "USDC" &&
-        token.usd_value > 0 // Ensure it has a positive USD value
+      token => token.symbol.toUpperCase() === "USDC" && token.usd_value > 0, // Ensure it has a positive USD value
     );
 
     if (!usdcToken) {

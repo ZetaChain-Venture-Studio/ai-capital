@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowRight, Brain } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Lucy from "../public/assets/lucy.webp";
+import { ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -17,14 +17,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <Image 
-              src={Lucy}
-              alt="AI Capital" 
-              width={640} 
-              height={640} 
-              placeholder="blur" 
-              className="rounded"                           
-            />
+            <Image src={Lucy} alt="AI Capital" width={640} height={640} placeholder="blur" className="rounded" />
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
             AI Capital: Convince Lucy to Invest in Your Token

@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
-import { analyzePitch } from "../actions/agents";
+import Lucy from "../../public/assets/lucy.webp";
+import { analyzePitch, getAllMessages } from "../actions/agents";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
+import BountyCard from "~~/components/Bounty";
+import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import Image from "next/image";
-import Lucy from "../../public/assets/lucy.webp";
-import TreasuryCard from "~~/components/TreasuryPool";
-import BountyCard from "~~/components/Bounty";
 
 export interface FormData {
   token: string;
@@ -138,16 +138,9 @@ export default function Pitch() {
     <div className="py-12 min-h-screen bg-gray-50">
       <div className="flex flex-col md:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
-          <TreasuryCard />
-          <Image
-            src={Lucy}
-            alt="AI Capital"
-            width={440}
-            height={440}
-            placeholder="blur"
-            className="rounded"
-          />
           <BountyCard />
+          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
+          <TreasuryCard />
         </div>
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
@@ -155,7 +148,7 @@ export default function Pitch() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <TokenSelect value={formData.token} onChange={handleChange} />
-            
+
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
                   <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
@@ -169,15 +162,16 @@ export default function Pitch() {
 
               {status !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
                   <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
                 </div>
               )}
 
               <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
-                Submit Pitch for 0.001 ETH
+                Submit Pitch for 1 USDC
               </button>
 
               {/* Debug buttons for showing success and failure modals */}
@@ -201,7 +195,6 @@ export default function Pitch() {
           <Chat messages={messages} />
         </div>
       </div>
-
 
       {/* Our success/failure modals, controlled by local state */}
       <TransactionSuccessModal

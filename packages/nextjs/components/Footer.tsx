@@ -12,17 +12,28 @@ export const Footer = () => {
         {/* Description */}
         <div className="md:w-2/3">
           <p className="text-gray-600 text-sm leading-relaxed">
-            AI Capital is a game where you can pitch your favorite token to our advanced AI and see if you can convince it to invest. Powered by ZetaChain.
+            AI Capital is a game where you can pitch your favorite token to our advanced AI and see if you can convince
+            it to invest. Powered by ZetaChain.
           </p>
         </div>
 
         {/* Links Section */}
         <div className="flex flex-col md:flex-row gap-8 w-full md:w-1/3 text-gray-600 text-sm font-semibold">
           <div className="flex flex-col gap-2">
-            <Link href="https://fingerpump.gitbook.io/dust.fun/about-us" target="_blank" rel="noopener noreferrer" className="hover:text-gray-800">
+            <Link
+              href="https://fingerpump.gitbook.io/dust.fun/about-us"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-800"
+            >
               About Us
             </Link>
-            <Link href="https://fingerpump.gitbook.io/dust.fun/available-chains-and-whitelisted-tokens" target="_blank" rel="noopener noreferrer" className="hover:text-gray-800">
+            <Link
+              href="https://fingerpump.gitbook.io/dust.fun/available-chains-and-whitelisted-tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-800"
+            >
               Supported Chains
             </Link>
           </div>
