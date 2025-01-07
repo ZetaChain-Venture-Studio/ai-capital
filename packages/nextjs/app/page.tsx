@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowRight, Brain } from "lucide-react";
+import Image from "next/image";
+import Lucy from "../public/assets/lucy.webp";
 
 export default function HomePage() {
   const router = useRouter();
@@ -14,11 +16,18 @@ export default function HomePage() {
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
-          <div className="flex justify-center mb-8">
-            <Brain className="h-16 w-16 text-gray-900" />
+          <div className="flex justify-center mb-4">
+            <Image 
+              src={Lucy}
+              alt="AI Capital" 
+              width={640} 
+              height={640} 
+              placeholder="blur" 
+              className="rounded"                           
+            />
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
-            AI Game: Convince the AI to Invest in Your Token
+            AI Capital: Convince Lucy to Invest in Your Token
           </h1>
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-600 mb-4">

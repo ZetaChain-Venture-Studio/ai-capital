@@ -13,6 +13,9 @@ import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import Image from "next/image";
+import Lucy from "../../public/assets/lucy.webp";
+import TreasuryCard from "~~/components/TreasuryPool";
 
 export interface FormData {
   token: string;
@@ -132,49 +135,61 @@ export default function Pitch() {
 
   return (
     <div className="py-12 min-h-screen bg-gray-50">
-      <div className="flex flex-col gap-10 px-4 mx-auto max-w-3xl sm:px-6 lg:px-8">
-        <div className="p-8 bg-white rounded-lg shadow-sm">
-          <h1 className="mb-8 text-3xl font-bold text-gray-900">Submit a Pitch</h1>
+      <div className="flex flex-col md:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8">
+        <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
+          <Image
+            src={Lucy}
+            alt="AI Capital"
+            width={400}
+            height={400}
+            placeholder="blur"
+            className="rounded"
+          />
+          <TreasuryCard />
+        </div>        
+        <div className="flex-grow max-w-3xl">
+          <div className="p-8 bg-white rounded-lg shadow-sm">
+            <h1 className="mb-8 text-3xl font-bold text-gray-900">Submit a Pitch</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <TokenSelect value={formData.token} onChange={handleChange} />
-            <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
-            <AllocationInput value={formData.allocation} onChange={handleChange} />
-            <PitchTextarea value={formData.pitch} onChange={handleChange} />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <TokenSelect value={formData.token} onChange={handleChange} />
+              <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
+              <AllocationInput value={formData.allocation} onChange={handleChange} />
+              <PitchTextarea value={formData.pitch} onChange={handleChange} />
 
-            {status !== "idle" && (
-              <div
-                className={`p-4 rounded-md ${
-                  status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                }`}
-              >
-                <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
+              {status !== "idle" && (
+                <div
+                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
+                >
+                  <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
+                </div>
+              )}
+
+              <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
+                Submit Pitch for 0.001 ETH
+              </button>
+
+              {/* debug buttons for showing success and failure modals */}
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={() => setShowSuccessModal(true)}
+                  className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
+                >
+                  Show Success Modal
+                </button>
+                <button
+                  onClick={() => setShowFailureModal(true)}
+                  className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
+                >
+                  Show Failure Modal
+                </button>
               </div>
-            )}
+            </form>
+          </div>
 
-            <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
-              Submit Pitch for 0.001 ETH
-            </button>
-
-            {/* debug buttons for showing success and failure modals */}
-            <div className="flex gap-4 mt-4">
-              <button
-                onClick={() => setShowSuccessModal(true)}
-                className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
-              >
-                Show Success Modal
-              </button>
-              <button
-                onClick={() => setShowFailureModal(true)}
-                className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
-              >
-                Show Failure Modal
-              </button>
-            </div>
-          </form>
+          <Chat messages={messages} />
         </div>
-
-        <Chat />
       </div>
 
       {/* Our success/failure modals, controlled by local state */}
