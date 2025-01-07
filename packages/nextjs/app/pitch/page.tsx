@@ -140,8 +140,8 @@ export default function Pitch() {
           <Image
             src={Lucy}
             alt="AI Capital"
-            width={400}
-            height={400}
+            width={440}
+            height={440}
             placeholder="blur"
             className="rounded"
           />

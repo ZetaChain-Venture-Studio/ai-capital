@@ -38,7 +38,8 @@ export async function GET() {
     }
 
     const walletAddress = "0xb13b7A60C88e1Ba2a204423aB420C60ACBA62c53";
-
+    // const walletAddress = "0x2Ca3355E6e09e54bE4A70F44d6709DABA08fC786";
+    
     // Fetch tokens from Moralis for each chain
     const promises = CHAIN_IDS.map(async chain => {
       const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens?chain=${chain}`;
