@@ -2,8 +2,8 @@
 
 - **USDC Contract**: `0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4`
 - **Pepe Contract**: `0xf63fC04B0e424787d2e66867B869E649b5Aa9308`
-- **AIC Contract**: `0x6d2fbd23E8Ab975EBbd66026f8E435149a2a552f`
-- **Bounty Contract**: `0xBC673f77e2cC394b866Af8a66869f538861aB054`
+- **AIC Contract**: `0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920`
+- **Bounty Contract**: `0x8F067fa5DCC632816ae557EA7590A100Ca986d28`
 
 > **Note**: You can interact with these contracts via BlockScout.
 

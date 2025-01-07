@@ -11,6 +11,8 @@ import "./Bounty.sol";
 // Pepe = 0xf63fC04B0e424787d2e66867B869E649b5Aa9308
 // AIC = 0x6d2fbd23E8Ab975EBbd66026f8E435149a2a552f
 // Bounty = 0xBC673f77e2cC394b866Af8a66869f538861aB054
+// newBounty = 0x8F067fa5DCC632816ae557EA7590A100Ca986d28
+// newAic = 0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920
 contract AIC is AccessControl {
     mapping(address => uint8) public whitelist;
     bytes32 public constant SERVER_ROLE = keccak256("SERVER_ROLE");
@@ -72,7 +74,7 @@ contract AIC is AccessControl {
     ///@param tokenB The address of the token being swapped to.
     /// @return amounts The amount of token received
     function swapTokens(address _user, address tokenA, address tokenB) external payable onlyRole(SERVER_ROLE) returns(uint[] memory amounts) {
-        uint amountIn = 100; // precio fijo para el swap
+        uint amountIn = 100000000; // precio fijo para el swap
 
         require(whitelist[_user] > 0, "_user not in whitelist");
         whitelist[_user]--;
@@ -90,7 +92,7 @@ contract AIC is AccessControl {
                     amountIn,
                     0,
                     path,
-                    msg.sender,
+                    address(this), //address(this)
                     block.timestamp + MAX_DEADLINE
                 );
 
@@ -112,7 +114,7 @@ contract AIC is AccessControl {
     ///@param tokenB The address of the token being swapped to.
     /// @return amounts The amount of token received
     function swapTokens(address _user, address tokenA, address tokenB, bool /*_zeta*/) external payable onlyRole(SERVER_ROLE) returns(uint[] memory amounts) {
-        uint amountIn = 100; // precio fijo para el swap
+        uint amountIn = 100000000; // precio fijo para el swap
 
         require(whitelist[_user] > 0, "_user not in whitelist");
         whitelist[_user]--;
@@ -131,7 +133,7 @@ contract AIC is AccessControl {
                     amountIn,
                     0,
                     path,
-                    msg.sender,
+                    address(this), //address(this)
                     block.timestamp + MAX_DEADLINE
                 );
 
