@@ -71,7 +71,7 @@ const TreasuryCard: React.FC = () => {
       ) : (
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">Treasury Pool</h2>
+            <h2 className="text-xl font-semibold text-gray-800">Treasury Pool 💰</h2>
             <p className="text-sm text-gray-500">Current Balance</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
               ${totalValue.toLocaleString()}

@@ -16,6 +16,7 @@ import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import Image from "next/image";
 import Lucy from "../../public/assets/lucy.webp";
 import TreasuryCard from "~~/components/TreasuryPool";
+import BountyCard from "~~/components/Bounty";
 
 export interface FormData {
   token: string;
@@ -137,6 +138,7 @@ export default function Pitch() {
     <div className="py-12 min-h-screen bg-gray-50">
       <div className="flex flex-col md:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
+        <TreasuryCard />
           <Image
             src={Lucy}
             alt="AI Capital"
@@ -145,7 +147,8 @@ export default function Pitch() {
             placeholder="blur"
             className="rounded"
           />
-          <TreasuryCard />
+          
+          <BountyCard />
         </div>        
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
