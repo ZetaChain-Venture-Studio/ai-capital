@@ -26,14 +26,17 @@ const BountyCard: React.FC = () => {
   }, []);
 
   return (
-    <div className="border rounded-lg shadow-lg p-6 bg-white max-w-md">
+    <div
+      className="relative border rounded-lg shadow-lg p-6 bg-white max-w-md flex flex-col justify-center items-center"
+      style={{ width: '100%', minWidth: '320px', minHeight: '200px' }}
+    >
       {isLoading ? (
-        <div className="mt-4 flex justify-center mb-10">
+        <div className="flex justify-center items-center h-full w-full">
           <div className="w-6 h-6 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
         </div>
       ) : (
-        <div>
-          <h2 className="text-xl font-bold text-yellow-500">Bounty To Win 🤑 </h2>         
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-xl font-bold text-yellow-500">Bounty To Win 🤑</h2>
           <p className="text-3xl font-bold text-gray-900 mt-2">
             ${walletAmount.toLocaleString()} USDC
           </p>
