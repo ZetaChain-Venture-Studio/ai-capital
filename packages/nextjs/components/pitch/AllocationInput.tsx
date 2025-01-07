@@ -28,7 +28,7 @@ export default function AllocationInput({ value, onChange }: AllocationInputProp
 
   return (
     <div>
-      <label htmlFor="allocation" className="block text-sm font-medium text-gray-700 mb-2">
+      <label htmlFor="allocation" className="block text-xs font-medium text-gray-600 mb-2">
         Allocation Percentage (0 - 2%)
       </label>
       <div className="relative">
@@ -42,9 +42,8 @@ export default function AllocationInput({ value, onChange }: AllocationInputProp
           required
           value={value}
           onChange={handleChange}
-          className={`bg-white w-full rounded-md border py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent ${
-            !validation.isValid ? "border-red-300 focus:ring-red-500" : "border-gray-300"
-          }`}
+          className={`[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white w-full rounded-md border py-1 px-2 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-transparent ${!validation.isValid ? "border-red-300 focus:ring-red-500" : "border-gray-300 "
+            }`}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
           <span className="text-gray-500">%</span>

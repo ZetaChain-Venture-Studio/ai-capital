@@ -33,7 +33,7 @@ export interface AIResponse extends FormData {
 export default function Pitch() {
   const [formData, setFormData] = useState<FormData>({
     token: "",
-    tradeType: "",
+    tradeType: "buy",
     allocation: "",
     pitch: "",
   });
@@ -138,7 +138,7 @@ export default function Pitch() {
     <div className="py-12 min-h-screen bg-gray-50">
       <div className="flex flex-col md:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8">
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
-        <TreasuryCard />
+          <TreasuryCard />
           <Image
             src={Lucy}
             alt="AI Capital"
@@ -147,17 +147,24 @@ export default function Pitch() {
             placeholder="blur"
             className="rounded"
           />
-          
           <BountyCard />
-        </div>        
+        </div>
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
-            <h1 className="mb-8 text-3xl font-bold text-gray-900">Submit a Pitch</h1>
+            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">Submit an Investment Pitch to Lucy</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <TokenSelect value={formData.token} onChange={handleChange} />
-              <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
-              <AllocationInput value={formData.allocation} onChange={handleChange} />
+            
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1">
+                  <TradeTypeSelect value={formData.tradeType} onChange={handleChange} />
+                </div>
+                <div className="flex-1">
+                  <AllocationInput value={formData.allocation} onChange={handleChange} />
+                </div>
+              </div>
+
               <PitchTextarea value={formData.pitch} onChange={handleChange} />
 
               {status !== "idle" && (
@@ -173,7 +180,7 @@ export default function Pitch() {
                 Submit Pitch for 0.001 ETH
               </button>
 
-              {/* debug buttons for showing success and failure modals */}
+              {/* Debug buttons for showing success and failure modals */}
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={() => setShowSuccessModal(true)}
@@ -194,6 +201,7 @@ export default function Pitch() {
           <Chat messages={messages} />
         </div>
       </div>
+
 
       {/* Our success/failure modals, controlled by local state */}
       <TransactionSuccessModal

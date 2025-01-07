@@ -33,13 +33,12 @@ const BountyCard: React.FC = () => {
         </div>
       ) : (
         <div>
-          <h2 className="text-xl font-bold text-yellow-500">Bounty Wallet 🤑 </h2>         
+          <h2 className="text-xl font-bold text-yellow-500">Bounty To Win 🤑 </h2>         
           <p className="text-3xl font-bold text-gray-900 mt-2">
             ${walletAmount.toLocaleString()} USDC
           </p>
-          <p className="text-sm text-gray-500 mt-2">
-            This is the amount available in the wallet to be transferred if you successfully
-            convince Lucy to invest in a token.
+          <p className="text-base text-gray-500 mt-2">
+            Convince Lucy to invest in your token and win the bounty!
           </p>
         </div>
       )}
