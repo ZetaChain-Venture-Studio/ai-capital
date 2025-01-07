@@ -192,7 +192,7 @@ export default function Pitch() {
             </form>
           </div>
 
-          <Chat messages={messages} />
+          <Chat/>
         </div>
       </div>
 
