@@ -1,78 +1,75 @@
-# AIC Smart Contract Documentation
+# Deployed Contracts on ZetaChain Testnet
 
-## Overview
+- **USDC Contract**: `0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4`
+- **Pepe Contract**: `0xf63fC04B0e424787d2e66867B869E649b5Aa9308`
+- **AIC Contract**: `0x6d2fbd23E8Ab975EBbd66026f8E435149a2a552f`
+- **Bounty Contract**: `0xBC673f77e2cC394b866Af8a66869f538861aB054`
 
-The AIC contract facilitates token swaps between USDC and USDT using the Izumi router. Players can participate in games by paying a specified price in USDC. The contract manages user whitelisting, fee settings, and token balances.
+> **Note**: You can interact with these contracts via BlockScout.
 
-## Contract Addresses Mainnet (for testing):
-- **AIC Contract:** `0xbe95807Bc4923664DdDE3a8bC653F8bc9D37F441`
-- **USDC Contract:** `0x020B5D3da45c46F0b38B2B43DE7B552771385f8F`
-- **USDT Contract:** `0xe3b5f5ac71e00252118BB76Ef67996F62c98AB5d`
-- **Izumi Router Contract:** `0x34bc1b87f60e0a30c0e24FD7Abada70436c71406`
+---
 
-## Contract Addresses Testnet: (Only for the flow)
-- **AIC Contract:** `0x2e000b25Cc718671a0C0cCBD20B70F6ae2200880`
-- **USDC Contract:** `0xF29a6d5Ee1AbC536E71BC192D8Eb5a24Db48aA98`
-- **USDT Contract:** `0xB48a4Bf41C10C3e4005A5A6137c6e5cF21F4B241`
-- **Izumi Router Contract:** -
+# Usage Instructions
 
-## Frontend Interaction
+## Frontend
 
-1. **Get Current Price:**
-   - Call `price()` from the AIC contract.
+1. Call the following method on the **USDC Contract**:
+   `approve(aic_contract, amount);`
 
-2. **Participate in the Game:**
-   - a. Approve the contract to spend USDC:
-     ```solidity
-     approve(AIC_contract, price);
-     ```
-   - b. Call `payGame()` to whitelist the user.
-   - c. Send a request to the backend to process the game move.
-   - d. Provide the following information to the backend:
-     - `address _user` (the player)
-     - `address tokenA` (the token to sell)
-     - `address tokenB` (the token to buy)
-     - `uint256 percent` (percentage of tokenA to sell)
+2. Then, invoke the following method:  
+   `payGame(address _player);`
 
-## Backend Processing
+   - **_player**: The address of the user participating in the game.  
 
-1. **Check Whitelisted Status:**
-   - Call `whitelist(user)` to determine if the user is whitelisted.
+     > Note: This value is currently ignored; we will implement a function overload to eliminate the need to pass parameters.
 
-2. **Process Game Move:**
-   - If the user loses, call:
-     ```solidity
-     deWhitelist(address _user);
-     ```
-   - If the user wins, call:
-     ```solidity
-     _swapTokens(address _user, address tokenA, address tokenB, uint256 percent);
-     ```
-   - **Parameters:**
-     - `user`: The whitelisted player.
-     - `tokenA`: The token to sell (must be in the contract).
-     - `tokenB`: The token to buy (must be in the whitelist).
-     - `percent`: A value between 0 and 100 indicating the percentage of tokenA to sell.
+   ### This function performs the following actions:
+   - Increases the whitelist count for the user to enable them to play.
+   - Charges the price in USDC.
+   - Transfers 75% of the USDC to the **Bounty Contract** and 25% to a wallet known as "protocol".
+   - Increases the price by 5% for the next purchase.
 
-## Token Distribution
+3. Sends the prompt and user data along with the swap information to the backend.
+(address _user, address tokenA, address tokenB, prompt)
 
-- **75%** goes to the bounty.
-- **20%** goes to developers (protocol).
-- **5%** is allocated for increasing the treasure.
 
-## Important Notes
+## Backend
 
-- Both tokens (USDC and USDT) support minting. You can mint tokens directly on BlockScout by connecting your wallet, specifying the mint address and amount.
-- The token pair is configured within the Izumi swap contract. You can add liquidity or test swaps directly from Izumi.
-- The contract currently does not distribute the pool.
+1. Call `whitelist(address user)` to check if the user is whitelisted.
+2. Process the prompt and determine whether the user has won or lost.
+3. If the user **wins**, call:  
+   `swapTokens(address _user, address tokenA, address tokenB);`  
 
-## Event Emission
+   - **_user**: The winning user.  
+   - **tokenA**: USDC Contract.  
+   - **tokenB**: Pepe Contract.
 
-- **FeeSet**: Emits events when the fee between two tokens is set.
-- **newPlayer**: Emits events when a new player participates in the game.
+   ### This function will:
+   - Execute a swap using Uniswap V2 deployed on ZetaChain.
+   - Decrease the whitelist count for the user.
+   - Emit the event:  
+     `winner(_user, tokenA, tokenB, amountIn, amounts[path.length - 1], block.timestamp);`  
 
-## Roles
+     - **_user**: Serves as a topic for searches if needed.
+   - Distribute the bounty.
 
-- **SERVER_ROLE**: Allows server operations.
-- **TREASURE_ROLE**: Allows treasury-related actions.
-- **DEFAULT_ADMIN_ROLE**: Grants administrative privileges.
+4. If the user **loses**, call:  
+   `deWhitelist(address _user);`  
+
+   - **_user**: The address of the user who lost.
+
+---
+
+# Additional Notes
+
+### Function Overloading in `swapTokens()`
+The overloaded version of `swapTokens()` includes a boolean parameter designed for routing from **tokenA** to **tokenB** through **WZeta**. This manual routing is necessary due to the absence of automatic routing. Observing that all tokens interact with Zeta in Eddy Finance, this method was implemented to streamline the routing process, avoiding the need to handle it in the backend or frontend.
+
+### Function Overloading in `payGame()`
+The purpose of overloading `payGame()` is to separate the user from the payer. Currently, this is set up only for the backend and is intended for scenarios such as gasless payments for users (though requiring prior approval for USDC transfers). With account abstraction, we could provide initial Zeta for covering the approval function and subsequently use USDC calling it from the backend.
+
+### Bounty Wallet
+The **Bounty Wallet** is generated from the smart contract (AIC.sol) and is beyond manual control, as the contract manages it. This design ensures legitimacy, guaranteeing that the bounty will not be retained by any individual. The wallet is created by the AIC contract itself.
+
+### Eddy Finance
+Upon reviewing the contract, I discovered that they are simply using Uniswap deployed on ZetaChain. However, prior to that, they are wrapping it and charging fees. For now, I can avoid those fees. If we decide to implement cross-chain functionality with their swap, we may need to use them later, but if we are using the gateway ourselves, there is no need to pay them for gas.
