@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PortfolioHistoryChart from "../../components/portfolio/PortfolioHistoryChart";
 import { ArcElement, Chart as ChartJS, ChartOptions, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
@@ -127,6 +128,7 @@ export default function PortfolioPage() {
           </table>
         </div>
       )}
+      <PortfolioHistoryChart />
     </div>
   );
 }
