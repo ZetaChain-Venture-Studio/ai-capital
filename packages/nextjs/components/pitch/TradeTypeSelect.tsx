@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 interface TradeTypeSelectProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -7,30 +9,41 @@ interface TradeTypeSelectProps {
 
 export default function TradeTypeSelect({ value, onChange }: TradeTypeSelectProps) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Trade Type</label>
-      <div className="space-x-4">
-        <label className="inline-flex items-center">
+    <div className="w-full max-w-xs">
+      <label className="block text-xs font-medium text-gray-600 mb-2">Trade Type</label>
+      <div className="relative flex items-center justify-between w-full bg-gray-200 rounded-full p-1">
+        {/* Buy Option */}
+        <label
+          className={`w-1/2 text-center cursor-pointer py-1 text-xs rounded-full ${
+            value === "buy" ? "bg-green-500 text-white" : "text-gray-700"
+          }`}
+        >
           <input
             type="radio"
             name="tradeType"
             value="buy"
             checked={value === "buy"}
             onChange={onChange}
-            className="form-radio text-gray-900 accent-blue-500"
+            className="hidden"
           />
-          <span className="ml-2">Buy</span>
+          Buy
         </label>
-        <label className="inline-flex items-center">
+
+        {/* Sell Option */}
+        <label
+          className={`w-1/2 text-center cursor-pointer py-1 text-xs rounded-full ${
+            value === "sell" ? "bg-red-500 text-white" : "text-gray-700"
+          }`}
+        >
           <input
             type="radio"
             name="tradeType"
             value="sell"
             checked={value === "sell"}
             onChange={onChange}
-            className="form-radio text-gray-900 accent-blue-500"
+            className="hidden"
           />
-          <span className="ml-2">Sell</span>
+          Sell
         </label>
       </div>
     </div>

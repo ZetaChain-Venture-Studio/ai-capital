@@ -1,51 +1,77 @@
 import React from "react";
 import Link from "next/link";
-import { Faucet } from "./scaffold-eth";
-import { hardhat } from "viem/chains";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 /**
  * Site footer
  */
 export const Footer = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isLocalNetwork = targetNetwork.id === hardhat.id;
-
   return (
-    <div className="px-1 py-5 mb-11 min-h-0 lg:mb-0">
-      <div>
-        <div className="flex fixed bottom-0 left-0 z-10 justify-between items-center p-4 w-full pointer-events-none">
-          <div className="flex flex-col gap-2 pointer-events-auto md:flex-row">
-            {isLocalNetwork && (
-              <>
-                <Link href="/blockexplorer" passHref className="gap-1 font-normal btn btn-primary btn-sm">
-                  <MagnifyingGlassIcon className="w-4 h-4" />
-                  <span>Block Explorer</span>
-                </Link>
-                <Faucet />
-              </>
-            )}
+    <footer className="bg-gray-100 py-8 px-4">
+      {/* Top Section */}
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+        {/* Description */}
+        <div className="md:w-2/3">
+          <p className="text-gray-600 text-sm leading-relaxed max-md:text-center">
+            AI Capital is a game where you can pitch your favorite token to our advanced AI and see if you can convince
+            it to invest. Powered by ZetaChain.
+          </p>
+        </div>
+
+        {/* Links Section */}
+        <div className="flex flex-col md:flex-row max-md:items-center max-md:text-center gap-2 md:gap-8 w-full md:w-1/3 text-gray-600 text-sm font-semibold">
+          <div className="flex flex-col gap-2">
+            <Link
+              href="https://fingerpump.gitbook.io/dust.fun/about-us"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-800"
+            >
+              About Us
+            </Link>
+            <Link
+              href="https://fingerpump.gitbook.io/dust.fun/available-chains-and-whitelisted-tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-800"
+            >
+              Supported Chains
+            </Link>
           </div>
-          {/* <SwitchTheme className={`pointer-events-auto ${isLocalNetwork ? "self-end md:self-auto" : ""}`} /> */}
+          <div className="flex flex-col gap-2">
+            <Link href="/privacy" className="hover:text-gray-800">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-gray-800">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
-      <div className="w-full">
-        <ul className="w-full menu menu-horizontal">
-          <div className="flex gap-2 justify-center items-center w-full text-sm">
-            {/* <div className="text-center">
-              <a
-                href="https://github.com/ZetaChain-Venture-Studio/ai-capital.git"
-                target="_blank"
-                rel="noreferrer"
-                className="link"
-              >
-                Github
-              </a>
-            </div> */}
+
+      {/* Bottom Section */}
+      <div className="border-t border-gray-300 mt-8 pt-6">
+        <div className="max-w-6xl mx-auto flex flex-col items-center">
+          {/* Social Links Placeholder */}
+          <div className="flex gap-4 text-center mb-4">
+            {/* Replace with actual icons */}
+            {/* <Link href="https://discord.com/invite/zetachain" className="hover:opacity-80">
+              <Image src={discordIcon} alt="Discord" width={24} height={24} />
+            </Link>
+            <Link href="https://discord.com/invite/zetachain" className="hover:opacity-80">
+              <Image src={instagramIcon} alt="Instagram" width={24} height={24} />
+            </Link>
+            <Link href="https://discord.com/invite/zetachain" className="hover:opacity-80">
+              <Image src={tiktokIcon} alt="TikTok" width={24} height={24} />
+            </Link>
+            <Link href="https://www.youtube.com/@ZetaBlockchain" className="hover:opacity-80">
+              <Image src={youtubeIcon} alt="YouTube" width={24} height={24} />
+            </Link> */}
           </div>
-        </ul>
+          <p className="text-gray-600 text-sm font-semibold text-center">
+            Made by <span className="font-bold">UNDR Collective</span>
+          </p>
+        </div>
       </div>
-    </div>
+    </footer>
   );
 };
