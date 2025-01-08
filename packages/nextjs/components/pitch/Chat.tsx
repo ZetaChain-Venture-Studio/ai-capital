@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { AIResponse } from "~~/utils/types/types";
 
-export default function Chat() {
+interface ChatProps {
+  _refetchChatFlag: boolean;
+}
+
+export default function Chat({ _refetchChatFlag }: ChatProps) {
   const { address } = useAccount();
   const [messages, setMessages] = useState<AIResponse[]>([]);
   const [showGlobal, setShowGlobal] = useState(true);
@@ -76,7 +80,7 @@ export default function Chat() {
 
   useEffect(() => {
     getChat();
-  }, [limit, showGlobal, currentPage]);
+  }, [limit, showGlobal, currentPage, _refetchChatFlag]);
 
   useEffect(() => {
     if (!address) setShowGlobal(true);

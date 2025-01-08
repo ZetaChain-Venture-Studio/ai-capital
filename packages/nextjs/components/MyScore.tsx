@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
-const MyScore: React.FC = () => {
+interface MyScoreProps {
+  _refetchScoreFlag: boolean;
+}
+
+const MyScore = ({ _refetchScoreFlag }: MyScoreProps) => {
   const [score, setScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
@@ -23,7 +27,7 @@ const MyScore: React.FC = () => {
     };
 
     address && fetchTokens();
-  }, [address]);
+  }, [address, _refetchScoreFlag]);
 
   return (
     <div
@@ -39,7 +43,10 @@ const MyScore: React.FC = () => {
           <div>
             <h2 className="text-xl font-semibold text-gray-800">My Score 🍀</h2>
             <p className="text-3xl font-bold text-gray-900 mt-2">{score}</p>
-            <p className="text-base text-gray-500 mt-2">Total amount in the treasury for investments</p>
+            <p className="text-base text-gray-500 mt-2">
+              A score calculated based on the number of Investment Pitch submissions sent to Lucy. Winning pitches are
+              awarded a higher score.
+            </p>
           </div>
         </div>
       )}

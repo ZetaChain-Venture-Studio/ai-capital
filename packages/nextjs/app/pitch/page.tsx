@@ -40,6 +40,7 @@ export default function Pitch() {
   });
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [refetchData, setRefetchData] = useState(false);
   const { address } = useAccount();
 
   const { data: walletClient } = useWalletClient();
@@ -120,16 +121,7 @@ export default function Pitch() {
 
       const data = await response;
       console.log("AI response:", data);
-
-      const aiResponse = response.aiResponseText;
-
-      const newResponse: AIResponse = {
-        ...formData,
-        aiResponseText: aiResponse,
-        success: response.success,
-      };
-
-      // setMessages(prevMessages => [newResponse, ...prevMessages]);
+      setRefetchData(!refetchData);
     } else {
       console.error("AI API call error");
     }
@@ -142,7 +134,7 @@ export default function Pitch() {
           <BountyCard />
           <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
           <TreasuryCard />
-          {address && <MyScore />}
+          {address && <MyScore _refetchScoreFlag={refetchData} />}
         </div>
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
@@ -164,7 +156,8 @@ export default function Pitch() {
 
               {status !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  className={`p-4 rounded-md ${
+                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                   }`}
                 >
                   <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
@@ -193,7 +186,7 @@ export default function Pitch() {
             </form>
           </div>
 
-          <Chat />
+          <Chat _refetchChatFlag={refetchData} />
         </div>
       </div>
 
