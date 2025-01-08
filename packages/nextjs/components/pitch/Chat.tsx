@@ -119,8 +119,10 @@ export default function Chat() {
                   <span className="font-normal">999</span>
                 </span>
               </div>
-              <p>{message.pitch}</p>
-              <p className={message.success ? "text-green-600 font-semibold" : "text-red-600"}>
+              <p className="text-sm md:text-base">{message.pitch}</p>
+              <p
+                className={`text-sm md:text-base ${message.success ? "text-green-600 font-semibold" : "text-red-600"}`}
+              >
                 <strong>AI:</strong> {message.aiResponseText}
               </p>
               <p className="text-sm text-gray-500">

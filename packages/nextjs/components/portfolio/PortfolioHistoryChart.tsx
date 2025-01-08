@@ -134,7 +134,7 @@ export default function PortfolioHistoryChart() {
 
   return (
     <div className="p-4">
-      <div className="w-9/12 mx-auto my-8">
+      <div className="w-full md:w-9/12 my-8 flex justify-center">
         <Line data={data} options={options} />
       </div>
       {isLoading && (
@@ -144,25 +144,25 @@ export default function PortfolioHistoryChart() {
       )}
       <div className="flex gap-2 justify-center">
         <button
-          className={`px-3 py-2 ${timeframe === "1d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded`}
+          className={`px-3 py-2 ${timeframe === "1d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("1d")}
         >
           1 Day
         </button>
         <button
-          className={`px-3 py-2 ${timeframe === "7d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded`}
+          className={`px-3 py-2 ${timeframe === "7d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("7d")}
         >
           7 Days
         </button>
         <button
-          className={`px-3 py-2 ${timeframe === "30d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded`}
+          className={`px-3 py-2 ${timeframe === "30d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("30d")}
         >
           30 Days
         </button>
         <button
-          className={`px-3 py-2 ${timeframe === "all" ? "bg-blue-600" : "bg-gray-600"} text-white rounded`}
+          className={`px-3 py-2 ${timeframe === "all" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("all")}
         >
           All

@@ -137,7 +137,7 @@ export default function Pitch() {
 
   return (
     <div className="py-12 min-h-screen bg-gray-50">
-      <div className="flex flex-col md:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8">
+      <div className="flex flex-col lg:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8 justify-center max-lg:items-center">
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
           <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />

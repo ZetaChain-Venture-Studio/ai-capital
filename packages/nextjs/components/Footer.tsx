@@ -11,14 +11,14 @@ export const Footer = () => {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
         {/* Description */}
         <div className="md:w-2/3">
-          <p className="text-gray-600 text-sm leading-relaxed">
+          <p className="text-gray-600 text-sm leading-relaxed max-md:text-center">
             AI Capital is a game where you can pitch your favorite token to our advanced AI and see if you can convince
             it to invest. Powered by ZetaChain.
           </p>
         </div>
 
         {/* Links Section */}
-        <div className="flex flex-col md:flex-row gap-8 w-full md:w-1/3 text-gray-600 text-sm font-semibold">
+        <div className="flex flex-col md:flex-row max-md:items-center max-md:text-center gap-2 md:gap-8 w-full md:w-1/3 text-gray-600 text-sm font-semibold">
           <div className="flex flex-col gap-2">
             <Link
               href="https://fingerpump.gitbook.io/dust.fun/about-us"
