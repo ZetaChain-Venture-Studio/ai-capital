@@ -120,7 +120,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
                 </span>
                 <span className="font-bold">
                   {"Score: "}
-                  <span className="font-normal">999</span>
+                  <span className="font-normal">{message.score}</span>
                 </span>
               </div>
               <p className="text-sm md:text-base">{message.pitch}</p>
