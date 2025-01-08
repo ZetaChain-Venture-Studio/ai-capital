@@ -2349,6 +2349,7 @@ __metadata:
     eslint-config-prettier: ~8.10.0
     eslint-plugin-prettier: ~5.2.1
     lucide-react: ^0.468.0
+    moralis: ^2.27.2
     next: ~14.2.11
     next-nprogress-bar: ~2.3.13
     next-themes: ~0.3.0
@@ -12351,7 +12352,6 @@ __metadata:
     husky: ~8.0.3
     lint-staged: ~13.2.2
     lucide-react: ^0.468.0
-    moralis: ^2.27.2
   languageName: unknown
   linkType: soft
 

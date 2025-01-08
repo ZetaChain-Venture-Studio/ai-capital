@@ -47,7 +47,6 @@
   "dependencies": {
     "@moralisweb3/common-evm-utils": "^2.27.2",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
-    "lucide-react": "^0.468.0",
-    "moralis": "^2.27.2"
+    "lucide-react": "^0.468.0"
   }
 }
