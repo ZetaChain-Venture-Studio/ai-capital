@@ -13,6 +13,7 @@ export default function Chat() {
   const [cursorRecord, setCursorRecord] = useState<number[]>([]); // Almacena los cursos anteriores
   const [nextCursor, setNextCursor] = useState<number | null>(null); // Cursor para la próxima página
   const [previousFlag, setPreviousFlag] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedLimit = Number(e.target.value);
@@ -22,6 +23,7 @@ export default function Chat() {
   };
 
   const getChat = async () => {
+    setLoading(true);
     let _url = showGlobal
       ? `/api/paginated-chat?limit=${limit}`
       : `/api/paginated-chat?userAddress=${address}&limit=${limit}`;
@@ -50,6 +52,7 @@ export default function Chat() {
       } else {
         setPreviousFlag(false);
       }
+      setLoading(false);
     }
   };
 
@@ -62,6 +65,7 @@ export default function Chat() {
 
   const goToPreviousPage = () => {
     if (cursorRecord.length > 0) {
+      // const correctIndex = nextCursor !== null ? 1 : 2;
       const previousCursor = cursorRecord[cursorRecord.length - 1];
       setCursorRecord(prev => prev.slice(0, -1));
       setNextCursor(previousCursor);
@@ -83,32 +87,38 @@ export default function Chat() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Chat</h1>
         <div className="flex gap-2">
-          <button onClick={() => setShowGlobal(true)} className="btn-sm bg-sky-600 text-white rounded-md px-4">
+          <button
+            onClick={() => setShowGlobal(true)}
+            className={`btn-sm bg-sky-600 text-white rounded-md px-4 ${showGlobal && "font-black"}`}
+          >
             Global
           </button>
           <button
             onClick={() => setShowGlobal(false)}
-            className={`btn-sm ${address ? "bg-sky-500" : "bg-stone-500"} text-white rounded-md px-4`}
+            className={`btn-sm ${address ? "bg-sky-500" : "bg-stone-500"} text-white rounded-md px-4 ${!showGlobal && "font-black"}`}
             disabled={!address}
           >
             Private
           </button>
         </div>
       </div>
-      {messages.length > 0 &&
-        messages.map((message, index) => (
-          <div key={index} className={`mb-4 p-2 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
-            <p>
-              <strong>User:</strong> {message.pitch}
-            </p>
-            <p className={message.success ? "text-green-600 font-semibold" : "text-red-600"}>
-              <strong>AI:</strong> {message.aiResponseText}
-            </p>
-            <p className="text-sm text-gray-500">
-              {message.tradeType} {message.allocation}% of {message.token}
-            </p>
-          </div>
-        ))}
+
+      <div className={`min-h-[200px] relative ${loading && "blur"}`}>
+        {messages.length > 0 &&
+          messages.map((message, index) => (
+            <div key={index} className={`mb-4 p-2 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
+              <p>
+                <strong>User:</strong> {message.pitch}
+              </p>
+              <p className={message.success ? "text-green-600 font-semibold" : "text-red-600"}>
+                <strong>AI:</strong> {message.aiResponseText}
+              </p>
+              <p className="text-sm text-gray-500">
+                {message.tradeType} {message.allocation}% of {message.token}
+              </p>
+            </div>
+          ))}
+      </div>
 
       <div className="w-full flex gap-2 justify-center items-center">
         <button
