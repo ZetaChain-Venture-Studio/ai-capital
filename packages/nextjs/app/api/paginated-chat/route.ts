@@ -48,7 +48,8 @@ export async function GET(req: Request) {
     //Second page + private chat
     if (cursor && userAddress) {
       rows = await sql`
-        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
+        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
         FROM messages
         WHERE id < ${cursor} AND user_address = ${userAddress}
         ORDER BY id DESC
@@ -58,7 +59,8 @@ export async function GET(req: Request) {
     //Second page + global chat
     else if (cursor) {
       rows = await sql`
-        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
+        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
         FROM messages
         WHERE id < ${cursor}
         ORDER BY id DESC
@@ -68,7 +70,8 @@ export async function GET(req: Request) {
     //First page + private chat
     else if (userAddress) {
       rows = await sql`
-        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
+        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
         FROM messages
         WHERE user_address = ${userAddress}
         ORDER BY id DESC
@@ -78,7 +81,8 @@ export async function GET(req: Request) {
     //First page + global chat
     else {
       rows = await sql`
-        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
+        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
         FROM messages
         ORDER BY id DESC
         LIMIT ${limit};
@@ -96,6 +100,7 @@ export async function GET(req: Request) {
       aiResponseText: row.ai_response_text,
       success: row.success,
       timestamp: row.timestamp,
+      score: row.score,
     }));
 
     // Get the next cursor (id of the last item)
