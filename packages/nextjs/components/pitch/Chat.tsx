@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { AIResponse } from "~~/app/pitch/page";
+import { AIResponse } from "~~/utils/types/types";
 
 export default function Chat() {
   const { address } = useAccount();
@@ -28,7 +28,7 @@ export default function Chat() {
       ? `/api/paginated-chat?limit=${limit}`
       : `/api/paginated-chat?userAddress=${address}&limit=${limit}`;
     if (currentPage > 1 && nextCursor !== null) _url += `&cursor=${nextCursor}`;
-    console.log(`calling ${_url}`);
+    // console.log(`calling ${_url}`);
 
     const response = await fetch(_url, {
       method: "GET",
@@ -42,7 +42,7 @@ export default function Chat() {
     }
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
     if (data) {
       setMessages(data.data);
@@ -106,10 +106,20 @@ export default function Chat() {
       <div className={`min-h-[200px] relative ${loading && "blur"}`}>
         {messages.length > 0 &&
           messages.map((message, index) => (
-            <div key={index} className={`mb-4 p-2 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
-              <p>
-                <strong>User:</strong> {message.pitch}
-              </p>
+            <div key={index} className={`mb-4 p-6 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
+              <div className="flex justify-between">
+                <span className="font-bold">
+                  {"User: "}
+                  <span className="font-normal">
+                    {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
+                  </span>
+                </span>
+                <span className="font-bold">
+                  {"Score: "}
+                  <span className="font-normal">999</span>
+                </span>
+              </div>
+              <p>{message.pitch}</p>
               <p className={message.success ? "text-green-600 font-semibold" : "text-red-600"}>
                 <strong>AI:</strong> {message.aiResponseText}
               </p>
@@ -147,11 +157,6 @@ export default function Chat() {
           <option value={10}>10</option>
           <option value={15}>15</option>
         </select>
-      </div>
-
-      <div className="flex flex-col w-full items-center">
-        <span>Cursor record {cursorRecord}</span>
-        <span>Next cursor {nextCursor}</span>
       </div>
     </div>
   );

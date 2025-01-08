@@ -48,7 +48,7 @@ export async function GET(req: Request) {
     //Second page + private chat
     if (cursor && userAddress) {
       rows = await sql`
-        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
         WHERE id < ${cursor} AND user_address = ${userAddress}
         ORDER BY id DESC
@@ -58,7 +58,7 @@ export async function GET(req: Request) {
     //Second page + global chat
     else if (cursor) {
       rows = await sql`
-        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
         WHERE id < ${cursor}
         ORDER BY id DESC
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
     //First page + private chat
     else if (userAddress) {
       rows = await sql`
-        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
         WHERE user_address = ${userAddress}
         ORDER BY id DESC
@@ -78,7 +78,7 @@ export async function GET(req: Request) {
     //First page + global chat
     else {
       rows = await sql`
-        SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
+        SELECT id, user_address, token, trade_type, allocation, pitch, ai_response_text, success, timestamp
         FROM messages
         ORDER BY id DESC
         LIMIT ${limit};

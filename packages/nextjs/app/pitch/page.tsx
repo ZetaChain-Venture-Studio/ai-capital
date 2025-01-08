@@ -9,7 +9,7 @@ import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
-import { analyzePitch, getAllMessages } from "../actions/agents";
+import { analyzePitch } from "../actions/agents";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
@@ -17,6 +17,7 @@ import BountyCard from "~~/components/Bounty";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import MyScore from "~~/components/MyScore";
 
 export interface FormData {
   token: string;
@@ -141,6 +142,7 @@ export default function Pitch() {
           <BountyCard />
           <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
           <TreasuryCard />
+          {address && <MyScore />}
         </div>
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
@@ -162,8 +164,7 @@ export default function Pitch() {
 
               {status !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                   }`}
                 >
                   <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
@@ -192,7 +193,7 @@ export default function Pitch() {
             </form>
           </div>
 
-          <Chat/>
+          <Chat />
         </div>
       </div>
 
