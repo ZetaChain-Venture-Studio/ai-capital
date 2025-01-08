@@ -9,6 +9,7 @@ export interface AIResponse {
   aiResponseText: string;
   success: boolean;
   timestamp: string;
+  score?: number;
 }
 
 export const CHAIN_IDS = [
