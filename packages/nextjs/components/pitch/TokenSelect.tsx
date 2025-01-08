@@ -22,7 +22,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
       <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
         Enter or Select Token
       </label>
-      <div className="flex gap-2">
+      <div className="flex flex-col lg:flex-row gap-2">
         {/* Text Input */}
         <input
           type="text"
@@ -39,7 +39,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
           id="token-select"
           name="token-select"
           onChange={handleSelectChange}
-          className="bg-white w-1/3 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+          className="bg-white w-full lg:w-1/3 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         >
           <option value="">Your token</option>
           {mockPortfolio.map(item => (

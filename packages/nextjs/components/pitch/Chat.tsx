@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { AIResponse } from "~~/utils/types/types";
 
-export default function Chat() {
+interface ChatProps {
+  _refetchChatFlag: boolean;
+}
+
+export default function Chat({ _refetchChatFlag }: ChatProps) {
   const { address } = useAccount();
   const [messages, setMessages] = useState<AIResponse[]>([]);
   const [showGlobal, setShowGlobal] = useState(true);
@@ -76,7 +80,7 @@ export default function Chat() {
 
   useEffect(() => {
     getChat();
-  }, [limit, showGlobal, currentPage]);
+  }, [limit, showGlobal, currentPage, _refetchChatFlag]);
 
   useEffect(() => {
     if (!address) setShowGlobal(true);
@@ -119,8 +123,10 @@ export default function Chat() {
                   <span className="font-normal">999</span>
                 </span>
               </div>
-              <p>{message.pitch}</p>
-              <p className={message.success ? "text-green-600 font-semibold" : "text-red-600"}>
+              <p className="text-sm md:text-base">{message.pitch}</p>
+              <p
+                className={`text-sm md:text-base ${message.success ? "text-green-600 font-semibold" : "text-red-600"}`}
+              >
                 <strong>AI:</strong> {message.aiResponseText}
               </p>
               <p className="text-sm text-gray-500">

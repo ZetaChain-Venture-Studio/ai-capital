@@ -96,32 +96,35 @@ export default function PortfolioPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-300">
-                <th className="py-3 px-4">Chain</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Symbol</th>
-                <th className="py-3 px-4">Balance</th>
-                <th className="py-3 px-4">USD Price</th>
-                <th className="py-3 px-4">USD Value</th>
-                <th className="py-3 px-4">Portfolio %</th>
+              <tr className="border-b border-gray-300  max-md:text-center text-xs md:text-base">
+                <th className="py-1 md:py-3 px-1 md:px-4">Chain</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">Name</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">Symbol</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">Balance</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">USD Price</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">USD Value</th>
+                <th className="py-1 md:py-3 px-1 md:px-4">Portfolio %</th>
               </tr>
             </thead>
             <tbody>
               {filteredTokens.map(token => (
-                <tr key={`${token.token_address}-${token.chain}`} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-3 px-4">{token.chain}</td>
-                  <td className="py-3 px-4">
+                <tr
+                  key={`${token.token_address}-${token.chain}`}
+                  className="border-b border-gray-200 hover:bg-gray-50 text-xs max-md:text-center"
+                >
+                  <td className="py-1 md:py-3 px-1 md:px-4">{token.chain}</td>
+                  <td className="py-1 md:py-3 px-1 md:px-4">
                     <div className="font-medium">{token.name}</div>
                   </td>
-                  <td className="py-3 px-4">{token.symbol}</td>
-                  <td className="py-3 px-4">{token.balance_formatted}</td>
-                  <td className="py-3 px-4">
+                  <td className="py-1 md:py-3 px-1 md:px-4">{token.symbol}</td>
+                  <td className="py-1 md:py-3 px-1 md:px-4">{token.balance_formatted}</td>
+                  <td className="py-1 md:py-3 px-1 md:px-4">
                     ${token.usd_price?.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-1 md:py-3 px-1 md:px-4">
                     ${token.usd_value?.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="py-3 px-4">{token.portfolio_percentage?.toFixed(2)}%</td>
+                  <td className="py-1 md:py-3 px-1 md:px-4">{token.portfolio_percentage?.toFixed(2)}%</td>
                 </tr>
               ))}
             </tbody>
