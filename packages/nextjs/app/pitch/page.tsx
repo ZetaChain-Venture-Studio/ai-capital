@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+<<<<<<< HEAD
+=======
+import { useAccount, useReadContract, useWriteContract, useWalletClient, useWaitForTransactionReceipt } from "wagmi";
+import { parseUnits, parseAbi, formatUnits } from "viem";
+
+import BountyCard from "~~/components/Bounty";
+import TreasuryCard from "~~/components/TreasuryPool";
+import Chat from "~~/components/pitch/Chat";
+import MyScore from "~~/components/MyScore";
+>>>>>>> 3b19bb2 (feat: submit pitch full cycle)
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
@@ -26,8 +36,8 @@ const erc20ABI = parseAbi([
   "function approve(address spender, uint256 amount) external returns (bool)",
 ]);
 
-const USDC_ADDRESS = "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
-const PAY_GAME_CONTRACT = "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
+const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS ?? "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
+const PAY_GAME_CONTRACT = process.env.NEXT_PUBLIC_AIC_ADDRESS ?? "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
 const USDC_PRICE = parseUnits("1", 6);
 
 /* -------------------------------------------------------------------------- */
@@ -102,6 +112,10 @@ export default function Pitch() {
     data: approveTxData,
   } = useWriteContract();
 
+  const { isSuccess: isSuccessApprove } = useWaitForTransactionReceipt({
+    hash: approveTxData,
+  });
+
   /* ------------------------- Write Contracts (payGame) ---------------------- */
   const {
     writeContract: writePayGame,
@@ -109,6 +123,10 @@ export default function Pitch() {
     error: payGameError,
     data: payGameTxData,
   } = useWriteContract();
+
+  const { isSuccess: isSuccessPayGame } = useWaitForTransactionReceipt({
+    hash: payGameTxData,
+  });
 
   /* ---------------------------- Read USDC Price ----------------------------- */
   const { data: contractPriceData = 0n, refetch: refetchContractPrice } = useReadContract({
@@ -129,30 +147,47 @@ export default function Pitch() {
 
   // Approve transaction response
   useEffect(() => {
-    if (approveTxData) {
-      console.log("✅ USDC Approve transaction response:", approveTxData);
+    if (isSuccessApprove) {
+      console.log("✅ USDC Approve done");
+
+      console.log("⏳ Calling payGame... Current allowance:", allowanceData.toString());
+      writePayGame({
+        address: PAY_GAME_CONTRACT,
+        abi: ABI,
+        functionName: "payGame",
+        args: [address],
+      });
     }
-  }, [approveTxData]);
+  }, [isSuccessApprove]);
+
+  useEffect(() => {
+    if (isSuccessPayGame) {
+      console.log("✅ Pay Game");
+      console.log("⏳ Sending pitch to AI…");
+      sendMessage();
+      console.log("✅ AI call finished");
+    }
+  }, [isSuccessPayGame]);
 
   // payGame transaction response
-  useEffect(() => {
-    if (payGameTxData) {
-      console.log("✅ payGame transaction response:", payGameTxData);
+  // useEffect(() => {
+  //   if (payGameTxData) {
+  //     console.log("✅ payGame transaction response:", payGameTxData);
 
-      // Update dynamic transaction details
-      setTxDetails({
-        chain: "ZetaChain",
-        amount: contractPrice,
-        token: "USDC",
-        transactionHash: payGameTxData.toString(),
-      });
+  //     // Update dynamic transaction details
+  //     setTxDetails({
+  //       chain: "ZetaChain",
+  //       amount: contractPrice,
+  //       token: "USDC",
+  //       transactionHash: payGameTxData.toString(),
+  //     });
 
-      // Trigger success modal
-      setPitchStatus("success");
-      setIsSuccessModalOpen(true);
-      refetchContractPrice();
-    }
-  }, [payGameTxData, contractPrice, refetchContractPrice]);
+  //     // Trigger success modal
+  //     setPitchStatus("success");
+  //     setIsSuccessModalOpen(true);
+  //     refetchContractPrice();
+  //   }
+  // }, [payGameTxData, contractPrice, refetchContractPrice]);
 
   // Approve error
   useEffect(() => {
@@ -235,7 +270,11 @@ export default function Pitch() {
         address: USDC_ADDRESS,
         abi: erc20ABI,
         functionName: "approve",
+<<<<<<< HEAD
         args: [PAY_GAME_CONTRACT, BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")],
+=======
+        args: [PAY_GAME_CONTRACT, parseUnits(contractPrice, 6)],
+>>>>>>> 3b19bb2 (feat: submit pitch full cycle)
       });
     } else {
       // payGame call
@@ -244,7 +283,7 @@ export default function Pitch() {
         setIsTxInProgress(false);
         return;
       }
-      console.log("⏳ Calling payGame... Current allowance:", allowanceData.toString());
+      console.log("⏳ Calling payGame...");
       writePayGame({
         address: PAY_GAME_CONTRACT,
         abi: ABI,
@@ -316,9 +355,9 @@ export default function Pitch() {
     await executeTransaction();
 
     // Call AI after transaction is triggered
-    console.log("⏳ Sending pitch to AI…");
-    await sendMessage();
-    console.log("✅ AI call finished");
+    // console.log("⏳ Sending pitch to AI…");
+    // await sendMessage();
+    // console.log("✅ AI call finished");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
