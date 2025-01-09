@@ -2,16 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-<<<<<<< HEAD
-=======
-import { useAccount, useReadContract, useWriteContract, useWalletClient, useWaitForTransactionReceipt } from "wagmi";
-import { parseUnits, parseAbi, formatUnits } from "viem";
-
-import BountyCard from "~~/components/Bounty";
-import TreasuryCard from "~~/components/TreasuryPool";
-import Chat from "~~/components/pitch/Chat";
-import MyScore from "~~/components/MyScore";
->>>>>>> 3b19bb2 (feat: submit pitch full cycle)
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
@@ -21,7 +11,7 @@ import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { formatUnits, parseAbi, parseUnits } from "viem";
-import { useAccount, useReadContract, useWalletClient, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWalletClient, useWriteContract } from "wagmi";
 import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
@@ -270,11 +260,7 @@ export default function Pitch() {
         address: USDC_ADDRESS,
         abi: erc20ABI,
         functionName: "approve",
-<<<<<<< HEAD
-        args: [PAY_GAME_CONTRACT, BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")],
-=======
         args: [PAY_GAME_CONTRACT, parseUnits(contractPrice, 6)],
->>>>>>> 3b19bb2 (feat: submit pitch full cycle)
       });
     } else {
       // payGame call
