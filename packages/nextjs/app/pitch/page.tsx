@@ -14,10 +14,10 @@ import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useWalletClient } from "wagmi";
 import BountyCard from "~~/components/Bounty";
+import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import MyScore from "~~/components/MyScore";
 
 export interface FormData {
   token: string;

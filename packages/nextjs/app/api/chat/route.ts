@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { client, prizePoolSmartContract } from "@/utils/types/sdks";
+import { tasks } from "@trigger.dev/sdk/v3";
 import { sql } from "@vercel/postgres";
 import { OpenAI } from "openai";
 import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
-import { Account, privateKeyToAccount } from "thirdweb/wallets";
-import { tasks } from "@trigger.dev/sdk/v3";
-import { client, prizePoolSmartContract } from "@/utils/types/sdks";
 import { readContract } from "thirdweb";
+import { Account, privateKeyToAccount } from "thirdweb/wallets";
 
 export const maxDuration = 300;
 
@@ -28,12 +28,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-
     //Check if a user is whitelisted before handling prompt
     const data = await checkWhitelist(userAddress);
-    
-    if(data === 0)
-    {
+
+    if (data === 0) {
       return NextResponse.json({ error: "Address not whitelisted" }, { status: 401 });
     }
 
@@ -163,13 +161,13 @@ export async function POST(req: NextRequest) {
     console.log("Insert successful:", result);
 
     //Succesful prompt - transfer prize pool
-    var handle;
-    
+    let handle;
+
     if (aiResponse.success) {
       //To deploy a new version run:
       //npx trigger.dev@latest deploy -e staging
       //npx trigger.dev@latest deploy -e prod
-        handle = await tasks.trigger("transfer-prize-pool", {
+      handle = await tasks.trigger("transfer-prize-pool", {
         userAddress: userAddress,
         sellTargetTokenAddress: swapATargetTokenAddress,
         buyTargetTokenAddress: swapBTargetTokenAddress,
@@ -180,7 +178,7 @@ export async function POST(req: NextRequest) {
       await deWhitelist(userAddress);
     }
 
-    return NextResponse.json({"llm-response":response.choices[0].message, "handle":handle});
+    return NextResponse.json({ "llm-response": response.choices[0].message, handle: handle });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Error" }, { status: 500 });
@@ -193,7 +191,7 @@ const account: Account = privateKeyToAccount({
 });
 
 async function checkWhitelist(walletAddresses: string) {
-  const data  = await readContract({
+  const data = await readContract({
     contract: prizePoolSmartContract,
     method: "function whitelist(address user) returns (uint8)",
     params: [walletAddresses],

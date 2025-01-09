@@ -1,8 +1,7 @@
+import { client, prizePoolSmartContract } from "./../../utils/types/sdks";
 import { logger, task } from "@trigger.dev/sdk/v3";
 import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
 import { Account, privateKeyToAccount } from "thirdweb/wallets";
-import { deWhitelist } from "../../app/api/chat/route";
-import { client, prizePoolSmartContract } from "./../../utils/types/sdks";
 
 export const transferPrize = task({
   id: "transfer-prize-pool",
@@ -28,7 +27,7 @@ export const transferPrize = task({
 
     return {
       message: "Hello, world!",
-    }
+    };
   },
 });
 
@@ -37,14 +36,8 @@ const account: Account = privateKeyToAccount({
   privateKey: process.env.BACKEND_WALLET_PRIVATE_KEY || "",
 });
 
-
-async function swapTokens(
-  userAddress: string,
-  swapATargetTokenAddress: string,
-  swapBTargetTokenAddress: string,
-) {
-
-  console.log()
+async function swapTokens(userAddress: string, swapATargetTokenAddress: string, swapBTargetTokenAddress: string) {
+  console.log();
   const transaction = prepareContractCall({
     contract: prizePoolSmartContract,
     method: "function swapTokens(address _user, address tokenA, address tokenB)",
