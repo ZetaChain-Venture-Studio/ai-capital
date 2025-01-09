@@ -139,7 +139,7 @@ export default function Pitch() {
       // Update dynamic transaction details based on your context
       setTransactionDetails({
         chain: "ZetaChain", // Dynamically set if available
-        amount: "1",       // Dynamically set amount based on transaction
+        amount: contractPrice,       // Dynamically set amount based on transaction
         token: "USDC", 
         transactionHash: payGameTxData.toString(),
       });
