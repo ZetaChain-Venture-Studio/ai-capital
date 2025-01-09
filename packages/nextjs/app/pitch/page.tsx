@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
@@ -11,7 +11,7 @@ import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { formatUnits, parseAbi, parseUnits } from "viem";
-import { useAccount, useReadContract, useWaitForTransactionReceipt, useWalletClient, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
@@ -83,7 +83,6 @@ export default function Pitch() {
 
   /* ------------------------------- Wagmi Hooks ------------------------------ */
   const { address } = useAccount();
-  const { data: walletClient } = useWalletClient(); // Not currently used, but handy if needed
 
   /* --------------------------- Read USDC Allowance -------------------------- */
   const { data: allowanceData = 0n } = useReadContract({
@@ -148,7 +147,43 @@ export default function Pitch() {
         args: [address],
       });
     }
-  }, [isSuccessApprove]);
+  }, [isSuccessApprove, address, allowanceData, writePayGame]);
+
+  const sendMessage = useCallback(async () => {
+    if (!address) {
+      console.log("⛔ No wallet, skipping AI call");
+      return;
+    }
+
+    try {
+      const dataSend = {
+        userAddress: address,
+        userMessage: formData,
+        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
+        swapBTargetTokenAddress: formData.token,
+      };
+      console.log(dataSend);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataSend),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("AI response:", response);
+        setRefetchFlag(prev => !prev);
+        console.log(data);
+      } else {
+        console.error("AI API call error");
+        console.error(data);
+      }
+    } catch (err) {
+      console.error("Error during AI call:", err);
+    }
+  }, [address, formData, setRefetchFlag]);
 
   useEffect(() => {
     if (isSuccessPayGame) {
@@ -157,7 +192,7 @@ export default function Pitch() {
       sendMessage();
       console.log("✅ AI call finished");
     }
-  }, [isSuccessPayGame]);
+  }, [isSuccessPayGame, sendMessage]);
 
   // payGame transaction response
   // useEffect(() => {
@@ -276,42 +311,6 @@ export default function Pitch() {
         functionName: "payGame",
         args: [address],
       });
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!address) {
-      console.log("⛔ No wallet, skipping AI call");
-      return;
-    }
-
-    try {
-      const dataSend = {
-        userAddress: address,
-        userMessage: formData,
-        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
-        swapBTargetTokenAddress: formData.token,
-      };
-      console.log(dataSend);
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataSend),
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("AI response:", response);
-        setRefetchFlag(prev => !prev);
-        console.log(data);
-      } else {
-        console.error("AI API call error");
-        console.error(data);
-      }
-    } catch (err) {
-      console.error("Error during AI call:", err);
     }
   };
 
