@@ -11,13 +11,14 @@ import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { analyzePitch } from "../actions/agents";
 import { parseEther } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useWalletClient } from "wagmi";
 import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import ABI from "~~/zeta-contracts/abi.json"
 
 export interface FormData {
   token: string;
@@ -44,61 +45,92 @@ export default function Pitch() {
   const { address } = useAccount();
 
   const { data: walletClient } = useWalletClient();
-  const { data: yourContract } = useScaffoldContract({
-    contractName: "AIC2",
-    walletClient,
+
+  // Keep track of the transaction hash at the top-level:
+  const [swapHash, setSwapHash] = useState<`0x${string}` | undefined>();
+
+  // Rename `data: swapHash` to `data: txData` to avoid clash with our state:
+  const { writeContract, data: txData, isError, error, isPending: swapTxPending } = useWriteContract();
+
+  // useWaitForTransactionReceipt is at the top-level, watching swapHash
+  const { data: txResult, isError: isReceiptError, isLoading: isReceiptLoading } = useWaitForTransactionReceipt({
+    hash: swapHash,
   });
+
+  useEffect(() => {
+    // If the writeContract hook has a result, set the transaction hash here
+    if (txData) {
+      console.log("Transaction response:", txData);
+      setSwapHash(txData);
+    }
+  }, [txData]);
+
+  useEffect(() => {
+    if (txResult) {
+      console.log("Transaction receipt logs:", txResult?.logs);
+      // Handle success (show a modal, update UI, etc.)
+    }
+  }, [txResult]);
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error while paying for pitch:", error);
+      setStatus("error");
+      setErrorMessage("Error submitting pitch");
+    }
+  }, [isError, error]);
+
+  useEffect(() => {
+    if (isReceiptError) {
+      console.error("Error fetching receipt");
+      // Handle error
+    }
+  }, [isReceiptError]);
 
   // State to show/hide success/failure modals
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailureModal, setShowFailureModal] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form submitted:", formData, formData.pitch.length);
+    // console.log("Form submitted:", formData, formData.pitch.length);
 
-    // Validate pitch
-    if (formData.pitch.length < 50) {
-      setErrorMessage("Please ensure your pitch is at least 50 characters.");
-      return;
-    } else if (formData.pitch.length > 400) {
-      setErrorMessage("Please ensure your pitch is less than 400 characters.");
-      return;
-    }
+    // // Validate pitch
+    // if (formData.pitch.length < 50) {
+    //   setErrorMessage("Please ensure your pitch is at least 50 characters.");
+    //   return;
+    // } else if (formData.pitch.length > 400) {
+    //   setErrorMessage("Please ensure your pitch is less than 400 characters.");
+    //   return;
+    // }
 
-    // Check for special characters
-    if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
-      setErrorMessage("No special characters allowed in the pitch.");
-      return;
-    }
+    // // Check for special characters
+    // if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
+    //   setErrorMessage("No special characters allowed in the pitch.");
+    //   return;
+    // }
 
-    // Validate allocation
-    const allocationValidation = validateAllocation(formData.allocation);
-    if (!allocationValidation.isValid) {
-      setStatus("error");
-      setErrorMessage(allocationValidation.message || "Invalid allocation");
-      return; // Not automatically showing failure modal here
-    }
+    // // Validate allocation
+    // const allocationValidation = validateAllocation(formData.allocation);
+    // if (!allocationValidation.isValid) {
+    //   setStatus("error");
+    //   setErrorMessage(allocationValidation.message || "Invalid allocation");
+    //   return; // Not automatically showing failure modal here
+    // }
 
-    try {
-      // const result = await walletClient?.sendTransaction({
-      //   to: yourContract?.address,
-      //   value: parseEther("0.0001"),
-      // });
+    // Call writeContract (no await, as it returns void in this wagmi version)
+    writeContract({
+      address: "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920",
+      abi: ABI,
+      functionName: "payGame",
+      args: [address],
+    });
 
-      // console.log("Transaction result:", result);
-      await sendMessage();
-
-      setStatus("success");
-      setErrorMessage("");
-      // Not automatically showing success modal
-    } catch (e) {
-      console.error("Error while paying for pitch:", e);
-      setStatus("error");
-      setErrorMessage("Error submitting pitch");
-      // Not automatically showing failure modal
-    }
+    // We'll set success tentatively (it may change in our effect if there's an error)
+    setStatus("success");
+    setErrorMessage("");
+    // Not automatically showing success modal
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -162,6 +194,8 @@ export default function Pitch() {
 
               {status !== "idle" && (
                 <div
+                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                   className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                     }`}
                 >
