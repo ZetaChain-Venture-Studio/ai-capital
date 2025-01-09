@@ -2,22 +2,40 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useAccount, useReadContract, useWriteContract, useWalletClient } from "wagmi";
+import { parseUnits, parseAbi, formatUnits } from "viem";
+
+import BountyCard from "~~/components/Bounty";
+import TreasuryCard from "~~/components/TreasuryPool";
+import Chat from "~~/components/pitch/Chat";
+import MyScore from "~~/components/MyScore";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
+
 import { validateAllocation } from "../../lib/utils";
+
 import Lucy from "../../public/assets/lucy.webp";
-import { analyzePitch } from "../actions/agents";
-import { parseEther } from "viem";
-import { useAccount } from "wagmi";
-import { useWalletClient } from "wagmi";
-import BountyCard from "~~/components/Bounty";
-import MyScore from "~~/components/MyScore";
-import TreasuryCard from "~~/components/TreasuryPool";
-import Chat from "~~/components/pitch/Chat";
-import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import ABI from "../../lib/abis/AIC.json";
+
+/* -------------------------------------------------------------------------- */
+/*                               Constants & ABIs                             */
+/* -------------------------------------------------------------------------- */
+
+const erc20ABI = parseAbi([
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)",
+]);
+
+const USDC_ADDRESS = "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
+const PAY_GAME_CONTRACT = "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
+const USDC_PRICE = parseUnits("1", 6);
+
+/* -------------------------------------------------------------------------- */
+/*                              Types & Interfaces                            */
+/* -------------------------------------------------------------------------- */
 
 export interface FormData {
   token: string;
@@ -31,120 +49,326 @@ export interface AIResponse extends FormData {
   success: boolean;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                               Main Component                               */
+/* -------------------------------------------------------------------------- */
+
 export default function Pitch() {
+  /* ------------------------------ Local States ------------------------------ */
   const [formData, setFormData] = useState<FormData>({
     token: "",
     tradeType: "buy",
     allocation: "",
     pitch: "",
   });
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [refetchData, setRefetchData] = useState(false);
-  const { address } = useAccount();
 
-  const { data: walletClient } = useWalletClient();
-  const { data: yourContract } = useScaffoldContract({
-    contractName: "AIC2",
-    walletClient,
+  const [pitchStatus, setPitchStatus] = useState<"idle" | "success" | "error">("idle");
+  const [pitchError, setPitchError] = useState<string>("");
+  const [refetchFlag, setRefetchFlag] = useState(false);
+
+  const [contractPrice, setContractPrice] = useState("0");
+  const isPriceLoading = !contractPrice || contractPrice === "0";
+
+  // Transaction details for success/failure modals
+  const [txDetails, setTxDetails] = useState<{
+    chain: string;
+    amount: string;
+    token: string;
+    transactionHash: string;
+  }>({ chain: "", amount: "", token: "", transactionHash: "" });
+
+  // Transaction modals open/close
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
+
+  // Loading state for any transaction in progress (approve or payGame)
+  const [isTxInProgress, setIsTxInProgress] = useState(false);
+
+  /* ------------------------------- Wagmi Hooks ------------------------------ */
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient(); // Not currently used, but handy if needed
+
+  /* --------------------------- Read USDC Allowance -------------------------- */
+  const { data: allowanceData = 0n } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: address ? [address, PAY_GAME_CONTRACT] : undefined,
+  });
+  const isApprovalNeeded = allowanceData < USDC_PRICE;
+
+  /* ------------------------ Write Contracts (approve) ----------------------- */
+  const {
+    writeContract: writeApprove,
+    isError: isApproveError,
+    error: approveError,
+    data: approveTxData,
+  } = useWriteContract();
+
+  /* ------------------------- Write Contracts (payGame) ---------------------- */
+  const {
+    writeContract: writePayGame,
+    isError: isPayGameError,
+    error: payGameError,
+    data: payGameTxData,
+  } = useWriteContract();
+
+  /* ---------------------------- Read USDC Price ----------------------------- */
+  const {
+    data: contractPriceData = 0n,
+    refetch: refetchContractPrice,
+  } = useReadContract({
+    address: PAY_GAME_CONTRACT,
+    abi: ABI,
+    functionName: "price",
   });
 
-  // State to show/hide success/failure modals
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showFailureModal, setShowFailureModal] = useState(false);
+  /* ------------------------------ useEffects ------------------------------ */
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // On mount or on contractPriceData update
+  useEffect(() => {
+    if (contractPriceData) {
+      const formattedPrice = formatUnits(BigInt(contractPriceData.toString()), 6);
+      setContractPrice(formattedPrice);
+    }
+  }, [contractPriceData]);
 
-    console.log("Form submitted:", formData, formData.pitch.length);
+  // Approve transaction response
+  useEffect(() => {
+    if (approveTxData) {
+      console.log("✅ USDC Approve transaction response:", approveTxData);
+    }
+  }, [approveTxData]);
 
-    // Validate pitch
+  // payGame transaction response
+  useEffect(() => {
+    if (payGameTxData) {
+      console.log("✅ payGame transaction response:", payGameTxData);
+
+      // Update dynamic transaction details
+      setTxDetails({
+        chain: "ZetaChain",
+        amount: contractPrice,
+        token: "USDC",
+        transactionHash: payGameTxData.toString(),
+      });
+
+      // Trigger success modal
+      setPitchStatus("success");
+      setIsSuccessModalOpen(true);
+      refetchContractPrice();
+    }
+  }, [payGameTxData, contractPrice, refetchContractPrice]);
+
+  // Approve error
+  useEffect(() => {
+    if (isApproveError) {
+      console.error("Approve error:", approveError);
+      setPitchStatus("error");
+      setPitchError("Error: USDC approve transaction failed");
+      setIsFailureModalOpen(true);
+    }
+  }, [isApproveError, approveError]);
+
+  // payGame error
+  useEffect(() => {
+    if (isPayGameError) {
+      console.error("payGame error:", payGameError);
+      setPitchStatus("error");
+      setPitchError("Error: payGame transaction failed");
+      setTxDetails((prev) => ({
+        ...prev,
+        transactionHash: payGameTxData ? payGameTxData : "0x",
+      }));
+      setIsFailureModalOpen(true);
+    }
+  }, [isPayGameError, payGameError, payGameTxData]);
+
+  // If either transaction finishes (success or error), stop loading spinner
+  useEffect(() => {
+    if (payGameTxData || isApproveError || isPayGameError) {
+      setIsTxInProgress(false);
+    }
+  }, [payGameTxData, isApproveError, isPayGameError]);
+
+  /* -------------------------------------------------------------------------- */
+  /*                                Helper Methods                               */
+  /* -------------------------------------------------------------------------- */
+
+  const isValidPitch = () => {
+    // Pitch length
     if (formData.pitch.length < 50) {
-      setErrorMessage("Please ensure your pitch is at least 50 characters.");
-      return;
-    } else if (formData.pitch.length > 400) {
-      setErrorMessage("Please ensure your pitch is less than 400 characters.");
-      return;
+      setPitchStatus("error");
+      setPitchError("Please ensure your pitch is at least 50 characters.");
+      return false;
+    }
+    if (formData.pitch.length > 400) {
+      setPitchStatus("error");
+      setPitchError("Please ensure your pitch is less than 400 characters.");
+      return false;
     }
 
-    // Check for special characters
-    if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
-      setErrorMessage("No special characters allowed in the pitch.");
-      return;
+    // Allowed characters
+    if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(formData.pitch)) {
+      setPitchStatus("error");
+      setPitchError("No special characters allowed in the pitch.");
+      return false;
     }
 
-    // Validate allocation
+    // Allocation
     const allocationValidation = validateAllocation(formData.allocation);
     if (!allocationValidation.isValid) {
-      setStatus("error");
-      setErrorMessage(allocationValidation.message || "Invalid allocation");
-      return; // Not automatically showing failure modal here
+      setPitchStatus("error");
+      setPitchError(allocationValidation.message || "Invalid allocation");
+      return false;
     }
 
-    try {
-      // const result = await walletClient?.sendTransaction({
-      //   to: yourContract?.address,
-      //   value: parseEther("0.0001"),
-      // });
-
-      // console.log("Transaction result:", result);
-      await sendMessage();
-
-      setStatus("success");
-      setErrorMessage("");
-      // Not automatically showing success modal
-    } catch (e) {
-      console.error("Error while paying for pitch:", e);
-      setStatus("error");
-      setErrorMessage("Error submitting pitch");
-      // Not automatically showing failure modal
-    }
+    return true;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setStatus("idle");
-    setErrorMessage("");
+  const executeTransaction = async () => {
+    setIsTxInProgress(true);
+
+    if (isApprovalNeeded) {
+      // Approve needed
+      if (!writeApprove) {
+        setPitchError("Approve function not ready (missing config?).");
+        setIsTxInProgress(false);
+        return;
+      }
+      console.log("⏳ Calling USDC approve... Current allowance:", allowanceData.toString());
+      writeApprove({
+        address: USDC_ADDRESS,
+        abi: erc20ABI,
+        functionName: "approve",
+        args: [
+          PAY_GAME_CONTRACT,
+          BigInt(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          ),
+        ],
+      });
+    } else {
+      // payGame call
+      if (!writePayGame) {
+        setPitchError("payGame function not ready (missing config?).");
+        setIsTxInProgress(false);
+        return;
+      }
+      console.log("⏳ Calling payGame... Current allowance:", allowanceData.toString());
+      writePayGame({
+        address: PAY_GAME_CONTRACT,
+        abi: ABI,
+        functionName: "payGame",
+        args: [address],
+      });
+    }
   };
 
   const sendMessage = async () => {
-    const dataSend = {
-      userAddress: address,
-      userMessage: formData,
-      swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
-      swapBTargetTokenAddress: formData.token,
-    };
+    if (!address) {
+      console.log("⛔ No wallet, skipping AI call");
+      return;
+    }
 
-    console.log(dataSend);
+    try {
+      const dataSend = {
+        userAddress: address,
+        userMessage: formData,
+        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
+        swapBTargetTokenAddress: formData.token,
+      };
+      console.log(dataSend);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataSend),
+      });
+      const data = await response.json();
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataSend),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      console.log(data);
-      setRefetchData(!refetchData);
-    } else console.error("AI API call error");
+      if (response.ok) {
+        console.log("AI response:", response);
+        setRefetchFlag((prev) => !prev);
+        console.log(data)
+      } else {
+        console.error("AI API call error");
+        console.error(data)
+      }
+    } catch (err) {
+      console.error("Error during AI call:", err);      
+    }
   };
+
+  /* -------------------------------------------------------------------------- */
+  /*                             Event Handlers                                 */
+  /* -------------------------------------------------------------------------- */
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+
+    // Validate pitch & other input fields
+    if (!isValidPitch()) return;
+
+    // Check for wallet
+    if (!address) {
+      console.log("⛔ No wallet connected");
+      setPitchError("Please connect your wallet first.");
+      return;
+    }
+
+    // Clear previous errors
+    setPitchStatus("idle");
+    setPitchError("");
+
+    // Execute transaction (approve or payGame)
+    await executeTransaction();
+
+    // Call AI after transaction is triggered
+    console.log("⏳ Sending pitch to AI…");
+    await sendMessage();
+    console.log("✅ AI call finished");
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setPitchStatus("idle");
+    setPitchError("");
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /*                                  Render                                    */
+  /* -------------------------------------------------------------------------- */
 
   return (
     <div className="py-12 min-h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8 justify-center max-lg:items-center">
+        {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
+          <Image
+            src={Lucy}
+            alt="AI Capital"
+            width={440}
+            height={440}
+            placeholder="blur"
+            className="rounded"
+          />
           <TreasuryCard />
-          {address && <MyScore _refetchScoreFlag={refetchData} />}
+          {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
+
+        {/* Right panel: Pitch submission and chat */}
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
-            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">Submit an Investment Pitch to Lucy</h1>
+            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">
+              Submit an Investment Pitch to Lucy
+            </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <TokenSelect value={formData.token} onChange={handleChange} />
@@ -160,62 +384,56 @@ export default function Pitch() {
 
               <PitchTextarea value={formData.pitch} onChange={handleChange} />
 
-              {status !== "idle" && (
+              {/* Error or success banner */}
+              {pitchStatus !== "idle" && (
                 <div
                   className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                     }`}
                 >
-                  <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
+                  <p>
+                    {pitchStatus === "success"
+                      ? "Pitch submitted successfully!"
+                      : pitchError}
+                  </p>
                 </div>
               )}
 
-              <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
-                Submit Pitch for 1 USDC
+              <button
+                type="submit"
+                disabled={isTxInProgress}
+                className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
+              >
+                {isTxInProgress ? (
+                  <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : isPriceLoading ? (
+                  <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  `Submit Pitch for ${contractPrice} USDC`
+                )}
               </button>
-
-              {/* Debug buttons for showing success and failure modals */}
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => setShowSuccessModal(true)}
-                  className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
-                >
-                  Show Success Modal
-                </button>
-                <button
-                  onClick={() => setShowFailureModal(true)}
-                  className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
-                >
-                  Show Failure Modal
-                </button>
-              </div>
             </form>
           </div>
 
-          <Chat _refetchChatFlag={refetchData} />
+          <Chat _refetchChatFlag={refetchFlag} />
         </div>
       </div>
 
-      {/* Our success/failure modals, controlled by local state */}
+      {/* Transaction Modals (Success / Failure) */}
       <TransactionSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        token="ETH"
-        amount="0.001"
-        chain="Ethereum"
-        transactionHash="0x123abc..."
-        blockNumber={16876234}
-        gasUsed="21000"
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        chain={txDetails.chain}
+        amount={txDetails.amount}
+        token={txDetails.token}
+        transactionHash={txDetails.transactionHash}
       />
-
       <TransactionFailureModal
-        isOpen={showFailureModal}
-        onClose={() => setShowFailureModal(false)}
-        reason="Insufficient funds"
-        chain="Ethereum"
-        transactionHash="0x123def..."
-        blockNumber={16876235}
-        gasUsed="20000"
-        error="Reverted: out of gas exception"
+        isOpen={isFailureModalOpen}
+        onClose={() => setIsFailureModalOpen(false)}
+        reason="Transaction Failed"
+        chain={txDetails.chain || "Ethereum"}
+        transactionHash={txDetails.transactionHash}
+        error={pitchError}
       />
     </div>
   );
