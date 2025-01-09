@@ -9,9 +9,9 @@ export default defineConfig({
   retries: {
     enabledInDev: true,
     default: {
-      maxAttempts: 3,
+      maxAttempts: 1,
       minTimeoutInMs: 1000,
-      maxTimeoutInMs: 10000,
+      maxTimeoutInMs: 300000,
       factor: 2,
       randomize: true,
     },
