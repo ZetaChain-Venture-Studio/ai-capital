@@ -202,7 +202,7 @@ async function checkWhitelist(walletAddresses: string) {
   return data;
 }
 
-export async function deWhitelist(walletAddresses: string) {
+async function deWhitelist(walletAddresses: string) {
   const transaction = prepareContractCall({
     contract: prizePoolSmartContract,
     method: "function deWhitelist(address _user)",
