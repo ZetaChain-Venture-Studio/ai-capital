@@ -113,7 +113,7 @@ export default function Pitch() {
   } = useWriteContract();
 
 //  read USDC price
-  const { data: contractPriceData = 0n } = useReadContract({
+  const { data: contractPriceData = 0n, refetch: refetchContractPrice } = useReadContract({
     address: PAY_GAME_CONTRACT,
     abi: ABI,
     functionName: "price",
@@ -146,6 +146,7 @@ export default function Pitch() {
       // Trigger success modal when payGame transaction succeeds
       setStatus("success");
       setShowSuccessModal(true);
+      refetchContractPrice();
     }
   }, [payGameTxData, formData.token]);
 
