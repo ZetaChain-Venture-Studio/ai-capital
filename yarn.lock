@@ -16295,28 +16295,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.1.1":
-  version: 2.21.55
-  resolution: "viem@npm:2.21.55"
-  dependencies:
-    "@noble/curves": 1.7.0
-    "@noble/hashes": 1.6.1
-    "@scure/bip32": 1.6.0
-    "@scure/bip39": 1.5.0
-    abitype: 1.0.7
-    isows: 1.0.6
-    ox: 0.1.2
-    webauthn-p256: 0.0.10
-    ws: 8.18.0
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: db937a33071f744951edf98f31f9c25e71ebce07bb620389980cd4c921f310b808ec87d132c23e022b5576b943c359dde65cbba5b9ab8d63c27ad8a6cba877dd
-  languageName: node
-  linkType: hard
-
 "wagmi@npm:latest":
   version: 2.14.7
   resolution: "wagmi@npm:2.14.7"

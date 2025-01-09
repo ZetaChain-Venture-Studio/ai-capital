@@ -16,7 +16,6 @@ import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 
 import { validateAllocation } from "../../lib/utils";
-import { analyzePitch } from "../actions/agents";
 
 import Lucy from "../../public/assets/lucy.webp";
 import ABI from "../../lib/abis/AIC.json";
@@ -273,21 +272,32 @@ export default function Pitch() {
     }
 
     try {
-      const response = await analyzePitch(
-        formData.pitch,
-        formData.token,
-        formData.tradeType,
-        formData.allocation,
-        address as `0x${string}`
-      );
-      if (response) {
+      const dataSend = {
+        userAddress: address,
+        userMessage: formData,
+        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
+        swapBTargetTokenAddress: formData.token,
+      };
+      console.log(dataSend);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataSend),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
         console.log("AI response:", response);
         setRefetchFlag((prev) => !prev);
+        console.log(data)
       } else {
         console.error("AI API call error");
+        console.error(data)
       }
     } catch (err) {
-      console.error("Error during AI call:", err);
+      console.error("Error during AI call:", err);      
     }
   };
 
@@ -377,11 +387,8 @@ export default function Pitch() {
               {/* Error or success banner */}
               {pitchStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    pitchStatus === "success"
-                      ? "bg-green-50 text-green-800"
-                      : "bg-red-50 text-red-800"
-                  }`}
+                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                 >
                   <p>
                     {pitchStatus === "success"
