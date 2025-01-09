@@ -78,6 +78,9 @@ export default function Pitch() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailureModal, setShowFailureModal] = useState(false);
 
+  // State to handle transaction loading
+  const [isTransactionLoading, setIsTransactionLoading] = useState(false);
+
   /**
    * 1) Read USDC allowance
    */
@@ -169,6 +172,12 @@ export default function Pitch() {
     }
   }, [isPayGameError, payGameError, payGameTxData]);
 
+  useEffect(() => {
+    if (payGameTxData || isApproveError || isPayGameError) {
+      setIsTransactionLoading(false);
+    }
+  }, [payGameTxData, isApproveError, isPayGameError]);
+
   // Single form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,6 +228,7 @@ export default function Pitch() {
     setErrorMessage("");
 
     // 5) Check allowance & call write functions
+    setIsTransactionLoading(true);
     if (needApproval) {
       if (!writeApprove) {
         console.log("⛔ Approve function not ready");
@@ -329,13 +339,16 @@ export default function Pitch() {
 
               <button
                 type="submit"
+                disabled={isTransactionLoading}
                 className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
               >
-                {isPriceLoading ? (
-                <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                `Submit Pitch for ${contractPrice} USDC`
-              )}
+                {isTransactionLoading ? (
+                  <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : isPriceLoading ? (
+                  <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  `Submit Pitch for ${contractPrice} USDC`
+                )}
               </button>
             </form>
           </div>
