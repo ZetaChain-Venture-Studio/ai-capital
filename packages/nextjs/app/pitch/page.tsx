@@ -27,9 +27,8 @@ const erc20ABI = parseAbi([
 ]);
 
 // Addresses & price
-const USDC_ADDRESS = "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4"; // your USDC
-const PAY_GAME_CONTRACT = "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920"; // your payGame
-// If payGame costs 1 USDC (6 decimals) → 1e6:
+const USDC_ADDRESS = "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4"; 
+const PAY_GAME_CONTRACT = "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920"; 
 const USDC_PRICE = parseUnits("1", 6);
 
 export interface FormData {
@@ -55,6 +54,19 @@ export default function Pitch() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [refetchData, setRefetchData] = useState(false);
+
+  // State for dynamic transaction details
+  const [transactionDetails, setTransactionDetails] = useState<{
+    chain: string;
+    amount: string;
+    token: string;
+    transactionHash: string;
+  }>({
+    chain: "",
+    amount: "",
+    token: "",
+    transactionHash: "",
+  });
 
   // Wagmi
   const { address } = useAccount();
@@ -105,15 +117,26 @@ export default function Pitch() {
   useEffect(() => {
     if (payGameTxData) {
       console.log("✅ payGame transaction response:", payGameTxData);
+      // Update dynamic transaction details based on your context
+      setTransactionDetails({
+        chain: "ZetaChain", // Dynamically set if available
+        amount: "1",       // Dynamically set amount based on transaction
+        token: "USDC", 
+        transactionHash: payGameTxData.toString(),
+      });
+      // Trigger success modal when payGame transaction succeeds
+      setStatus("success");
+      setShowSuccessModal(true);
     }
-  }, [payGameTxData]);
+  }, [payGameTxData, formData.token]);
 
-  // If either transaction fails, set error state:
+  // If either transaction fails, set error state and trigger failure modal:
   useEffect(() => {
     if (isApproveError) {
       console.error("Approve error:", approveError);
       setStatus("error");
       setErrorMessage("Error: USDC approve transaction failed");
+      setShowFailureModal(true);
     }
   }, [isApproveError, approveError]);
 
@@ -121,9 +144,14 @@ export default function Pitch() {
     if (isPayGameError) {
       console.error("payGame error:", payGameError);
       setStatus("error");
-      setErrorMessage("Error: payGame transaction failed");
+      setErrorMessage("Error: payGame transaction failed");      
+      setTransactionDetails(prev => ({
+        ...prev,
+        transactionHash: payGameTxData ? payGameTxData : "0x",
+      }));
+      setShowFailureModal(true);
     }
-  }, [isPayGameError, payGameError]);
+  }, [isPayGameError, payGameError, payGameTxData]);
 
   // Single form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,7 +229,7 @@ export default function Pitch() {
         functionName: "payGame",
         args: [address],
       });
-      setStatus("success");
+      // The success modal will open once payGameTxData is received in useEffect
     }
 
     // 6) AI call after we trigger the transaction
@@ -284,26 +312,11 @@ export default function Pitch() {
               )}
 
               <button
+                type="submit"
                 className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
               >
                 Submit Pitch for 1 USDC
               </button>
-
-              {/* Debug buttons for showing success and failure modals */}
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => setShowSuccessModal(true)}
-                  className="btn-sm bg-green-500 text-white rounded-md px-4 py-2"
-                >
-                  Show Success Modal
-                </button>
-                <button
-                  onClick={() => setShowFailureModal(true)}
-                  className="btn-sm bg-red-500 text-white rounded-md px-4 py-2"
-                >
-                  Show Failure Modal
-                </button>
-              </div>
             </form>
           </div>
 
@@ -311,26 +324,22 @@ export default function Pitch() {
         </div>
       </div>
 
-      {/* Our success/failure modals, controlled by local state */}
+      {/* Transaction Modals triggered by actual events */}
       <TransactionSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        token="ETH"
-        amount="0.001"
-        chain="Ethereum"
-        transactionHash="0x123abc..."
-        blockNumber={16876234}
-        gasUsed="21000"
+        chain={transactionDetails.chain}
+        amount={transactionDetails.amount}
+        token={transactionDetails.token}
+        transactionHash={transactionDetails.transactionHash}
       />
       <TransactionFailureModal
         isOpen={showFailureModal}
         onClose={() => setShowFailureModal(false)}
-        reason="Insufficient funds"
-        chain="Ethereum"
-        transactionHash="0x123def..."
-        blockNumber={16876235}
-        gasUsed="20000"
-        error="Reverted: out of gas exception"
+        reason="Transaction Failed" 
+        chain={transactionDetails.chain || "Ethereum"} 
+        transactionHash={transactionDetails.transactionHash}
+        error={errorMessage}
       />
     </div>
   );
