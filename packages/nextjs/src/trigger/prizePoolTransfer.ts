@@ -16,8 +16,6 @@ export const transferPrize = task({
   run: async (payload: any, { ctx }) => {
     logger.log("Hello, world!", { payload, ctx });
 
-    logger.log("Payload!", { payload });
-
     const userAddress: string = payload.userAddress;
     const swapATargetTokenAddress: string = payload.sellTargetTokenAddress;
     const swapBTargetTokenAddress: string = payload.buyTargetTokenAddress;
