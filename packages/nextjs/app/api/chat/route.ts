@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
   }
 
+  if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage)) {
+    return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
+  }
+
   try {
     //Check if a user is whitelisted before handling prompt
     const data = await checkWhitelist(userAddress);
@@ -127,14 +131,14 @@ export async function POST(req: NextRequest) {
       `,
     };
 
-    const messages = [contextMessage, { role: "user", content: userMessage.pitch }];
+    const messages = [contextMessage, { role: "user", content: userMessage }];
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
     });
 
-    // const parsedMessage = JSON.parse(userMessage);
+    const parsedMessage = JSON.parse(userMessage);
     const aiResponse = JSON.parse(
       response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
     );
@@ -150,10 +154,10 @@ export async function POST(req: NextRequest) {
         success
       ) VALUES (
         ${userAddress},
-        ${userMessage.token},
-        ${userMessage.tradeType},
-        ${userMessage.allocation},
-        ${userMessage.pitch},
+        ${parsedMessage.token},
+        ${parsedMessage.tradeType},
+        ${parsedMessage.allocation},
+        ${parsedMessage.pitch},
         ${aiResponse.aiResponseText},
         ${aiResponse.success}
       );
@@ -178,12 +182,7 @@ export async function POST(req: NextRequest) {
       await deWhitelist(userAddress);
     }
 
-    return NextResponse.json({
-      // "llm-response": response.choices[0].message,
-      aiResponse: aiResponse.aiResponseText,
-      success: aiResponse.success,
-      handle: handle,
-    });
+    return NextResponse.json({ "llm-response": response.choices[0].message, handle: handle });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Error" }, { status: 500 });
