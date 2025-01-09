@@ -82,12 +82,12 @@ export default function Pitch() {
     }
 
     try {
-      const result = await walletClient?.sendTransaction({
-        to: yourContract?.address,
-        value: parseEther("0.0001"),
-      });
+      // const result = await walletClient?.sendTransaction({
+      //   to: yourContract?.address,
+      //   value: parseEther("0.0001"),
+      // });
 
-      console.log("Transaction result:", result);
+      // console.log("Transaction result:", result);
       await sendMessage();
 
       setStatus("success");
@@ -109,22 +109,28 @@ export default function Pitch() {
   };
 
   const sendMessage = async () => {
-    const response = await analyzePitch(
-      formData.pitch,
-      formData.token,
-      formData.tradeType,
-      formData.allocation,
-      address as `0x${string}`,
-    );
-    if (response) {
-      if (!address) throw new Error("No wallet connected.");
+    const dataSend = {
+      userAddress: address,
+      userMessage: formData,
+      swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
+      swapBTargetTokenAddress: formData.token,
+    };
 
-      const data = await response;
-      console.log("AI response:", data);
+    console.log(dataSend);
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataSend),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log(data);
       setRefetchData(!refetchData);
-    } else {
-      console.error("AI API call error");
-    }
+    } else console.error("AI API call error");
   };
 
   return (
@@ -156,9 +162,8 @@ export default function Pitch() {
 
               {status !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  }`}
+                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                 >
                   <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
                 </div>
