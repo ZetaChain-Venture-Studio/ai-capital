@@ -19,7 +19,7 @@ import { validateAllocation } from "../../lib/utils";
 import { analyzePitch } from "../actions/agents";
 
 import Lucy from "../../public/assets/lucy.webp";
-import ABI from "~~/zeta-contracts/abi.json";
+import ABI from "../../zeta-contracts/abi.json";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
