@@ -10,7 +10,7 @@ import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { analyzePitch } from "../actions/agents";
-import { parseUnits, parseAbi } from "viem";
+import { parseUnits, parseAbi, formatUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useWalletClient } from "wagmi";
 import BountyCard from "~~/components/Bounty";
@@ -54,6 +54,8 @@ export default function Pitch() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [refetchData, setRefetchData] = useState(false);
+  const [contractPrice, setContractPrice] = useState("0");
+  const isPriceLoading = !contractPrice || contractPrice === "0";
 
   // State for dynamic transaction details
   const [transactionDetails, setTransactionDetails] = useState<{
@@ -106,6 +108,20 @@ export default function Pitch() {
     error: payGameError,
     data: payGameTxData,
   } = useWriteContract();
+
+//  read USDC price
+  const { data: contractPriceData = 0n } = useReadContract({
+    address: PAY_GAME_CONTRACT,
+    abi: ABI,
+    functionName: "price",
+  });
+
+  useEffect(() => {
+    if (contractPriceData) {
+      const formattedPrice = formatUnits(BigInt(contractPriceData.toString()), 6);
+      setContractPrice(formattedPrice);
+    }
+  }, [contractPriceData]);
 
   // Log the transaction “response” data
   useEffect(() => {
@@ -315,7 +331,11 @@ export default function Pitch() {
                 type="submit"
                 className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
               >
-                Submit Pitch for 1 USDC
+                {isPriceLoading ? (
+                <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                `Submit Pitch for ${contractPrice} USDC`
+              )}
               </button>
             </form>
           </div>
