@@ -10,15 +10,27 @@ import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { analyzePitch } from "../actions/agents";
-import { parseEther } from "viem";
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { parseUnits, parseAbi } from "viem";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useWalletClient } from "wagmi";
 import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
-import { useScaffoldContract } from "~~/hooks/scaffold-eth";
-import ABI from "~~/zeta-contracts/abi.json"
+import MyScore from "~~/components/MyScore";
+import ABI from "~~/zeta-contracts/abi.json";
+
+// Minimal ERC20 ABI with `allowance` & `approve`
+const erc20ABI = parseAbi([
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)",
+]);
+
+// Addresses & price
+const USDC_ADDRESS = "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4"; // your USDC
+const PAY_GAME_CONTRACT = "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920"; // your payGame
+// If payGame costs 1 USDC (6 decimals) → 1e6:
+const USDC_PRICE = parseUnits("1", 6);
 
 export interface FormData {
   token: string;
@@ -39,130 +51,198 @@ export default function Pitch() {
     allocation: "",
     pitch: "",
   });
+
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [refetchData, setRefetchData] = useState(false);
+
+  // Wagmi
   const { address } = useAccount();
-
   const { data: walletClient } = useWalletClient();
-
-  // Keep track of the transaction hash at the top-level:
-  const [swapHash, setSwapHash] = useState<`0x${string}` | undefined>();
-
-  // Rename `data: swapHash` to `data: txData` to avoid clash with our state:
-  const { writeContract, data: txData, isError, error, isPending: swapTxPending } = useWriteContract();
-
-  // useWaitForTransactionReceipt is at the top-level, watching swapHash
-  const { data: txResult, isError: isReceiptError, isLoading: isReceiptLoading } = useWaitForTransactionReceipt({
-    hash: swapHash,
-  });
-
-  useEffect(() => {
-    // If the writeContract hook has a result, set the transaction hash here
-    if (txData) {
-      console.log("Transaction response:", txData);
-      setSwapHash(txData);
-    }
-  }, [txData]);
-
-  useEffect(() => {
-    if (txResult) {
-      console.log("Transaction receipt logs:", txResult?.logs);
-      // Handle success (show a modal, update UI, etc.)
-    }
-  }, [txResult]);
-
-  useEffect(() => {
-    if (isError) {
-      console.error("Error while paying for pitch:", error);
-      setStatus("error");
-      setErrorMessage("Error submitting pitch");
-    }
-  }, [isError, error]);
-
-  useEffect(() => {
-    if (isReceiptError) {
-      console.error("Error fetching receipt");
-      // Handle error
-    }
-  }, [isReceiptError]);
 
   // State to show/hide success/failure modals
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailureModal, setShowFailureModal] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * 1) Read USDC allowance
+   */
+  const { data: allowanceData = 0n } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: address ? [address, PAY_GAME_CONTRACT] : undefined,
+  });
+  const needApproval = allowanceData < USDC_PRICE;
+
+  /**
+   * 2) useWriteContract for approve
+   */
+  const {
+    writeContract: writeApprove,
+    isError: isApproveError,
+    error: approveError,
+    data: approveTxData,
+  } = useWriteContract();
+
+  /**
+   * 3) useWriteContract for payGame
+   */
+  const {
+    writeContract: writePayGame,
+    isError: isPayGameError,
+    error: payGameError,
+    data: payGameTxData,
+  } = useWriteContract();
+
+  // Log the transaction “response” data
+  useEffect(() => {
+    if (approveTxData) {
+      console.log("✅ USDC Approve transaction response:", approveTxData);
+    }
+  }, [approveTxData]);
+
+  useEffect(() => {
+    if (payGameTxData) {
+      console.log("✅ payGame transaction response:", payGameTxData);
+    }
+  }, [payGameTxData]);
+
+  // If either transaction fails, set error state:
+  useEffect(() => {
+    if (isApproveError) {
+      console.error("Approve error:", approveError);
+      setStatus("error");
+      setErrorMessage("Error: USDC approve transaction failed");
+    }
+  }, [isApproveError, approveError]);
+
+  useEffect(() => {
+    if (isPayGameError) {
+      console.error("payGame error:", payGameError);
+      setStatus("error");
+      setErrorMessage("Error: payGame transaction failed");
+    }
+  }, [isPayGameError, payGameError]);
+
+  // Single form submit
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // console.log("Form submitted:", formData, formData.pitch.length);
+    console.log("Form submitted:", formData);
+    console.log("Pitch length:", formData.pitch.length);
 
-    // // Validate pitch
-    // if (formData.pitch.length < 50) {
-    //   setErrorMessage("Please ensure your pitch is at least 50 characters.");
-    //   return;
-    // } else if (formData.pitch.length > 400) {
-    //   setErrorMessage("Please ensure your pitch is less than 400 characters.");
-    //   return;
-    // }
+    // 1) Validate pitch
+    if (formData.pitch.length < 50) {
+      console.log("⛔ Pitch is too short:", formData.pitch.length);
+      setStatus("error");
+      setErrorMessage("Please ensure your pitch is at least 50 characters.");
+      return;
+    }
+    if (formData.pitch.length > 400) {
+      console.log("⛔ Pitch is too long:", formData.pitch.length);
+      setStatus("error");
+      setErrorMessage("Please ensure your pitch is less than 400 characters.");
+      return;
+    }
 
-    // // Check for special characters
-    // if (!/^[A-Za-z0-9\s.,!?]*$/.test(formData.pitch)) {
-    //   setErrorMessage("No special characters allowed in the pitch.");
-    //   return;
-    // }
+    // 2) Check for special characters
+    if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(formData.pitch)) {
+      console.log("⛔ Pitch has special characters not allowed.");
+      setStatus("error");
+      setErrorMessage("No special characters allowed in the pitch.");
+      return;
+    }
 
-    // // Validate allocation
-    // const allocationValidation = validateAllocation(formData.allocation);
-    // if (!allocationValidation.isValid) {
-    //   setStatus("error");
-    //   setErrorMessage(allocationValidation.message || "Invalid allocation");
-    //   return; // Not automatically showing failure modal here
-    // }
+    // 3) Validate allocation
+    const allocationValidation = validateAllocation(formData.allocation);
+    if (!allocationValidation.isValid) {
+      console.log("⛔ Invalid allocation:", allocationValidation.message);
+      setStatus("error");
+      setErrorMessage(allocationValidation.message || "Invalid allocation");
+      return;
+    }
 
-    // Call writeContract (no await, as it returns void in this wagmi version)
-    writeContract({
-      address: "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920",
-      abi: ABI,
-      functionName: "payGame",
-      args: [address],
-    });
+    // 4) Check wallet
+    if (!address) {
+      console.log("⛔ No wallet connected");
+      setErrorMessage("Please connect your wallet first.");
+      return;
+    }
 
-    // We'll set success tentatively (it may change in our effect if there's an error)
-    setStatus("success");
+    // Passed all validations:
+    setStatus("idle");
     setErrorMessage("");
-    // Not automatically showing success modal
+
+    // 5) Check allowance & call write functions
+    if (needApproval) {
+      if (!writeApprove) {
+        console.log("⛔ Approve function not ready");
+        setErrorMessage("Approve function not ready (missing config?).");
+        return;
+      }
+      console.log("⏳ Calling USDC approve... Current allowance:", allowanceData.toString());
+      writeApprove({
+        address: USDC_ADDRESS,
+        abi: erc20ABI,
+        functionName: "approve",
+        args: [PAY_GAME_CONTRACT, BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")],
+      });
+    } else {
+      if (!writePayGame) {
+        console.log("⛔ payGame function not ready");
+        setErrorMessage("payGame function not ready (missing config?).");
+        return;
+      }
+      console.log("⏳ Calling payGame... Current allowance:", allowanceData.toString());
+      writePayGame({
+        address: PAY_GAME_CONTRACT,
+        abi: ABI,
+        functionName: "payGame",
+        args: [address],
+      });
+      setStatus("success");
+    }
+
+    // 6) AI call after we trigger the transaction
+    console.log("⏳ Sending pitch to AI…");
+    await sendMessage();
+    console.log("✅ AI call finished");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+  const sendMessage = async () => {
+    if (!address) {
+      console.log("⛔ No wallet, skipping AI call");
+      return;
+    }
+
+    try {
+      const response = await analyzePitch(
+        formData.pitch,
+        formData.token,
+        formData.tradeType,
+        formData.allocation,
+        address as `0x${string}`,
+      );
+      if (response) {
+        console.log("AI response:", response);
+        setRefetchData(!refetchData);
+      } else {
+        console.error("AI API call error");
+      }
+    } catch (err) {
+      console.error("Error during AI call:", err);
+    }
+  };
+
+  // Standard handleChange
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setStatus("idle");
     setErrorMessage("");
-  };
-
-  const sendMessage = async () => {
-    const dataSend = {
-      userAddress: address,
-      userMessage: formData,
-      swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // always USDT/USDC
-      swapBTargetTokenAddress: formData.token,
-    };
-
-    console.log(dataSend);
-
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataSend),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      console.log(data);
-      setRefetchData(!refetchData);
-    } else console.error("AI API call error");
   };
 
   return (
@@ -192,18 +272,20 @@ export default function Pitch() {
 
               <PitchTextarea value={formData.pitch} onChange={handleChange} />
 
+              {/* Error or success banner */}
               {status !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
-                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
                   <p>{status === "success" ? "Pitch submitted successfully!" : errorMessage}</p>
                 </div>
               )}
 
-              <button className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800">
+              <button
+                className="px-6 py-3 w-full text-white bg-gray-900 rounded-md transition-colors hover:bg-gray-800"
+              >
                 Submit Pitch for 1 USDC
               </button>
 
@@ -240,7 +322,6 @@ export default function Pitch() {
         blockNumber={16876234}
         gasUsed="21000"
       />
-
       <TransactionFailureModal
         isOpen={showFailureModal}
         onClose={() => setShowFailureModal(false)}
