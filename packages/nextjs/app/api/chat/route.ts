@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
   }
 
-  if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage)) {
+  if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
     return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
   }
 
