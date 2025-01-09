@@ -49,8 +49,12 @@ export async function GET(req: Request) {
     if (cursor && userAddress) {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
-        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
-        FROM messages
+        (
+          SELECT SUM(CASE WHEN success THEN 200 ELSE 10 END)
+          FROM messages
+          WHERE user_address = m.user_address
+        ) AS score
+        FROM messages m
         WHERE id < ${cursor} AND user_address = ${userAddress}
         ORDER BY id DESC
         LIMIT ${limit};
@@ -60,8 +64,12 @@ export async function GET(req: Request) {
     else if (cursor) {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
-        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
-        FROM messages
+        (
+          SELECT SUM(CASE WHEN success THEN 200 ELSE 10 END)
+          FROM messages
+          WHERE user_address = m.user_address
+        ) AS score
+        FROM messages m
         WHERE id < ${cursor}
         ORDER BY id DESC
         LIMIT ${limit};
@@ -71,8 +79,12 @@ export async function GET(req: Request) {
     else if (userAddress) {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
-        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
-        FROM messages
+        (
+          SELECT SUM(CASE WHEN success THEN 200 ELSE 10 END)
+          FROM messages
+          WHERE user_address = m.user_address
+        ) AS score
+        FROM messages m
         WHERE user_address = ${userAddress}
         ORDER BY id DESC
         LIMIT ${limit};
@@ -82,8 +94,12 @@ export async function GET(req: Request) {
     else {
       rows = await sql`
         SELECT id, token, trade_type, allocation, pitch, ai_response_text, success, timestamp, user_address,
-        SUM(CASE WHEN success THEN 200 ELSE 10 END) OVER (PARTITION BY user_address) AS score
-        FROM messages
+        (
+          SELECT SUM(CASE WHEN success THEN 200 ELSE 10 END)
+          FROM messages
+          WHERE user_address = m.user_address
+        ) AS score
+        FROM messages m
         ORDER BY id DESC
         LIMIT ${limit};
       `;
