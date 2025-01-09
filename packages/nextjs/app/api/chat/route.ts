@@ -29,11 +29,13 @@ export async function POST(req: NextRequest) {
 
   try {
 
-    //await whitelist(userAddress);
-
     //Check if a user is whitelisted before handling prompt
     const data = await checkWhitelist(userAddress);
-    console.log("data: ", data);
+    
+    if(data === 0)
+    {
+      return NextResponse.json({ error: "Address not whitelisted" }, { status: 401 });
+    }
 
     const contextMessage = {
       role: "system",
@@ -127,50 +129,46 @@ export async function POST(req: NextRequest) {
       `,
     };
 
-    // const messages = [contextMessage, { role: "user", content: userMessage }];
+    const messages = [contextMessage, { role: "user", content: userMessage }];
 
-    // const response = await openai.chat.completions.create({
-    //   model: "gpt-3.5-turbo",
-    //   messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-    // });
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+    });
 
-    // const parsedMessage = JSON.parse(userMessage);
-    // const aiResponse = JSON.parse(
-    //   response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
-    // );
+    const parsedMessage = JSON.parse(userMessage);
+    const aiResponse = JSON.parse(
+      response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
+    );
 
-    // const result = await sql`
-    //   INSERT INTO messages (
-    //     user_address,
-    //     token,
-    //     trade_type,
-    //     allocation,
-    //     pitch,
-    //     ai_response_text,
-    //     success
-    //   ) VALUES (
-    //     ${userAddress},
-    //     ${parsedMessage.token},
-    //     ${parsedMessage.tradeType},
-    //     ${parsedMessage.allocation},
-    //     ${parsedMessage.pitch},
-    //     ${aiResponse.aiResponseText},
-    //     ${aiResponse.success}
-    //   );
-    // `;
-    // console.log("Insert successful:", result);
+    const result = await sql`
+      INSERT INTO messages (
+        user_address,
+        token,
+        trade_type,
+        allocation,
+        pitch,
+        ai_response_text,
+        success
+      ) VALUES (
+        ${userAddress},
+        ${parsedMessage.token},
+        ${parsedMessage.tradeType},
+        ${parsedMessage.allocation},
+        ${parsedMessage.pitch},
+        ${aiResponse.aiResponseText},
+        ${aiResponse.success}
+      );
+    `;
+    console.log("Insert successful:", result);
 
     //Succesful prompt - transfer prize pool
     var handle;
     
-    if(true) {
-    //if (aiResponse.success) {
+    if (aiResponse.success) {
       //To deploy a new version run:
       //npx trigger.dev@latest deploy -e staging
       //npx trigger.dev@latest deploy -e prod
-
-      //TODO: This only does the asset buying and selling
-      //We also need to ensure it transfers the prize pool
         handle = await tasks.trigger("transfer-prize-pool", {
         userAddress: userAddress,
         sellTargetTokenAddress: swapATargetTokenAddress,
@@ -182,9 +180,7 @@ export async function POST(req: NextRequest) {
       await deWhitelist(userAddress);
     }
 
-    return NextResponse.json({"response-message": "lol"
-      //response.choices[0].message
-      , "handle":handle});
+    return NextResponse.json({"llm-response":response.choices[0].message, "handle":handle});
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Error" }, { status: 500 });
@@ -199,27 +195,13 @@ const account: Account = privateKeyToAccount({
 async function checkWhitelist(walletAddresses: string) {
   const data  = await readContract({
     contract: prizePoolSmartContract,
-    method: "function whitelist(address _user)",
+    method: "function whitelist(address user) returns (uint8)",
     params: [walletAddresses],
   });
+
+  console.log("data inside check whitelist: ", data);
 
   return data;
-}
-
-
-async function whitelist(walletAddresses: string) {
-  const transaction = prepareContractCall({
-    contract: prizePoolSmartContract,
-    method: "function payGame(address _user)",
-    params: [walletAddresses],
-  });
-
-  const transactionReceipt = await sendAndConfirmTransaction({
-    transaction,
-    account,
-  });
-
-  console.log("Tx Receipt - whitelist: ", transactionReceipt);
 }
 
 export async function deWhitelist(walletAddresses: string) {
