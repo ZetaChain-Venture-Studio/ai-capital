@@ -127,14 +127,14 @@ export async function POST(req: NextRequest) {
       `,
     };
 
-    const messages = [contextMessage, { role: "user", content: userMessage }];
+    const messages = [contextMessage, { role: "user", content: userMessage.pitch }];
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
     });
 
-    const parsedMessage = JSON.parse(userMessage);
+    // const parsedMessage = JSON.parse(userMessage);
     const aiResponse = JSON.parse(
       response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
     );
@@ -150,10 +150,10 @@ export async function POST(req: NextRequest) {
         success
       ) VALUES (
         ${userAddress},
-        ${parsedMessage.token},
-        ${parsedMessage.tradeType},
-        ${parsedMessage.allocation},
-        ${parsedMessage.pitch},
+        ${userMessage.token},
+        ${userMessage.tradeType},
+        ${userMessage.allocation},
+        ${userMessage.pitch},
         ${aiResponse.aiResponseText},
         ${aiResponse.success}
       );
@@ -178,7 +178,12 @@ export async function POST(req: NextRequest) {
       await deWhitelist(userAddress);
     }
 
-    return NextResponse.json({ "llm-response": response.choices[0].message, handle: handle });
+    return NextResponse.json({
+      // "llm-response": response.choices[0].message,
+      aiResponse: aiResponse.aiResponseText,
+      success: aiResponse.success,
+      handle: handle,
+    });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Error" }, { status: 500 });
