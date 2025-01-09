@@ -27,11 +27,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
   }
 
-
   if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage)) {
     return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
   }
-
 
   try {
     //Check if a user is whitelisted before handling prompt

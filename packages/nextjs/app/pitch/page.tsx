@@ -2,23 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useAccount, useReadContract, useWriteContract, useWalletClient } from "wagmi";
-import { parseUnits, parseAbi, formatUnits } from "viem";
-
-import BountyCard from "~~/components/Bounty";
-import TreasuryCard from "~~/components/TreasuryPool";
-import Chat from "~~/components/pitch/Chat";
-import MyScore from "~~/components/MyScore";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
 import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
-
-import { validateAllocation } from "../../lib/utils";
-
-import Lucy from "../../public/assets/lucy.webp";
 import ABI from "../../lib/abis/AIC.json";
+import { validateAllocation } from "../../lib/utils";
+import Lucy from "../../public/assets/lucy.webp";
+import { formatUnits, parseAbi, parseUnits } from "viem";
+import { useAccount, useReadContract, useWalletClient, useWriteContract } from "wagmi";
+import BountyCard from "~~/components/Bounty";
+import MyScore from "~~/components/MyScore";
+import TreasuryCard from "~~/components/TreasuryPool";
+import Chat from "~~/components/pitch/Chat";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -114,10 +111,7 @@ export default function Pitch() {
   } = useWriteContract();
 
   /* ---------------------------- Read USDC Price ----------------------------- */
-  const {
-    data: contractPriceData = 0n,
-    refetch: refetchContractPrice,
-  } = useReadContract({
+  const { data: contractPriceData = 0n, refetch: refetchContractPrice } = useReadContract({
     address: PAY_GAME_CONTRACT,
     abi: ABI,
     functionName: "price",
@@ -176,7 +170,7 @@ export default function Pitch() {
       console.error("payGame error:", payGameError);
       setPitchStatus("error");
       setPitchError("Error: payGame transaction failed");
-      setTxDetails((prev) => ({
+      setTxDetails(prev => ({
         ...prev,
         transactionHash: payGameTxData ? payGameTxData : "0x",
       }));
@@ -241,12 +235,7 @@ export default function Pitch() {
         address: USDC_ADDRESS,
         abi: erc20ABI,
         functionName: "approve",
-        args: [
-          PAY_GAME_CONTRACT,
-          BigInt(
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          ),
-        ],
+        args: [PAY_GAME_CONTRACT, BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")],
       });
     } else {
       // payGame call
@@ -290,14 +279,14 @@ export default function Pitch() {
 
       if (response.ok) {
         console.log("AI response:", response);
-        setRefetchFlag((prev) => !prev);
-        console.log(data)
+        setRefetchFlag(prev => !prev);
+        console.log(data);
       } else {
         console.error("AI API call error");
-        console.error(data)
+        console.error(data);
       }
     } catch (err) {
-      console.error("Error during AI call:", err);      
+      console.error("Error during AI call:", err);
     }
   };
 
@@ -332,11 +321,9 @@ export default function Pitch() {
     console.log("✅ AI call finished");
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     setPitchStatus("idle");
     setPitchError("");
   };
@@ -351,14 +338,7 @@ export default function Pitch() {
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image
-            src={Lucy}
-            alt="AI Capital"
-            width={440}
-            height={440}
-            placeholder="blur"
-            className="rounded"
-          />
+          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
           <TreasuryCard />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
@@ -366,9 +346,7 @@ export default function Pitch() {
         {/* Right panel: Pitch submission and chat */}
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
-            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">
-              Submit an Investment Pitch to Lucy
-            </h1>
+            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">Submit an Investment Pitch to Lucy</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <TokenSelect value={formData.token} onChange={handleChange} />
@@ -387,14 +365,11 @@ export default function Pitch() {
               {/* Error or success banner */}
               {pitchStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    status === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
-                  <p>
-                    {pitchStatus === "success"
-                      ? "Pitch submitted successfully!"
-                      : pitchError}
-                  </p>
+                  <p>{pitchStatus === "success" ? "Pitch submitted successfully!" : pitchError}</p>
                 </div>
               )}
 
