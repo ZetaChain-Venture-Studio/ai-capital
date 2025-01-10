@@ -176,6 +176,13 @@ export default function Pitch() {
         console.log("AI response:", response);
         setRefetchFlag(prev => !prev);
         console.log(data);
+      // TODO: move it somewhere else
+        // setTxDetails({
+        //   chain: "ZetaChain",
+        //   amount: contractPrice,
+        //   token: "USDC",
+        //   transactionHash: data,
+        // });
       } else {
         console.error("AI API call error");
         console.error(data);
@@ -188,31 +195,30 @@ export default function Pitch() {
   useEffect(() => {
     if (isSuccessPayGame) {
       console.log("✅ Pay Game");
-      console.log("⏳ Sending pitch to AI…");
-      sendMessage();
-      console.log("✅ AI call finished");
+      (async () => {
+        try {
+          console.log("⏳ Sending pitch to AI…");
+          await sendMessage();
+          console.log("✅ AI call finished");
+        } catch (err) {
+          console.error("AI call error:", err);
+        } finally {                  
+          setPitchStatus("success");
+          setIsSuccessModalOpen(true);
+          refetchContractPrice();
+          setIsTxInProgress(false);
+        }
+      })();
     }
   }, [isSuccessPayGame, sendMessage]);
 
   // payGame transaction response
-  // useEffect(() => {
-  //   if (payGameTxData) {
-  //     console.log("✅ payGame transaction response:", payGameTxData);
-
-  //     // Update dynamic transaction details
-  //     setTxDetails({
-  //       chain: "ZetaChain",
-  //       amount: contractPrice,
-  //       token: "USDC",
-  //       transactionHash: payGameTxData.toString(),
-  //     });
-
-  //     // Trigger success modal
-  //     setPitchStatus("success");
-  //     setIsSuccessModalOpen(true);
-  //     refetchContractPrice();
-  //   }
-  // }, [payGameTxData, contractPrice, refetchContractPrice]);
+  useEffect(() => {
+    if (payGameTxData) {
+      console.log("✅ payGame transaction response:", payGameTxData);      
+      refetchContractPrice();
+    }
+  }, [payGameTxData, refetchContractPrice]);
 
   // Approve error
   useEffect(() => {
@@ -240,10 +246,10 @@ export default function Pitch() {
 
   // If either transaction finishes (success or error), stop loading spinner
   useEffect(() => {
-    if (payGameTxData || isApproveError || isPayGameError) {
+    if (isApproveError || isPayGameError) {
       setIsTxInProgress(false);
     }
-  }, [payGameTxData, isApproveError, isPayGameError]);
+  }, [isApproveError, isPayGameError]);
 
   /* -------------------------------------------------------------------------- */
   /*                                Helper Methods                               */
