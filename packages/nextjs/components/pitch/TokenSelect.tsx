@@ -12,46 +12,31 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
     const selectedSymbol = e.target.value;
     const selectedToken = testTokens.find(item => item.symbol === selectedSymbol);
     if (selectedToken) {
-      // Simulate an event for input change with token address
       onChange({ target: { value: selectedToken.address, name: "token" } } as React.ChangeEvent<HTMLInputElement>);
     }
   };
 
   return (
     <div>
-      <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
-        Enter or Select Token
+      <label htmlFor="token-select" className="block text-sm font-medium text-gray-700 mb-2">
+        Select Token
       </label>
-      <div className="flex flex-col lg:flex-row gap-2">
-        {/* Text Input */}
-        <input
-          type="text"
-          id="token"
-          name="token"
-          placeholder="Enter token address"
-          value={value}
-          onChange={onChange}
-          className="bg-white flex-1 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-        />
-
-        {/* Dropdown List */}
+      <div>
         <select
           id="token-select"
           name="token-select"
           onChange={handleSelectChange}
-          className="bg-white w-full lg:w-1/3 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+          value={testTokens.find(token => token.address === value)?.symbol || ""}
+          className="bg-white w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         >
-          <option value="">Your token</option>
+          <option value="">Select your token</option>
           {testTokens.map(item => (
             <option key={item.symbol} value={item.symbol}>
               {item.token} ({item.symbol})
             </option>
           ))}
         </select>
-      </div>
-
-      {/* Informational Note */}
-      <p className="mt-2 text-sm text-gray-500">Token must be tradable on Uniswap</p>
+      </div>      
     </div>
   );
 }
