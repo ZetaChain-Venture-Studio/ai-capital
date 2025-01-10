@@ -7,5 +7,5 @@ export const client = createThirdwebClient({
 export const prizePoolSmartContract = getContract({
     client,
     chain: defineChain(Number(process.env.ZETA_CHAIN_ID)),
-    address: process.env.PRIZE_POOL_SMART_CONTRACT || "",
+    address: process.env.NEXT_PUBLIC_AIC_ADDRESS || "",
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { AIResponse } from "~~/utils/types/types";
 
@@ -26,7 +26,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
     }
   };
 
-  const getChat = async () => {
+  const getChat = useCallback(async () => {
     setLoading(true);
     let _url = showGlobal
       ? `/api/paginated-chat?limit=${limit}`
@@ -58,7 +58,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
       }
       setLoading(false);
     }
-  };
+  }, [limit, showGlobal, address, currentPage, nextCursor, previousFlag]);
 
   const goToNextPage = () => {
     if (nextCursor !== null) {
@@ -80,7 +80,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
 
   useEffect(() => {
     getChat();
-  }, [limit, showGlobal, currentPage, _refetchChatFlag]);
+  }, [getChat, _refetchChatFlag]);
 
   useEffect(() => {
     if (!address) setShowGlobal(true);
