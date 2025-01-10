@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { AIResponse } from "~~/utils/types/types";
+import { BlockieAvatar } from "../scaffold-eth";
+import Image from "next/image";
+import Lucy_Circle from "../../public/assets/lucy_circle.webp";
 
 interface ChatProps {
   _refetchChatFlag: boolean;
@@ -113,24 +116,37 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
             <div key={index} className={`mb-4 p-6 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
               <div className="flex justify-between">
                 <span className="font-bold">
-                  {"User: "}
-                  <span className="font-normal">
-                    {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
+                  <span className="inline-flex items-center gap-2">
+                    <BlockieAvatar address={message.userAddress} size={30} />
+                    {"User: "}
+                    <span className="font-normal">
+                      {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
+                    </span>
+                    
                   </span>
+                  <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">
+                {message.pitch}
+              </p>
+
                 </span>
                 <span className="font-bold">
                   {"Score: "}
                   <span className="font-normal">{message.score}</span>
                 </span>
               </div>
-              <p className="text-sm md:text-base">{message.pitch}</p>
               <p
-                className={`text-sm md:text-base ${message.success ? "text-green-600 font-semibold" : "text-red-600"}`}
+                className={`text-sm md:text-base mb-0 ${message.success ? "text-green-600 font-semibold" : "text-red-600"}`}
               >
-                <strong>AI:</strong> {message.aiResponseText}
+                <span className="inline-flex items-center gap-2">
+                  <Image src={Lucy_Circle} alt="Lucy" width={32} height={32} />
+                  <strong>Lucy:</strong>
+                </span>
+              </p>              
+              <p className="break-all mt-0">
+                {message.aiResponseText}
               </p>
               <p className="text-sm text-gray-500">
-                {message.tradeType} {message.allocation}% of {message.token}
+                buy 100 usd of {message.token}
               </p>
             </div>
           ))}

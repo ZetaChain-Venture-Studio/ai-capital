@@ -1,6 +1,6 @@
 "use client";
 
-import { mockPortfolio } from "../../lib/data";
+import { testTokens } from "../../lib/data";
 
 interface TokenSelectProps {
   value: string;
@@ -10,7 +10,7 @@ interface TokenSelectProps {
 export default function TokenSelect({ value, onChange }: TokenSelectProps) {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedSymbol = e.target.value;
-    const selectedToken = mockPortfolio.find(item => item.symbol === selectedSymbol);
+    const selectedToken = testTokens.find(item => item.symbol === selectedSymbol);
     if (selectedToken) {
       // Simulate an event for input change with token address
       onChange({ target: { value: selectedToken.address, name: "token" } } as React.ChangeEvent<HTMLInputElement>);
@@ -42,7 +42,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
           className="bg-white w-full lg:w-1/3 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         >
           <option value="">Your token</option>
-          {mockPortfolio.map(item => (
+          {testTokens.map(item => (
             <option key={item.symbol} value={item.symbol}>
               {item.token} ({item.symbol})
             </option>

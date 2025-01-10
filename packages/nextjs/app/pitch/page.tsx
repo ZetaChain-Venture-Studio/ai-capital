@@ -55,7 +55,7 @@ export default function Pitch() {
   const [formData, setFormData] = useState<FormData>({
     token: "",
     tradeType: "buy",
-    allocation: "",
+    allocation: "1",
     pitch: "",
   });
 
@@ -202,9 +202,9 @@ export default function Pitch() {
           console.log("✅ AI call finished");
         } catch (err) {
           console.error("AI call error:", err);
+          setIsFailureModalOpen(true);
         } finally {
-          setSubmissionStatus("success");
-          setIsSuccessModalOpen(true);
+          setSubmissionStatus("success");          
           refetchContractPrice();
           setIsTxInProgress(false);
         }
@@ -386,11 +386,11 @@ export default function Pitch() {
               <TokenSelect value={formData.token} onChange={handleInputChange} />
 
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   <TradeTypeSelect value={formData.tradeType} onChange={handleInputChange} />
-                </div>
+                </div> */}
                 <div className="flex-1">
-                  <AllocationInput value={formData.allocation} onChange={handleInputChange} />
+                  {/* <AllocationInput value={formData.allocation} onChange={handleInputChange} /> */}
                 </div>
               </div>
 
@@ -438,7 +438,7 @@ export default function Pitch() {
         isOpen={isFailureModalOpen}
         onClose={() => setIsFailureModalOpen(false)}
         reason="Transaction Failed"
-        chain={txDetails.chain || "Ethereum"}
+        chain={txDetails.chain || ""}
         transactionHash={txDetails.transactionHash}
         error={submissionError}
       />
