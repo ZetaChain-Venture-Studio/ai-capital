@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  TransactionFailureModal,
-  TransactionSuccessModal,
-} from "../../components/ResultModal";
+import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
 import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
@@ -14,12 +11,7 @@ import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
 import { formatUnits, parseAbi, parseUnits } from "viem";
-import {
-  useAccount,
-  useReadContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
@@ -34,12 +26,8 @@ const erc20ABI = parseAbi([
   "function approve(address spender, uint256 amount) external returns (bool)",
 ]);
 
-const USDC_ADDRESS =
-  process.env.NEXT_PUBLIC_USDC_ADDRESS ??
-  "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
-const PAY_GAME_CONTRACT =
-  process.env.NEXT_PUBLIC_AIC_ADDRESS ??
-  "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
+const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS ?? "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
+const PAY_GAME_CONTRACT = process.env.NEXT_PUBLIC_AIC_ADDRESS ?? "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
 const USDC_PRICE = parseUnits("1", 6);
 
 /* -------------------------------------------------------------------------- */
@@ -71,9 +59,7 @@ export default function Pitch() {
     pitch: "",
   });
 
-  const [submissionStatus, setSubmissionStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle");
+  const [submissionStatus, setSubmissionStatus] = useState<"idle" | "success" | "error">("idle");
   const [submissionError, setSubmissionError] = useState("");
   const [refetchFlag, setRefetchFlag] = useState(false);
 
@@ -133,10 +119,7 @@ export default function Pitch() {
   });
 
   // Read USDC price from the contract
-  const {
-    data: contractPriceData = 0n,
-    refetch: refetchContractPrice,
-  } = useReadContract({
+  const { data: contractPriceData = 0n, refetch: refetchContractPrice } = useReadContract({
     address: PAY_GAME_CONTRACT,
     abi: ABI,
     functionName: "price",
@@ -173,7 +156,7 @@ export default function Pitch() {
 
       if (response.ok) {
         console.log("AI response:", data);
-        setRefetchFlag((prev) => !prev);
+        setRefetchFlag(prev => !prev);
       } else {
         console.error("AI API call error response:", data);
       }
@@ -189,10 +172,7 @@ export default function Pitch() {
   // Update local price state
   useEffect(() => {
     if (contractPriceData) {
-      const formattedPrice = formatUnits(
-        BigInt(contractPriceData.toString()),
-        6
-      );
+      const formattedPrice = formatUnits(BigInt(contractPriceData.toString()), 6);
       setContractPrice(formattedPrice);
     }
   }, [contractPriceData]);
@@ -257,7 +237,7 @@ export default function Pitch() {
       console.error("payGame error:", payGameError);
       setSubmissionStatus("error");
       setSubmissionError("Error: payGame transaction failed");
-      setTxDetails((prev) => ({
+      setTxDetails(prev => ({
         ...prev,
         transactionHash: payGameTxData ? payGameTxData : "0x",
       }));
@@ -348,9 +328,7 @@ export default function Pitch() {
   /*                                Event Handlers                              */
   /* -------------------------------------------------------------------------- */
 
-  const handleSubmitPitch = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmitPitch = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     console.log("Form submitted:", formData);
 
@@ -376,10 +354,10 @@ export default function Pitch() {
     e:
       | React.ChangeEvent<HTMLSelectElement>
       | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     setSubmissionStatus("idle");
     setSubmissionError("");
   };
@@ -394,14 +372,7 @@ export default function Pitch() {
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image
-            src={Lucy}
-            alt="AI Capital"
-            width={440}
-            height={440}
-            placeholder="blur"
-            className="rounded"
-          />
+          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
           <TreasuryCard />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
@@ -409,46 +380,30 @@ export default function Pitch() {
         {/* Right panel: Pitch submission and chat */}
         <div className="flex-grow max-w-3xl">
           <div className="p-8 bg-white rounded-lg shadow-sm">
-            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">
-              Submit an Investment Pitch to Lucy
-            </h1>
+            <h1 className="mb-8 text-3xl font-bold text-gray-900 text-center">Submit an Investment Pitch to Lucy</h1>
 
             <form onSubmit={handleSubmitPitch} className="space-y-6">
               <TokenSelect value={formData.token} onChange={handleInputChange} />
 
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
-                  <TradeTypeSelect
-                    value={formData.tradeType}
-                    onChange={handleInputChange}
-                  />
+                  <TradeTypeSelect value={formData.tradeType} onChange={handleInputChange} />
                 </div>
                 <div className="flex-1">
-                  <AllocationInput
-                    value={formData.allocation}
-                    onChange={handleInputChange}
-                  />
+                  <AllocationInput value={formData.allocation} onChange={handleInputChange} />
                 </div>
               </div>
 
-              <PitchTextarea
-                value={formData.pitch}
-                onChange={handleInputChange}
-              />
+              <PitchTextarea value={formData.pitch} onChange={handleInputChange} />
 
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${submissionStatus === "success"
-                      ? "bg-green-50 text-green-800"
-                      : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
-                  <p>
-                    {submissionStatus === "success"
-                      ? "Pitch submitted successfully!"
-                      : submissionError}
-                  </p>
+                  <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
               )}
 
