@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
+    await deWhitelist(userAddress);
     return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
   }
 
