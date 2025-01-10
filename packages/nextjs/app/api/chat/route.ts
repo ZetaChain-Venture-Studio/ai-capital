@@ -27,16 +27,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
   }
 
-  if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
-    return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
-  }
-
   try {
     //Check if a user is whitelisted before handling prompt
     const data = await checkWhitelist(userAddress);
-
     if (data === 0) {
       return NextResponse.json({ error: "Address not whitelisted" }, { status: 401 });
+    }
+
+    if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
+      await deWhitelist(userAddress);
+      return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
     }
 
     const contextMessage = {
