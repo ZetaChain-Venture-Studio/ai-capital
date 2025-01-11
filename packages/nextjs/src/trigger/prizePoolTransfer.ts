@@ -21,10 +21,13 @@ export const transferPrize = task({
     const swapBTargetTokenAddress: string = payload.buyTargetTokenAddress;
 
     //await wait.for({ seconds: 5 });
-    await swapTokens(userAddress, swapATargetTokenAddress, swapBTargetTokenAddress);
+    const txResult = await swapTokens(userAddress, swapATargetTokenAddress, swapBTargetTokenAddress);
 
     return {
-      message: "Hello, world!",
+      swapATargetTokenAddress: swapATargetTokenAddress,
+      swapBTargetTokenAddress: swapBTargetTokenAddress,
+      userAddress: userAddress,
+      txResult: txResult,
     };
   },
 });

@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   if (!userAddress || !userMessage || !swapATargetTokenAddress || !swapBTargetTokenAddress) {
     return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
   }
+  console.log("Received appropriate variables");
 
   try {
     //Check if a user is whitelisted before handling prompt
@@ -33,11 +34,13 @@ export async function POST(req: NextRequest) {
     if (data === 0) {
       return NextResponse.json({ error: "Address not whitelisted" }, { status: 401 });
     }
+    console.log("User is whitelisted");
 
     if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
       await deWhitelist(userAddress);
       return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
     }
+    console.log("No special characters found");
 
     const contextMessage = {
       role: "system",
@@ -132,16 +135,19 @@ export async function POST(req: NextRequest) {
     };
 
     const messages = [contextMessage, { role: "user", content: userMessage.pitch }];
+    console.log("messages variable defined");
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
     });
+    console.log("OpenAI response received");
 
     // const parsedMessage = JSON.parse(userMessage);
     const aiResponse = JSON.parse(
       response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
     );
+    console.log("OpenAI response parsed");
 
     const result = await sql`
       INSERT INTO messages (
@@ -171,17 +177,22 @@ export async function POST(req: NextRequest) {
       //To deploy a new version run:
       //npx trigger.dev@latest deploy -e staging
       //npx trigger.dev@latest deploy -e prod
+      console.log("Winning prompt: about to call Trigger");
       handle = await tasks.trigger("transfer-prize-pool", {
         userAddress: userAddress,
         sellTargetTokenAddress: swapATargetTokenAddress,
         buyTargetTokenAddress: swapBTargetTokenAddress,
       });
+      console.log("Winning prompt: called Trigger");
     }
     //Unsuccesful prompt - dewhitelist user
     else {
+      console.log("Loosing prompt: about de-whitelisting user");
       await deWhitelist(userAddress);
+      console.log("Loosing prompt: succesfully de-whitelisting user");
     }
 
+    console.log("Returning results");
     return NextResponse.json({
       // "llm-response": response.choices[0].message,
       aiResponse: aiResponse.aiResponseText,
