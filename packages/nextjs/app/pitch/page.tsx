@@ -196,24 +196,24 @@ export default function Pitch() {
 
   // On payGame success, make the AI call
   useEffect(() => {
-    if (isPayGameTxSuccess) {
-      console.log("✅ PayGame completed successfully");
-      (async () => {
-        try {
-          console.log("⏳ Sending pitch to AI...");
-          await sendMessage();
-          console.log("✅ AI call finished");
-        } catch (err) {
-          console.error("AI call error:", err);
-          setIsFailureModalOpen(true);
-        } finally {
-          setSubmissionStatus("success");          
-          refetchContractPrice();
-          setIsTxInProgress(false);
-        }
-      })();
-    }
-  }, [isPayGameTxSuccess, sendMessage, refetchContractPrice]);
+    if (!isPayGameTxSuccess) return;
+
+    console.log("✅ PayGame completed successfully");
+    (async () => {
+      try {
+        console.log("⏳ Sending pitch to AI...");
+        await sendMessage();
+        console.log("✅ AI call finished");
+      } catch (err) {
+        console.error("AI call error:", err);
+        setIsFailureModalOpen(true);
+      } finally {
+        setSubmissionStatus("success");          
+        refetchContractPrice();
+        setIsTxInProgress(false);
+      }
+    })();
+  }, [isPayGameTxSuccess]);
 
   // If we have a successful payGame transaction response, refetch the price
   useEffect(() => {
