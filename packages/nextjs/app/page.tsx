@@ -14,7 +14,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16">
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image src={Lucy} alt="AI Capital" width={640} height={640} placeholder="blur" className="rounded" />
@@ -26,7 +26,7 @@ export default function HomePage() {
             <p className="text-xl text-gray-600 mb-4">
               Play the game by pitching your favorite token to our advanced AI and see if you can convince it to invest.
             </p>
-            <p className="text-xl text-gray-600 mb-12">
+            <p className="text-xl text-gray-600 mb-4">
               Challenge yourself in this interactive game where AI meets human ingenuity.
             </p>
             <button

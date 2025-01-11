@@ -29,9 +29,9 @@ function OnboardingPopup({ isOpen, onClose }: OnboardingPopupProps) {
         <div className="p-4">
           <p className="mb-4">Here&apos;s how it works:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Pitch token ideas to the AI portfolio manager</li>
-            <li>Earn points and climb the leaderboard</li>
-            <li>Learn about crypto markets in a risk-free environment</li>
+            <li>Submit prompts and pitch token ideas to Lucy</li>
+            <li>Earn bounties upon convincing her</li>
+            <li>Get your airdrop points and climb the leaderboard</li>
           </ul>
         </div>
         <div className="flex items-center space-x-2 p-4 border-t">

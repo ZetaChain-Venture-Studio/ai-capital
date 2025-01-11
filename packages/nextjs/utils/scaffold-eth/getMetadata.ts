@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : `http://localhost:${process.env.PORT || 3000}`;
-const titleTemplate = "%s | Ai Capital";
+const titleTemplate = "%s | Lucy | Ai Capital";
 
 export const getMetadata = ({
   title,
   description,
-  imageRelativePath = "/thumbnail.jpg",
+  imageRelativePath = "/thumbnail.webp",
 }: {
   title: string;
   description: string;
@@ -44,7 +44,7 @@ export const getMetadata = ({
       images: [imageUrl],
     },
     icons: {
-      icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+      icon: [{ url: "/assets/lucy_circle.webp", sizes: "32x32", type: "image/webp" }],
     },
   };
 };
