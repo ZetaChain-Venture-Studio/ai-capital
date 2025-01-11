@@ -373,7 +373,7 @@ export default function Pitch() {
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
           <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
-          <TreasuryCard />
+          <TreasuryCard _refetchScoreFlag={refetchFlag} />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
 
@@ -399,9 +399,8 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  }`}
+                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
