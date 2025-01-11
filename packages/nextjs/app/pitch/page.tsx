@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
-import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
-import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
@@ -16,6 +14,10 @@ import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
+import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
+import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
+import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
+import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -55,7 +57,7 @@ export default function Pitch() {
   const [formData, setFormData] = useState<FormData>({
     token: "",
     tradeType: "buy",
-    allocation: "",
+    allocation: "1",
     pitch: "",
   });
 
@@ -81,6 +83,8 @@ export default function Pitch() {
 
   // Loading spinner for any in-progress transaction
   const [isTxInProgress, setIsTxInProgress] = useState(false);
+
+  const [hasPayGameTriggered, setHasPayGameTriggered] = useState(false);
 
   /* ------------------------------- Wagmi Hooks ------------------------------ */
   const { address } = useAccount();
@@ -139,7 +143,7 @@ export default function Pitch() {
       const dataToSend = {
         userAddress: address,
         userMessage: formData,
-        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // USDT/USDC
+        swapATargetTokenAddress: USDC_ADDRESS,
         swapBTargetTokenAddress: formData.token,
       };
 
@@ -193,24 +197,24 @@ export default function Pitch() {
 
   // On payGame success, make the AI call
   useEffect(() => {
-    if (isPayGameTxSuccess) {
-      console.log("✅ PayGame completed successfully");
-      (async () => {
-        try {
-          console.log("⏳ Sending pitch to AI...");
-          await sendMessage();
-          console.log("✅ AI call finished");
-        } catch (err) {
-          console.error("AI call error:", err);
-        } finally {
-          setSubmissionStatus("success");
-          setIsSuccessModalOpen(true);
-          refetchContractPrice();
-          setIsTxInProgress(false);
-        }
-      })();
-    }
-  }, [isPayGameTxSuccess, sendMessage, refetchContractPrice]);
+    if (!isPayGameTxSuccess || hasPayGameTriggered) return;
+    setHasPayGameTriggered(true);
+
+    (async () => {
+      try {
+        console.log("⏳ Sending pitch to AI...");
+        await sendMessage();
+        console.log("✅ AI call finished");
+      } catch (err) {
+        console.error("AI call error:", err);
+        setIsFailureModalOpen(true);
+      } finally {
+        setSubmissionStatus("success");
+        refetchContractPrice();
+        setIsTxInProgress(false);
+      }
+    })();
+  }, [isPayGameTxSuccess, hasPayGameTriggered, refetchContractPrice, sendMessage]);
 
   // If we have a successful payGame transaction response, refetch the price
   useEffect(() => {
@@ -362,6 +366,14 @@ export default function Pitch() {
     setSubmissionError("");
   };
 
+  /* ------------------------------- Helper Functions ------------------------------ */
+  const getLucyImage = () => {
+    if (isTxInProgress) return Lucy_Cross_Arms;
+    if (submissionStatus === "success") return Lucy_Thumbs_Up;
+    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Mocks;
+    return Lucy_Glasses;
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                                  Render                                    */
   /* -------------------------------------------------------------------------- */
@@ -372,7 +384,14 @@ export default function Pitch() {
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
+          <Image
+            src={getLucyImage()}
+            alt="AI Capital"
+            width={440}
+            height={460}
+            placeholder="blur"
+            className="rounded w-[440px] h-[440px] object-cover object-top"
+          />
           <TreasuryCard />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
@@ -386,11 +405,11 @@ export default function Pitch() {
               <TokenSelect value={formData.token} onChange={handleInputChange} />
 
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   <TradeTypeSelect value={formData.tradeType} onChange={handleInputChange} />
-                </div>
+                </div> */}
                 <div className="flex-1">
-                  <AllocationInput value={formData.allocation} onChange={handleInputChange} />
+                  {/* <AllocationInput value={formData.allocation} onChange={handleInputChange} /> */}
                 </div>
               </div>
 
@@ -438,7 +457,7 @@ export default function Pitch() {
         isOpen={isFailureModalOpen}
         onClose={() => setIsFailureModalOpen(false)}
         reason="Transaction Failed"
-        chain={txDetails.chain || "Ethereum"}
+        chain={txDetails.chain || ""}
         transactionHash={txDetails.transactionHash}
         error={submissionError}
       />
