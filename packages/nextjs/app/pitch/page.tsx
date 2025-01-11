@@ -139,7 +139,7 @@ export default function Pitch() {
       const dataToSend = {
         userAddress: address,
         userMessage: formData,
-        swapATargetTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", // USDT/USDC
+        swapATargetTokenAddress: USDC_ADDRESS,
         swapBTargetTokenAddress: formData.token,
       };
 
