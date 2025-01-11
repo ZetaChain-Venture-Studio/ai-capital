@@ -14,7 +14,7 @@
     "vercel": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1",
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true",
     "trigger-stage": "npx trigger.dev@latest deploy -e staging",
-    "trigger-prod": "npx trigger.dev@latest deploy -e prod",
+    "trigger-prod": "npx trigger.dev@latest deploy -e prod"
   },
   "dependencies": {
     "@heroicons/react": "~2.1.5",
