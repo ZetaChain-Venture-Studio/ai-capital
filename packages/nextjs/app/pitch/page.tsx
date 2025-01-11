@@ -392,7 +392,7 @@ export default function Pitch() {
             placeholder="blur"
             className="rounded w-[440px] h-[440px] object-cover object-top"
           />
-          <TreasuryCard />
+          <TreasuryCard _refetchScoreFlag={refetchFlag} />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
 
@@ -418,9 +418,8 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  }`}
+                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
