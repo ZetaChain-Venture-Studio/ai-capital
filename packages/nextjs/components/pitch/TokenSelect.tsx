@@ -36,7 +36,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
             </option>
           ))}
         </select>
-      </div>      
+      </div>
     </div>
   );
 }

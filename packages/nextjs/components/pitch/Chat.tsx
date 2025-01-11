@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { AIResponse } from "~~/utils/types/types";
-import { BlockieAvatar } from "../scaffold-eth";
 import Image from "next/image";
 import Lucy_Circle from "../../public/assets/lucy_circle.webp";
+import { BlockieAvatar } from "../scaffold-eth";
+import { useAccount } from "wagmi";
+import { AIResponse } from "~~/utils/types/types";
 
 interface ChatProps {
   _refetchChatFlag: boolean;
@@ -122,12 +122,8 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
                     <span className="font-normal">
                       {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
                     </span>
-                    
                   </span>
-                  <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">
-                {message.pitch}
-              </p>
-
+                  <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">{message.pitch}</p>
                 </span>
                 <span className="font-bold">
                   {"Score: "}
@@ -141,13 +137,9 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
                   <Image src={Lucy_Circle} alt="Lucy" width={32} height={32} />
                   <strong>Lucy:</strong>
                 </span>
-              </p>              
-              <p className="break-all mt-0">
-                {message.aiResponseText}
               </p>
-              <p className="text-sm text-gray-500">
-                buy 100 usd of {message.token}
-              </p>
+              <p className="break-all mt-0">{message.aiResponseText}</p>
+              <p className="text-sm text-gray-500">buy 100 usd of {message.token}</p>
             </div>
           ))}
       </div>

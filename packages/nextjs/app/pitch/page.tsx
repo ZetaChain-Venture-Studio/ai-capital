@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { TransactionFailureModal, TransactionSuccessModal } from "../../components/ResultModal";
-import AllocationInput from "../../components/pitch/AllocationInput";
 import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
-import TradeTypeSelect from "../../components/pitch/TradeTypeSelect";
 import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
 import Lucy from "../../public/assets/lucy.webp";
@@ -16,8 +14,8 @@ import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
-import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
 import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
+import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
 import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 
 /* -------------------------------------------------------------------------- */
@@ -208,7 +206,7 @@ export default function Pitch() {
         console.error("AI call error:", err);
         setIsFailureModalOpen(true);
       } finally {
-        setSubmissionStatus("success");          
+        setSubmissionStatus("success");
         refetchContractPrice();
         setIsTxInProgress(false);
       }
@@ -383,13 +381,13 @@ export default function Pitch() {
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image 
-            src={getLucyImage()} 
-            alt="AI Capital" 
-            width={440} 
-            height={460} 
-            placeholder="blur" 
-            className="rounded w-[440px] h-[440px] object-cover object-top" 
+          <Image
+            src={getLucyImage()}
+            alt="AI Capital"
+            width={440}
+            height={460}
+            placeholder="blur"
+            className="rounded w-[440px] h-[440px] object-cover object-top"
           />
           <TreasuryCard />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
