@@ -83,6 +83,8 @@ export default function Pitch() {
   // Loading spinner for any in-progress transaction
   const [isTxInProgress, setIsTxInProgress] = useState(false);
 
+  const [hasPayGameTriggered, setHasPayGameTriggered] = useState(false);
+
   /* ------------------------------- Wagmi Hooks ------------------------------ */
   const { address } = useAccount();
 
@@ -194,9 +196,9 @@ export default function Pitch() {
 
   // On payGame success, make the AI call
   useEffect(() => {
-    if (!isPayGameTxSuccess) return;
+    if (!isPayGameTxSuccess || hasPayGameTriggered) return;
+    setHasPayGameTriggered(true);
 
-    console.log("✅ PayGame completed successfully");
     (async () => {
       try {
         console.log("⏳ Sending pitch to AI...");
@@ -211,7 +213,7 @@ export default function Pitch() {
         setIsTxInProgress(false);
       }
     })();
-  }, [isPayGameTxSuccess]);
+  }, [isPayGameTxSuccess, hasPayGameTriggered, refetchContractPrice, sendMessage]);
 
   // If we have a successful payGame transaction response, refetch the price
   useEffect(() => {
