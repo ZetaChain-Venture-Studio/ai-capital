@@ -17,6 +17,7 @@ import Chat from "~~/components/pitch/Chat";
 import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
 import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
 import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
+import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -367,10 +368,10 @@ export default function Pitch() {
 
   /* ------------------------------- Helper Functions ------------------------------ */
   const getLucyImage = () => {
-    if (isTxInProgress) return Lucy_Glasses;
+    if (isTxInProgress) return Lucy_Cross_Arms;
     if (submissionStatus === "success") return Lucy_Thumbs_Up;
-    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Cross_Arms;
-    return Lucy;
+    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Mocks;
+    return Lucy_Glasses;
   };
 
   /* -------------------------------------------------------------------------- */
