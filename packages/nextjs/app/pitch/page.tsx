@@ -16,6 +16,9 @@ import BountyCard from "~~/components/Bounty";
 import MyScore from "~~/components/MyScore";
 import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
+import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
+import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
+import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -362,6 +365,14 @@ export default function Pitch() {
     setSubmissionError("");
   };
 
+  /* ------------------------------- Helper Functions ------------------------------ */
+  const getLucyImage = () => {
+    if (isTxInProgress) return Lucy_Glasses;
+    if (submissionStatus === "success") return Lucy_Thumbs_Up;
+    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Cross_Arms;
+    return Lucy;
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                                  Render                                    */
   /* -------------------------------------------------------------------------- */
@@ -372,7 +383,14 @@ export default function Pitch() {
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
           <BountyCard />
-          <Image src={Lucy} alt="AI Capital" width={440} height={440} placeholder="blur" className="rounded" />
+          <Image 
+            src={getLucyImage()} 
+            alt="AI Capital" 
+            width={440} 
+            height={460} 
+            placeholder="blur" 
+            className="rounded w-[440px] h-[440px] object-cover object-top" 
+          />
           <TreasuryCard />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
         </div>
