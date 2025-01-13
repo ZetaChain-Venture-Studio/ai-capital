@@ -61,7 +61,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
       }
       setLoading(false);
     }
-  }, [limit, showGlobal, address, currentPage, nextCursor, previousFlag]);
+  }, [limit, showGlobal, address, currentPage, previousFlag]);
 
   const goToNextPage = () => {
     if (nextCursor !== null) {

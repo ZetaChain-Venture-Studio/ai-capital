@@ -52,8 +52,11 @@ export async function POST(req: NextRequest) {
     console.log("messages variable defined");
 
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages: messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+      temperature: 0.85,
+      max_tokens: 256,
+      top_p: 1.0,
     });
     console.log("OpenAI response received");
 
