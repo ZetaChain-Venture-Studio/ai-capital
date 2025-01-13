@@ -353,6 +353,9 @@ export default function Pitch() {
     e.preventDefault();
     console.log("Form submitted:", formData);
 
+    // Reset game
+    setHasPayGameTriggered(false);
+
     // Validate pitch & other input fields
     if (!isValidPitch()) return;
 
@@ -400,7 +403,7 @@ export default function Pitch() {
       <div className="flex flex-col lg:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8 justify-center max-lg:items-center">
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
-          <BountyCard />
+          <BountyCard _refetchScoreFlag={refetchFlag} />
           <Image
             src={getLucyImage()}
             alt="AI Capital"
@@ -435,9 +438,8 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${
-                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                  }`}
+                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                    }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
