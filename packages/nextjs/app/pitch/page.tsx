@@ -87,6 +87,8 @@ export default function Pitch() {
 
   const [hasPayGameTriggered, setHasPayGameTriggered] = useState(false);
 
+  const [aiSuccess, setAiSuccess] = useState<boolean | null>(null);
+
   /* ------------------------------- Wagmi Hooks ------------------------------ */
   const { address } = useAccount();
 
@@ -165,6 +167,7 @@ export default function Pitch() {
 
       if (response.ok) {
         console.log("AI response:", data);
+        setAiSuccess(data.success);
         setRefetchFlag(prev => !prev);
       } else {
         console.error("AI API call error response:", data);
@@ -389,8 +392,17 @@ export default function Pitch() {
   /* ------------------------------- Helper Functions ------------------------------ */
   const getLucyImage = () => {
     if (isTxInProgress) return Lucy_Cross_Arms;
-    if (submissionStatus === "success") return Lucy_Thumbs_Up;
-    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Mocks;
+    if (submissionError === "No special characters allowed in the pitch.") {
+      return Lucy_Mocks;
+    }
+
+    if (aiSuccess === true) {
+      return Lucy_Thumbs_Up;
+    }
+    if (aiSuccess === false) {
+      return Lucy_Mocks;
+    }
+
     return Lucy_Glasses;
   };
 
