@@ -7,10 +7,14 @@ import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 const { targetNetworks } = scaffoldConfig;
 
-// We always want to have mainnet enabled (ENS resolution, ETH price, etc). But only once.
-export const enabledChains = targetNetworks.find((network: Chain) => network.id === 1)
-  ? targetNetworks
-  : ([...targetNetworks, mainnet] as const);
+function ensureNonEmptyChainArray(chains: readonly Chain[]): [Chain, ...Chain[]] {
+  if (!chains.length) {
+    throw new Error("No chains found!");
+  }
+  return chains as [Chain, ...Chain[]];
+}
+export const enabledChains = ensureNonEmptyChainArray(targetNetworks);
+
 
 export const wagmiConfig = createConfig({
   chains: enabledChains,
@@ -31,8 +35,8 @@ export const wagmiConfig = createConfig({
       transport: fallback(rpcFallbacks),
       ...(chain.id !== (hardhat as Chain).id
         ? {
-            pollingInterval: scaffoldConfig.pollingInterval,
-          }
+          pollingInterval: scaffoldConfig.pollingInterval,
+        }
         : {}),
     });
   },
