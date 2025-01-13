@@ -448,7 +448,7 @@ export default function Pitch() {
                 {isTxInProgress || isPriceLoading ? (
                   <div className="mx-auto w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  `Submit Pitch for ${contractPrice} USDC`
+                  `Submit Pitch for ${contractPrice} USDC.BASE`
                 )}
               </button>
             </form>
