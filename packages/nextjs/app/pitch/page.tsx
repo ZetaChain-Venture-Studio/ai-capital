@@ -7,7 +7,6 @@ import PitchTextarea from "../../components/pitch/PitchTextarea";
 import TokenSelect from "../../components/pitch/TokenSelect";
 import ABI from "../../lib/abis/AIC.json";
 import { validateAllocation } from "../../lib/utils";
-import Lucy from "../../public/assets/lucy.webp";
 import { formatUnits, parseAbi, parseUnits } from "viem";
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import BountyCard from "~~/components/Bounty";
@@ -31,6 +30,8 @@ const erc20ABI = parseAbi([
 const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS ?? "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
 const PAY_GAME_CONTRACT = process.env.NEXT_PUBLIC_AIC_ADDRESS ?? "0x2dEcadD1A99cDf1daD617F18c41e9c4690F9F920";
 const USDC_PRICE = parseUnits("1", 6);
+const DEFAULT_APPROVE_PRICE = parseUnits("100", 6);
+const CHAIN_ID = Number(process.env.NEXT_PUBLIC_ZETA_CHAIN_ID);
 
 /* -------------------------------------------------------------------------- */
 /*                              Types & Interfaces                            */
@@ -127,6 +128,7 @@ export default function Pitch() {
     address: PAY_GAME_CONTRACT,
     abi: ABI,
     functionName: "price",
+    chainId: CHAIN_ID || 7000,
   });
 
   /* -------------------------------------------------------------------------- */
@@ -135,6 +137,7 @@ export default function Pitch() {
 
   const sendMessage = useCallback(async () => {
     if (!address) {
+      setSubmissionError("Please connect your wallet first.");
       console.log("⛔ No wallet, skipping AI call");
       return;
     }
@@ -250,11 +253,23 @@ export default function Pitch() {
     }
   }, [isPayGameError, payGameError, payGameTxData]);
 
+  // Trigger immediate refetch on mount
+  useEffect(() => {
+    refetchContractPrice();
+  }, [refetchContractPrice]);
+
   /* -------------------------------------------------------------------------- */
   /*                                 Validation                                 */
   /* -------------------------------------------------------------------------- */
 
   const isValidPitch = (): boolean => {
+    // Check if token is selected
+    if (!formData.token) {
+      setSubmissionStatus("error");
+      setSubmissionError("Please select a token before submitting your pitch.");
+      return false;
+    }
+
     // Basic pitch length check
     if (formData.pitch.length < 50) {
       setSubmissionStatus("error");
@@ -305,7 +320,7 @@ export default function Pitch() {
           address: USDC_ADDRESS,
           abi: erc20ABI,
           functionName: "approve",
-          args: [PAY_GAME_CONTRACT, parseUnits(contractPrice, 6)],
+          args: [PAY_GAME_CONTRACT, DEFAULT_APPROVE_PRICE],
         });
       } else {
         if (!writePayGame) {
