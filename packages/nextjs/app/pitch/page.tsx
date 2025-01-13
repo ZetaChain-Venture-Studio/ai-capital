@@ -450,8 +450,9 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>

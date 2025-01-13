@@ -27,7 +27,7 @@ const BountyCard: React.FC<BountyCardProps> = ({ _refetchScoreFlag }) => {
     };
 
     fetchWalletAmount();
-  }, [_refetchScoreFlag]); 
+  }, [_refetchScoreFlag]);
 
   return (
     <div
