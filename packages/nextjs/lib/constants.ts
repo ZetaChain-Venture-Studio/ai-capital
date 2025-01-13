@@ -1,6 +1,6 @@
 import { Token } from "~~/types/token";
 
-const chainId = Number(process.env.ZETA_CHAIN_ID);
+const chainId = Number(process.env.NEXT_PUBLIC_ZETA_CHAIN_ID);
 if (!chainId) throw new Error("environment variable not set");
 
 const isTestnet = chainId === 7001;
