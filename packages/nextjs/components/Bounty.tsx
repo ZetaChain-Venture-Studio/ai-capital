@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-const BountyCard: React.FC = () => {
+interface BountyCardProps {
+  _refetchScoreFlag: boolean;
+}
+
+const BountyCard: React.FC<BountyCardProps> = ({ _refetchScoreFlag }) => {
   const [walletAmount, setWalletAmount] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,7 +27,7 @@ const BountyCard: React.FC = () => {
     };
 
     fetchWalletAmount();
-  }, []);
+  }, [_refetchScoreFlag]);
 
   return (
     <div

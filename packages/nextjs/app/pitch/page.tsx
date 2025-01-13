@@ -87,6 +87,8 @@ export default function Pitch() {
 
   const [hasPayGameTriggered, setHasPayGameTriggered] = useState(false);
 
+  const [aiSuccess, setAiSuccess] = useState<boolean | null>(null);
+
   /* ------------------------------- Wagmi Hooks ------------------------------ */
   const { address } = useAccount();
 
@@ -165,6 +167,7 @@ export default function Pitch() {
 
       if (response.ok) {
         console.log("AI response:", data);
+        setAiSuccess(data.success);
         setRefetchFlag(prev => !prev);
       } else {
         console.error("AI API call error response:", data);
@@ -353,6 +356,9 @@ export default function Pitch() {
     e.preventDefault();
     console.log("Form submitted:", formData);
 
+    // Reset game
+    setHasPayGameTriggered(false);
+
     // Validate pitch & other input fields
     if (!isValidPitch()) return;
 
@@ -386,8 +392,17 @@ export default function Pitch() {
   /* ------------------------------- Helper Functions ------------------------------ */
   const getLucyImage = () => {
     if (isTxInProgress) return Lucy_Cross_Arms;
-    if (submissionStatus === "success") return Lucy_Thumbs_Up;
-    if (submissionError === "No special characters allowed in the pitch.") return Lucy_Mocks;
+    if (submissionError === "No special characters allowed in the pitch.") {
+      return Lucy_Mocks;
+    }
+
+    if (aiSuccess === true) {
+      return Lucy_Thumbs_Up;
+    }
+    if (aiSuccess === false) {
+      return Lucy_Mocks;
+    }
+
     return Lucy_Glasses;
   };
 
@@ -400,7 +415,7 @@ export default function Pitch() {
       <div className="flex flex-col lg:flex-row gap-10 px-4 mx-auto sm:px-6 lg:px-8 justify-center max-lg:items-center">
         {/* Left panel: Bounty, Lucy's image, Treasury, and Score */}
         <div className="flex-shrink-0 flex flex-col items-center p-8 space-y-6">
-          <BountyCard />
+          <BountyCard _refetchScoreFlag={refetchFlag} />
           <Image
             src={getLucyImage()}
             alt="AI Capital"
