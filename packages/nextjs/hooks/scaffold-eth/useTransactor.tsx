@@ -73,6 +73,8 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
         <TxnNotification message="Waiting for transaction to complete." blockExplorerLink={blockExplorerTxURL} />,
       );
 
+      if (!publicClient) throw new Error("publicClient undefined");
+
       transactionReceipt = await publicClient.waitForTransactionReceipt({
         hash: transactionHash,
         confirmations: options?.blockConfirmations,
