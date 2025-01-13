@@ -54,7 +54,7 @@ const TreasuryCard = ({ _refetchScoreFlag }: TrasuryProps) => {
     datasets: [
       {
         label: "Asset Allocation",
-        data: tokens.map(token => token.valueUSD),
+        data: tokens.map(token => token.balanceFormatted),
         backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40"],
         hoverOffset: 8,
       },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const BountyCard: React.FC = () => {
-  const [walletAmount, setWalletAmount] = useState<number>(0);
+  const [walletAmount, setWalletAmount] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const BountyCard: React.FC = () => {
         }
 
         const data = await res.json();
-        setWalletAmount(data.amount);
+        setWalletAmount(Number(data.bounty).toFixed(2));
       } catch (error) {
         console.error("Error fetching wallet amount:", error);
       } finally {
