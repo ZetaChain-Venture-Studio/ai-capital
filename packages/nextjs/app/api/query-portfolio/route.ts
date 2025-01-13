@@ -2,15 +2,8 @@ import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import { ethers } from "ethers";
 import { parseAbi } from "viem";
-
-interface Token {
-  symbol: string;
-  decimals: number;
-  balance: bigint;
-  price?: number;
-  balanceFormatted?: number;
-  valueUSD?: number;
-}
+import { tokens as tokensBase } from "~~/lib/constants";
+import { Token } from "~~/types/token";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +23,9 @@ export async function GET(req: Request) {
   const rpcUrl = process.env.ZETA_CHAIN_RPC;
   const cmcApiKey = process.env.CMC_API_KEY;
   const aicAddress = process.env.NEXT_PUBLIC_AIC_ADDRESS;
-  const listOfAddressesString = process.env.LIST_OF_ADDRESSES;
   const tableName = process.env.PORTFOLIO_HISTORY_TABLE;
 
-  if (!rpcUrl || !cmcApiKey || !aicAddress || !listOfAddressesString || !tableName) {
+  if (!rpcUrl || !cmcApiKey || !aicAddress || !tableName) {
     console.error("environment variable not set");
     return NextResponse.json({ error: "environment variable not set" }, { status: 500 });
   }
@@ -41,24 +33,20 @@ export async function GET(req: Request) {
   try {
     const provider = new ethers.JsonRpcProvider(rpcUrl);
 
-    const listOfAddresses = JSON.parse(listOfAddressesString);
+    const addresses: string[] = [];
+    tokensBase.forEach((token, index) => {
+      if (index < tokensBase.length - 1) {
+        addresses.push(token.address);
+      }
+    });
     const aicContract = new ethers.Contract(aicAddress, aicABI, provider);
-    const balances = await aicContract.getBalances([...listOfAddresses]);
+    const balances = await aicContract.getBalances(addresses);
     const zetaBalance = await provider.getBalance(aicAddress);
 
-    const tokens: Token[] = [
-      { symbol: "USDC", decimals: 6, balance: balances[0] },
-      { symbol: "BTC", decimals: 8, balance: balances[1] },
-      { symbol: "ETH", decimals: 18, balance: balances[2] },
-      { symbol: "BNB", decimals: 18, balance: balances[3] },
-      { symbol: "ULTI", decimals: 18, balance: balances[4] },
-      { symbol: "PEPE", decimals: 18, balance: balances[5] },
-      { symbol: "SHIB", decimals: 18, balance: balances[6] },
-      { symbol: "DAI", decimals: 18, balance: balances[7] },
-      { symbol: "POL", decimals: 18, balance: balances[8] },
-      { symbol: "SOL", decimals: 9, balance: balances[9] },
-      { symbol: "ZETA", decimals: 18, balance: zetaBalance },
-    ];
+    const tokens: Token[] = tokensBase.map((token, index) => ({
+      ...token,
+      balance: token.symbol === "ZETA" ? zetaBalance : balances[index] || 0,
+    }));
 
     const symbols = tokens.map(t => t.symbol).join(",");
 
@@ -78,7 +66,7 @@ export async function GET(req: Request) {
 
     tokens.forEach(token => {
       const price = data.data[token.symbol]?.quote?.USD?.price || 0;
-      const balanceFormatted = Number(ethers.formatUnits(token.balance, token.decimals));
+      const balanceFormatted = Number(ethers.formatUnits(token.balance || 0, token.decimals));
       const valueUSD = balanceFormatted * price;
 
       token.price = price;
