@@ -108,6 +108,7 @@ export default function Pitch() {
   } = useWriteContract();
 
   const { isSuccess: isApproveTxSuccess } = useWaitForTransactionReceipt({
+    chainId: CHAIN_ID,
     hash: approveTxData,
   });
 
@@ -120,6 +121,7 @@ export default function Pitch() {
   } = useWriteContract();
 
   const { isSuccess: isPayGameTxSuccess } = useWaitForTransactionReceipt({
+    chainId: CHAIN_ID,
     hash: payGameTxData,
   });
 
