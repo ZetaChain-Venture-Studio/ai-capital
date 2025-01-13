@@ -15,8 +15,8 @@ import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
 import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
-import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
+import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -433,8 +433,9 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
