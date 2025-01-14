@@ -47,11 +47,12 @@ export default function PortfolioHistoryChart() {
   const [snapshots, setSnapshots] = useState<PortfolioSnapshot[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [timeframe, setTimeframe] = useState<TimeframeOption>("1d");
+  const [limit, setLimit] = useState(24);
 
   const fetchSnapshots = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/portfolio", { cache: "no-store" });
+      const response = await fetch(`/api/paginated-portfolio?limit=${limit}`, { cache: "no-store" });
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
@@ -67,7 +68,7 @@ export default function PortfolioHistoryChart() {
         })),
       }));
       setSnapshots(portfolioSnapshots);
-      console.log(portfolioSnapshots)
+      // console.log(portfolioSnapshots)
     } catch (error) {
       console.error("Error fetching snapshots:", error);
     } finally {
@@ -77,7 +78,7 @@ export default function PortfolioHistoryChart() {
 
   useEffect(() => {
     fetchSnapshots();
-  }, []);
+  }, [limit]);
 
   const generateColor = (index: number, total: number) => {
     const hue = (index / total) * 360;
@@ -104,7 +105,18 @@ export default function PortfolioHistoryChart() {
   });
 
   const data = {
-    labels: snapshots.map(snapshot => snapshot.date),
+    labels: snapshots.map(snapshot => {
+      const date = new Date(Number(snapshot.date) * 1000);
+      return date.toLocaleString("en-US", {
+        // weekday: "short",
+        year: "2-digit",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }),
     datasets,
   };
 
@@ -127,9 +139,14 @@ export default function PortfolioHistoryChart() {
     },
   };
 
-  const handleTimeframeChange = (newTimeframe: TimeframeOption) => {
+  const handleTimeframeChange = (newTimeframe: TimeframeOption, _limit: number) => {
     setTimeframe(newTimeframe);
+    setLimit(_limit);
   };
+
+  // const callQueryPortfol = async () => {
+  //   await fetch("/api/query-portfolio");
+  // };
 
   return (
     <div className="p-4 flex flex-col items-center">
@@ -144,29 +161,31 @@ export default function PortfolioHistoryChart() {
       <div className="flex gap-2 justify-center">
         <button
           className={`px-3 py-2 ${timeframe === "1d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
-          onClick={() => handleTimeframeChange("1d")}
+          onClick={() => handleTimeframeChange("1d", 24)}
         >
           1 Day
         </button>
         <button
           className={`px-3 py-2 ${timeframe === "7d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
-          onClick={() => handleTimeframeChange("7d")}
+          onClick={() => handleTimeframeChange("7d", 168)}
         >
           7 Days
         </button>
         <button
           className={`px-3 py-2 ${timeframe === "30d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
-          onClick={() => handleTimeframeChange("30d")}
+          onClick={() => handleTimeframeChange("30d", 720)}
         >
           30 Days
         </button>
         <button
           className={`px-3 py-2 ${timeframe === "all" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
-          onClick={() => handleTimeframeChange("all")}
+          onClick={() => handleTimeframeChange("all", 999)}
         >
           All
         </button>
       </div>
+
+      {/* <button onClick={callQueryPortfol}>call</button> */}
     </div>
   );
 }
