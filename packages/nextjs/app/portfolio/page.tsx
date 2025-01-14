@@ -39,14 +39,25 @@ export default function PortfolioPage() {
   // Filter out tokens with USD value less than 1
   // const filteredTokens = tokens.filter(token => token.usd_value >= 1);
 
-  // Pie chart data
+  const generateColor = (index: number, total: number) => {
+    const hue = (index / total) * 360;
+    return {
+      backgroundColor: `hsla(${hue}, 70%, 50%, 1)`,
+      borderColor: `hsla(${hue}, 70%, 40%, 1)`,
+      hoverColor: `hsla(${hue}, 70%, 50%, 0.8)`,
+    };
+  };
+
   const pieData = {
     labels: tokens.map(token => token.symbol),
     datasets: [
       {
         label: "Asset Allocation (USD)",
         data: tokens.map(token => token.valueUSD?.toFixed(2)),
-        backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40"],
+        backgroundColor: tokens.map((_, index) => generateColor(index, tokens.length).backgroundColor),
+        borderColor: tokens.map((_, index) => generateColor(index, tokens.length).borderColor), // Bordes oscuros
+        borderWidth: 2, // Espesor del borde
+        hoverBackgroundColor: tokens.map((_, index) => generateColor(index, tokens.length).hoverColor),
         hoverOffset: 8,
       },
     ],
