@@ -15,6 +15,7 @@ import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
 import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
+import Lucy_Laughs_At_You from "~~/public/assets/lucy_laughs_at_you.webp";
 import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
 import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 
@@ -25,6 +26,7 @@ import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
 const erc20ABI = parseAbi([
   "function allowance(address owner, address spender) external view returns (uint256)",
   "function approve(address spender, uint256 amount) external returns (bool)",
+  "function balanceOf(address account) external view returns (uint256)",
 ]);
 
 const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS ?? "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
@@ -135,6 +137,16 @@ export default function Pitch() {
     chainId: CHAIN_ID || 7000,
   });
 
+  // Read the user's USDC balance
+  const { data: userUSDCBalanceRaw = 0n, refetch: refetchUserUSDCBalance } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: erc20ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    chainId: CHAIN_ID,
+  });
+  const userUSDCBalance = Number(formatUnits(userUSDCBalanceRaw, 6));
+
   /* -------------------------------------------------------------------------- */
   /*                                AI Messaging                                */
   /* -------------------------------------------------------------------------- */
@@ -224,11 +236,12 @@ export default function Pitch() {
     })();
   }, [isPayGameTxSuccess, hasPayGameTriggered, refetchContractPrice, sendMessage]);
 
-  // If we have a successful payGame transaction response, refetch the price
+  // If we have a successful payGame transaction response, refetch the price and user's USDC balance
   useEffect(() => {
     if (payGameTxData) {
       console.log("✅ payGame transaction response:", payGameTxData);
       refetchContractPrice();
+      refetchUserUSDCBalance();
     }
   }, [payGameTxData, refetchContractPrice]);
 
@@ -358,6 +371,7 @@ export default function Pitch() {
 
     // Reset game
     setHasPayGameTriggered(false);
+    setAiSuccess(null);
 
     // Validate pitch & other input fields
     if (!isValidPitch()) return;
@@ -366,6 +380,15 @@ export default function Pitch() {
     if (!address) {
       console.log("⛔ No wallet connected");
       setSubmissionError("Please connect your wallet first.");
+      return;
+    }
+
+    const needed = Number(contractPrice);
+    if (userUSDCBalance < needed) {
+      setSubmissionError(
+        `You do not have enough USDC.BASE. You need at least ${needed.toFixed(2)} but only have ${userUSDCBalance.toFixed(2)}.`,
+      );
+      setSubmissionStatus("error");
       return;
     }
 
@@ -393,6 +416,10 @@ export default function Pitch() {
   const getLucyImage = () => {
     if (isTxInProgress) return Lucy_Cross_Arms;
     if (submissionError === "No special characters allowed in the pitch.") {
+      return Lucy_Laughs_At_You;
+    }
+
+    if (submissionError.startsWith("You do not have enough")) {
       return Lucy_Mocks;
     }
 
