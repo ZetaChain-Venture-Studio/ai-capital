@@ -66,5 +66,9 @@ export const tokens: Token[] = [
     symbol: "SOL",
     decimals: 9,
   },
-  { address: "0x0000000000000000000000000000000000000000", symbol: "ZETA", decimals: 18 },
+  {
+    address: isTestnet ? "0x777915D031d1e8144c90D025C594b3b8Bf07a08d" : "0x5F0b1a82749cb4E2278EC87F8BF6B618dC71a8bf",
+    symbol: "ZETA",
+    decimals: 18,
+  },
 ];
