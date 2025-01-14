@@ -139,7 +139,7 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
                 </span>
               </p>
               <p className="break-all mt-0">{message.aiResponseText}</p>
-              <p className="text-sm text-gray-500">buy 100 usd of {message.token}</p>
+              {message.success && <p className="text-sm text-gray-500">buy 100 usd of {message.token}</p>}
             </div>
           ))}
       </div>
