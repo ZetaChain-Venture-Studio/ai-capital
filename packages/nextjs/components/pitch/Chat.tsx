@@ -114,22 +114,17 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
         {messages.length > 0 &&
           messages.map((message, index) => (
             <div key={index} className={`mb-4 p-6 rounded ${message.success ? "bg-green-100" : "bg-red-100"}`}>
-              <div className="flex justify-between">
-                <span className="font-bold">
-                  <span className="inline-flex items-center gap-2">
-                    <BlockieAvatar address={message.userAddress} size={30} />
-                    {"User: "}
-                    <span className="font-normal">
-                      {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
-                    </span>
+              <div className="flex justify-between items-center">
+                <span className="font-bold inline-flex items-center gap-2">
+                  <BlockieAvatar address={message.userAddress} size={30} />
+                  {"User: "}
+                  <span className="font-normal">
+                    {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
                   </span>
-                  <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">{message.pitch}</p>
                 </span>
-                <span className="font-bold">
-                  {"Score: "}
-                  <span className="font-normal">{message.score}</span>
-                </span>
+                <span className="font-bold">{"Score: "}<span className="font-normal">{message.score}</span></span>
               </div>
+              <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">{message.pitch}</p>
               <p
                 className={`text-sm md:text-base mb-0 ${message.success ? "text-green-600 font-semibold" : "text-red-600"}`}
               >
