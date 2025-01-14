@@ -294,9 +294,9 @@ export default function Pitch() {
       setSubmissionError("Please ensure your pitch is at least 50 characters.");
       return false;
     }
-    if (formData.pitch.length > 400) {
+    if (formData.pitch.length > 600) {
       setSubmissionStatus("error");
-      setSubmissionError("Please ensure your pitch is less than 400 characters.");
+      setSubmissionError("Please ensure your pitch is less than 600 characters.");
       return false;
     }
 
