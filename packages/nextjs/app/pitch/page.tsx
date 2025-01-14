@@ -15,9 +15,9 @@ import TreasuryCard from "~~/components/TreasuryPool";
 import Chat from "~~/components/pitch/Chat";
 import Lucy_Cross_Arms from "~~/public/assets/lucy_cross_arms.webp";
 import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
+import Lucy_Laughs_At_You from "~~/public/assets/lucy_laughs_at_you.webp";
 import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
 import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
-import Lucy_Laughs_At_You from "~~/public/assets/lucy_laughs_at_you.webp";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -26,7 +26,7 @@ import Lucy_Laughs_At_You from "~~/public/assets/lucy_laughs_at_you.webp";
 const erc20ABI = parseAbi([
   "function allowance(address owner, address spender) external view returns (uint256)",
   "function approve(address spender, uint256 amount) external returns (bool)",
-  "function balanceOf(address account) external view returns (uint256)"
+  "function balanceOf(address account) external view returns (uint256)",
 ]);
 
 const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS ?? "0x0d4E00eba0FC6435E0301E35b03845bAdf2921b4";
@@ -146,7 +146,6 @@ export default function Pitch() {
     chainId: CHAIN_ID,
   });
   const userUSDCBalance = Number(formatUnits(userUSDCBalanceRaw, 6));
-
 
   /* -------------------------------------------------------------------------- */
   /*                                AI Messaging                                */
@@ -385,9 +384,9 @@ export default function Pitch() {
     }
 
     const needed = Number(contractPrice);
-    if (userUSDCBalance < needed) {      
+    if (userUSDCBalance < needed) {
       setSubmissionError(
-        `You do not have enough USDC.BASE. You need at least ${needed.toFixed(2)} but only have ${userUSDCBalance.toFixed(2)}.`
+        `You do not have enough USDC.BASE. You need at least ${needed.toFixed(2)} but only have ${userUSDCBalance.toFixed(2)}.`,
       );
       setSubmissionStatus("error");
       return;
@@ -422,7 +421,7 @@ export default function Pitch() {
 
     if (submissionError.startsWith("You do not have enough")) {
       return Lucy_Mocks;
-    }    
+    }
 
     if (aiSuccess === true) {
       return Lucy_Thumbs_Up;
@@ -478,8 +477,9 @@ export default function Pitch() {
               {/* Error or success banner */}
               {submissionStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-md ${submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                    }`}
+                  className={`p-4 rounded-md ${
+                    submissionStatus === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                  }`}
                 >
                   <p>{submissionStatus === "success" ? "Pitch submitted successfully!" : submissionError}</p>
                 </div>
