@@ -77,7 +77,8 @@ export async function GET(req: Request) {
     });
 
     const now = new Date();
-    const currentDate = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}/${now.getFullYear()}`;
+    // const currentDate = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}/${now.getFullYear()}`;
+    const unixTimestamp = Math.floor(now.getTime() / 1000);
 
     const queryText = `
       INSERT INTO ${tableName} (
@@ -111,7 +112,7 @@ export async function GET(req: Request) {
       tokens[8].valueUSD, // POL
       tokens[9].valueUSD, // SOL
       tokens[10].valueUSD, // ZETA
-      currentDate,
+      unixTimestamp,
     ];
 
     await sql.query(queryText, queryValues);
