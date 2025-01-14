@@ -15,26 +15,38 @@ import { Line } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// interface Token {
-//   symbol: string;
-//   usd_value: number | null;
-// }
+interface TokenValue {
+  symbol: string;
+  usdValue: string;
+}
 
 interface PortfolioSnapshot {
   id: number;
   date: string;
-  totalValueUsd: number;
-  btcValueUsd: number;
-  ethValueUsd: number;
-  usdValueUsd: number;
+  tokenValues: TokenValue[];
 }
+
+const tokenKeys = [
+  { key: "total_value_usd", symbol: "Total USD" },
+  { key: "bnb_value", symbol: "BNB" },
+  { key: "btc_value", symbol: "BTC" },
+  { key: "dai_value", symbol: "DAI" },
+  { key: "eth_value", symbol: "ETH" },
+  { key: "pepe_value", symbol: "PEPE" },
+  { key: "pol_value", symbol: "POL" },
+  { key: "shib_value", symbol: "SHIB" },
+  { key: "sol_value", symbol: "SOL" },
+  { key: "ulti_value", symbol: "ULTI" },
+  { key: "usd_value", symbol: "USDC" },
+  { key: "zeta_value", symbol: "ZETA" },
+];
 
 type TimeframeOption = "1d" | "7d" | "30d" | "all";
 
 export default function PortfolioHistoryChart() {
   const [snapshots, setSnapshots] = useState<PortfolioSnapshot[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [timeframe, setTimeframe] = useState<TimeframeOption>("7d");
+  const [timeframe, setTimeframe] = useState<TimeframeOption>("1d");
 
   const fetchSnapshots = async () => {
     try {
@@ -45,15 +57,17 @@ export default function PortfolioHistoryChart() {
       }
       const jsonData = await response.json();
       console.log(jsonData);
-      const transformedSnapshots: PortfolioSnapshot[] = jsonData.map((entry: any) => ({
-        id: entry.id,
-        date: entry.date,
-        totalValueUsd: entry.total_value_usd,
-        btcValueUsd: entry.btc_value,
-        ethValueUsd: entry.eth_value,
-        usdValueUsd: entry.usd_value,
+
+      const portfolioSnapshots: PortfolioSnapshot[] = jsonData.map((item: any) => ({
+        id: item.id,
+        date: item.date,
+        tokenValues: tokenKeys.map(({ key, symbol }) => ({
+          symbol,
+          usdValue: item[key],
+        })),
       }));
-      setSnapshots(transformedSnapshots);
+      setSnapshots(portfolioSnapshots);
+      console.log(portfolioSnapshots)
     } catch (error) {
       console.error("Error fetching snapshots:", error);
     } finally {
@@ -65,41 +79,33 @@ export default function PortfolioHistoryChart() {
     fetchSnapshots();
   }, []);
 
-  const snapshotLabels = snapshots.map(s => s.date);
-  // const snapshotData = snapshots.map(s => s.totalValueUsd);
+  const generateColor = (index: number, total: number) => {
+    const hue = (index / total) * 360;
+    return {
+      borderColor: `hsl(${hue}, 70%, 50%)`,
+      backgroundColor: `hsl(${hue}, 70%, 80%)`,
+    };
+  };
+
+  const totalTokens = tokenKeys.length;
+
+  const datasets = tokenKeys.map(({ symbol }, index) => {
+    const { borderColor, backgroundColor } = generateColor(index, totalTokens);
+    return {
+      label: `${symbol} Value (USD)`,
+      data: snapshots.map(snapshot => {
+        const tokenValue = snapshot.tokenValues.find(t => t.symbol === symbol);
+        return tokenValue?.usdValue || 0;
+      }),
+      borderColor,
+      backgroundColor,
+      // fill: true,
+    };
+  });
 
   const data = {
-    labels: snapshotLabels,
-    datasets: [
-      {
-        label: "Portfolio Value (USD)",
-        data: snapshots.map(s => s.totalValueUsd),
-        borderColor: "rgba(75,192,192,1)",
-        backgroundColor: "rgba(75,192,192,0.2)",
-        fill: true,
-      },
-      {
-        label: "BTC Value (USD)",
-        data: snapshots.map(s => s.btcValueUsd),
-        borderColor: "rgba(255,99,132,1)",
-        backgroundColor: "rgba(255,99,132,0.2)",
-        fill: true,
-      },
-      {
-        label: "ETH Value (USD)",
-        data: snapshots.map(s => s.ethValueUsd),
-        borderColor: "rgba(54,162,235,1)",
-        backgroundColor: "rgba(54,162,235,0.2)",
-        fill: true,
-      },
-      {
-        label: "USD Balance",
-        data: snapshots.map(s => s.usdValueUsd),
-        borderColor: "rgba(255,206,86,1)",
-        backgroundColor: "rgba(255,206,86,0.2)",
-        fill: true,
-      },
-    ],
+    labels: snapshots.map(snapshot => snapshot.date),
+    datasets,
   };
 
   const options = {
@@ -136,12 +142,12 @@ export default function PortfolioHistoryChart() {
         </div>
       )}
       <div className="flex gap-2 justify-center">
-        {/* <button
+        <button
           className={`px-3 py-2 ${timeframe === "1d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("1d")}
         >
           1 Day
-        </button> */}
+        </button>
         <button
           className={`px-3 py-2 ${timeframe === "7d" ? "bg-blue-600" : "bg-gray-600"} text-white rounded max-md:text-sm`}
           onClick={() => handleTimeframeChange("7d")}

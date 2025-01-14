@@ -4,17 +4,9 @@ import { useEffect, useState } from "react";
 import PortfolioHistoryChart from "../../components/portfolio/PortfolioHistoryChart2";
 import { ArcElement, Chart as ChartJS, ChartOptions, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { Token } from "~~/types/token";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface Token {
-  symbol: string;
-  decimals: number;
-  balance: bigint | string;
-  price?: number;
-  balanceFormatted?: number;
-  valueUSD: number;
-}
 
 export default function PortfolioPage() {
   const [totalValue, setTotalValue] = useState(0);
@@ -52,8 +44,8 @@ export default function PortfolioPage() {
     labels: tokens.map(token => token.symbol),
     datasets: [
       {
-        label: "Asset Allocation",
-        data: tokens.map(token => token.balanceFormatted),
+        label: "Asset Allocation (USD)",
+        data: tokens.map(token => token.valueUSD?.toFixed(2)),
         backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40"],
         hoverOffset: 8,
       },
@@ -106,7 +98,7 @@ export default function PortfolioPage() {
             </thead>
             <tbody>
               {tokens
-                .sort((a, b) => b.valueUSD - a.valueUSD)
+                .sort((a, b) => (b.valueUSD || 0) - (a.valueUSD || 0))
                 .map(token => (
                   <tr
                     key={token.symbol} // {`${token.token_address}-${token.chain}`}
