@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ArcElement, Chart as ChartJS, ChartOptions, Legend, Tooltip } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { Token } from "~~/types/token";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface Token {
-  symbol: string;
-  decimals: number;
-  balance: bigint | string;
-  price?: number;
-  balanceFormatted?: number;
-  valueUSD?: number;
-}
 
 interface TrasuryProps {
   _refetchScoreFlag: boolean;
@@ -33,7 +25,7 @@ const TreasuryCard = ({ _refetchScoreFlag }: TrasuryProps) => {
         }
         const data = await res.json();
         setTokens(data.tokens);
-        setTotalValue(data.totalUsdValue);
+        setTotalValue(data.totalUsdValue.toFixed(2));
         // console.log(data);
       } catch (error) {
         console.error("Error fetching tokens:", error);
@@ -53,8 +45,8 @@ const TreasuryCard = ({ _refetchScoreFlag }: TrasuryProps) => {
     labels: tokens.map(token => token.symbol),
     datasets: [
       {
-        label: "Asset Allocation",
-        data: tokens.map(token => token.balanceFormatted),
+        label: "Allocation (USD)",
+        data: tokens.map(token => token.valueUSD?.toFixed(2)),
         backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40"],
         hoverOffset: 8,
       },
