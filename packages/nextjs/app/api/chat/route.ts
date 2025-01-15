@@ -78,9 +78,15 @@ async function checkPromptInjection(input: string): Promise<{
     let response = await callHuggingFaceModel(input, false);
 
     if (response.status === 503) {
-      // 2) If 503, we retry with x-wait-for-model: "true"
+      // 2) If 503, we retry ONCE with x-wait-for-model: "true"
       console.warn("Got 503 from HF model, retrying with x-wait-for-model:true");
       response = await callHuggingFaceModel(input, true);
+
+      // If it is STILL 503 after waiting, we drop it and move on
+      if (response.status === 503) {
+        console.warn("Got 503 again. Dropping prompt injection check and returning UNKNOWN.");
+        return { injectionLabel: "UNKNOWN", injectionScore: 0 };
+      }
     }
 
     if (!response.ok) {
