@@ -122,7 +122,10 @@ export default function Chat({ _refetchChatFlag }: ChatProps) {
                     {message.userAddress.slice(0, 6)}...{message.userAddress.slice(-6)}
                   </span>
                 </span>
-                <span className="font-bold">{"Score: "}<span className="font-normal">{message.score}</span></span>
+                <span className="font-bold">
+                  {"User score: "}
+                  <span className="font-normal">{message.score}</span>
+                </span>
               </div>
               <p className="text-sm md:text-base font-normal text-gray-800 break-all mb-2">{message.pitch}</p>
               <p
