@@ -18,6 +18,9 @@ import Lucy_Glasses from "~~/public/assets/lucy_glasses.webp";
 import Lucy_Laughs_At_You from "~~/public/assets/lucy_laughs_at_you.webp";
 import Lucy_Mocks from "~~/public/assets/lucy_mocks.webp";
 import Lucy_Thumbs_Up from "~~/public/assets/lucy_thumps_up.webp";
+import Metrics from "~~/components/Metrics";
+import Leaderboard from "~~/components/Leaderboard";
+import WinningPrompts from "~~/components/WinningPrompts";
 
 /* -------------------------------------------------------------------------- */
 /*                               Constants & ABIs                             */
@@ -453,6 +456,10 @@ export default function Pitch() {
           />
           <TreasuryCard _refetchScoreFlag={refetchFlag} />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
+
+          <Metrics />
+          <Leaderboard />
+          <WinningPrompts />
         </div>
 
         {/* Right panel: Pitch submission and chat */}
