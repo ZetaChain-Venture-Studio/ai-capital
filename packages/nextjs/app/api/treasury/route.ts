@@ -23,18 +23,18 @@ export async function GET() {
 
     const addresses: string[] = [];
     tokensBase.forEach((token, index) => {
-      if (index < tokensBase.length) {
+      if (index < tokensBase.length - 1) {
         addresses.push(token.address);
       }
     });
 
     const aicContract = new ethers.Contract(aicAddress, aicABI, provider);
     const balances = await aicContract.getBalances(addresses);
-    // const zetaBalance = await provider.getBalance(aicAddress);
+    const zetaBalance = await provider.getBalance(aicAddress);
 
     const tokens: Token[] = tokensBase.map((token, index) => ({
       ...token,
-      balance: balances[index].toString() || 0,
+      balance: token.symbol === "ZETA" ? zetaBalance.toString() : balances[index].toString() || 0,
     }));
 
     const symbols = tokens.map(t => t.symbol).join(",");
