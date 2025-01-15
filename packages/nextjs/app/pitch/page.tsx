@@ -457,9 +457,9 @@ export default function Pitch() {
           <TreasuryCard _refetchScoreFlag={refetchFlag} />
           {address && <MyScore _refetchScoreFlag={refetchFlag} />}
 
-          <Metrics />
+          {/* <Metrics />
           <Leaderboard />
-          <WinningPrompts />
+          <WinningPrompts /> */}
         </div>
 
         {/* Right panel: Pitch submission and chat */}
