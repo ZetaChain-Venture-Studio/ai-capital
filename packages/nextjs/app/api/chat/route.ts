@@ -25,6 +25,47 @@ const openai = new OpenAI({
 export const maxDuration = 300;
 
 /**
+ * Utility: Fetch with a 15s timeout using AbortController
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/**
+ * Utility: Calls the Hugging Face model, optionally waiting for it
+ * by including "x-wait-for-model" header. Enforces up to 15s.
+ */
+async function callHuggingFaceModel(input: string, waitForModel = false) {
+  return fetchWithTimeout(
+    "https://api-inference.huggingface.co/models/protectai/deberta-v3-base-prompt-injection-v2",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${huggingFaceApiKey}`,
+        "Content-Type": "application/json",
+        // Conditionally add "x-wait-for-model": "true"
+        ...(waitForModel ? { "x-wait-for-model": "true" } : {}),
+      },
+      body: JSON.stringify({ inputs: input }),
+    },
+    15000 // 15-second timeout
+  );
+}
+
+/**
  * 1) Check for prompt injection using Hugging Face
  *    Return { injectionLabel: 'INJECTION' | 'SAFE' | 'UNKNOWN', injectionScore: number }
  */
@@ -33,21 +74,19 @@ async function checkPromptInjection(input: string): Promise<{
   injectionScore: number;
 }> {
   try {
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/protectai/deberta-v3-base-prompt-injection-v2",
-      {
-        headers: {
-          Authorization: `Bearer ${huggingFaceApiKey}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ inputs: input }),
-      },
-    );
+    // 1) First call WITHOUT x-wait-for-model
+    let response = await callHuggingFaceModel(input, false);
 
-    // If response is not OK, log it and return fallback
+    if (response.status === 503) {
+      // 2) If 503, we retry with x-wait-for-model: "true"
+      console.warn("Got 503 from HF model, retrying with x-wait-for-model:true");
+      response = await callHuggingFaceModel(input, true);
+    }
+
     if (!response.ok) {
-      console.error(`Hugging Face Model Error: ${response.status} ${response.statusText}`);
+      console.error(
+        `Hugging Face Model Error: ${response.status} ${response.statusText}`
+      );
       return { injectionLabel: "UNKNOWN", injectionScore: 0 };
     }
 
@@ -57,7 +96,11 @@ async function checkPromptInjection(input: string): Promise<{
     // Expecting: [[ { label: "INJECTION", score: 0.99 }, { label: "SAFE", ... } ]]
     if (Array.isArray(result) && result[0] && Array.isArray(result[0])) {
       const [firstLabelObj] = result[0];
-      if (firstLabelObj && firstLabelObj.label && typeof firstLabelObj.score === "number") {
+      if (
+        firstLabelObj &&
+        firstLabelObj.label &&
+        typeof firstLabelObj.score === "number"
+      ) {
         return {
           injectionLabel: firstLabelObj.label,
           injectionScore: firstLabelObj.score,
@@ -82,7 +125,10 @@ export async function POST(req: NextRequest) {
   const { userAddress, userMessage, swapATargetTokenAddress, swapBTargetTokenAddress } = body;
 
   if (!userAddress || !userMessage || !swapATargetTokenAddress || !swapBTargetTokenAddress) {
-    return NextResponse.json({ error: "Address, Prompt, swap token a + b required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Address, Prompt, swap token a + b required" },
+      { status: 400 }
+    );
   }
   console.log("Received appropriate variables");
 
@@ -97,11 +143,14 @@ export async function POST(req: NextRequest) {
     // 2b) Basic special character check
     if (!/^[A-Za-z0-9\s.,!?;:'"()—\-]*$/.test(userMessage.pitch)) {
       await deWhitelist(userAddress);
-      return NextResponse.json({ error: "No special characters allowed" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No special characters allowed" },
+        { status: 400 }
+      );
     }
     console.log("No special characters found");
 
-    // 2c) Check for prompt injection
+    // 2c) Check for prompt injection (with 15s max wait for HF)
     const { injectionLabel, injectionScore } = await checkPromptInjection(userMessage.pitch);
 
     // 2d) Build system prompt - conditionally add mocking text if "INJECTION"
@@ -133,7 +182,7 @@ with a score of ${injectionScore} out of 1. Lucy, feel free to mock user for try
 
     // 2g) Parse Lucy's response into the required JSON format
     const aiResponse = JSON.parse(
-      response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}',
+      response.choices[0].message.content ?? '{\n    "success": false,\n    "aiResponseText": "No AI response."\n}'
     );
     console.log("OpenAI response parsed");
 
